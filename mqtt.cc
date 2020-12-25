@@ -31,3 +31,76 @@
 #include "main.h"
 #include "mqtt.h"
 
+MQTT::MQTT(String id, String host, int port, String username, String password)
+{
+	this->id = id;
+	this->host = host;
+	this->port = port;
+	this->username = username;
+	this->password = password;
+
+	mosq = mosquitto_new(id.c_str(), true, this);
+	int rc;
+
+	if (mosq) {
+		mosquitto_connect_callback_set(mosq, int_connect_callback);
+		mosquitto_message_callback_set(mosq, int_message_callback);
+		String willtopic = maintopic + "/status";
+		if (!willtopic.empty()) {
+			mosquitto_will_set(mosq, willtopic.c_str(), strlen("offline"), "offline", 1, true);
+		}
+		if (!username.empty()) {
+			mosquitto_username_pw_set(mosq, username.c_str(), password.c_str());
+		}
+		rc = mosquitto_connect(mosq, host.c_str(), port, 5);
+
+		mosquitto_loop_start(mosq);
+		mosquitto_publish(mosq, NULL, willtopic.c_str(), strlen("online"), "online", 1, true);
+		String producttopic = maintopic + "/product";
+		mosquitto_publish(mosq, NULL, producttopic.c_str(), strlen("mb_mqttbridge"), "mb_mqttbridge", 1, true);
+		String versiontopic = maintopic + "/version";
+		mosquitto_publish(mosq, NULL, versiontopic.c_str(), strlen("0.1"), "0.1", 1, true);
+	}
+}
+
+MQTT::~MQTT()
+{
+	if (mosq) {
+		mosquitto_disconnect(mosq);
+		mosquitto_loop_stop(mosq, true);
+		mosquitto_destroy(mosq);
+	}
+}
+
+void
+MQTT::publish(String topic, String message)
+{
+	mosquitto_publish(mosq, NULL, topic.c_str(), message.length(), message.c_str(), 1, true);
+}
+
+void
+MQTT::subscribe(String topic)
+{
+	mosquitto_subscribe(mosq, NULL, topic.c_str(), 0);
+}
+
+void
+MQTT::int_connect_callback(struct mosquitto *mosq, void *obj, int result)
+{
+}
+
+void
+MQTT::int_message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message)
+{
+	MQTT* me = (MQTT*)obj;
+
+	String topic = message->topic;
+	String msg = message->payload;
+	me->message_callback(topic, msg);
+}
+
+void
+MQTT::message_callback(String topic, String message)
+{
+}
+

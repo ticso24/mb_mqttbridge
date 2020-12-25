@@ -33,19 +33,27 @@
 
 #include "main.h"
 #include <bwctmb/bwctmb.h>
+#include <mosquitto.h>
 
 class MQTT : public Base {
 private:
+	struct mosquitto *mosq;
 	String id;
 	String host;
-	Array<String> topics;
 	int port;
+	String username;
+	String password;
+	String maintopic;
+
+	static void int_connect_callback(struct mosquitto *mosq, void *obj, int result);
+	static void int_message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message);
+	void message_callback(String topic, String message);
 
 public:
 	MQTT(String id, String host, int port, String username, String password);
 	~MQTT();
-	bool publish(String message);
-	bool subscribe();
+	void publish(String topic, String message);
+	void subscribe(String topic);
 };
 
 #endif /* I_MQTT */
