@@ -31,14 +31,19 @@
 #include "main.h"
 #include "mqtt.h"
 
-MQTT::MQTT(String id, String host, int port, String username, String password)
+MQTT::MQTT()
 {
-	this->id = id;
-	this->host = host;
-	this->port = port;
-	this->username = username;
-	this->password = password;
+	mosq = NULL;
+}
 
+MQTT::~MQTT()
+{
+	disconnect();
+}
+
+bool
+MQTT::connect()
+{
 	mosq = mosquitto_new(id.c_str(), true, this);
 	int rc;
 
@@ -60,10 +65,14 @@ MQTT::MQTT(String id, String host, int port, String username, String password)
 		mosquitto_publish(mosq, NULL, producttopic.c_str(), strlen("mb_mqttbridge"), "mb_mqttbridge", 1, true);
 		String versiontopic = maintopic + "/version";
 		mosquitto_publish(mosq, NULL, versiontopic.c_str(), strlen("0.1"), "0.1", 1, true);
+		return true;
 	}
+
+	return false;
 }
 
-MQTT::~MQTT()
+void
+MQTT::disconnect()
 {
 	if (mosq) {
 		mosquitto_disconnect(mosq);

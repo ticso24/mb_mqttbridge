@@ -76,6 +76,10 @@ main(int argc, char *argv[]) {
 
 	mosquitto_lib_init();
 
+	for (;;) {
+		sleep(1);
+	}
+
 	return 0;
 }
 
