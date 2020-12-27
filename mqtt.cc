@@ -82,9 +82,30 @@ MQTT::disconnect()
 }
 
 void
+MQTT::publish_ifchanged(String topic, String message)
+{
+	bool send;
+
+	rxdata_mtx.lock();
+	if (rxdata[topic] != message) {
+		send = true;
+	} else {
+		send = false;
+	}
+	rxdata[topic] = message;
+	rxdata_mtx.unlock();
+	if (send) {
+		mosquitto_publish(mosq, NULL, topic.c_str(), message.length(), message.c_str(), 1, true);
+	}
+}
+
+void
 MQTT::publish(String topic, String message)
 {
 	mosquitto_publish(mosq, NULL, topic.c_str(), message.length(), message.c_str(), 1, true);
+	rxdata_mtx.lock();
+	rxdata[topic] = message;
+	rxdata_mtx.unlock();
 }
 
 void
@@ -111,5 +132,8 @@ MQTT::int_message_callback(struct mosquitto *mosq, void *obj, const struct mosqu
 void
 MQTT::message_callback(String topic, String message)
 {
+	rxdata_mtx.lock();
+	rxdata[topic] = message;
+	rxdata_mtx.unlock();
 }
 

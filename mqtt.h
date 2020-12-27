@@ -38,6 +38,8 @@
 class MQTT : public Base {
 private:
 	struct mosquitto *mosq;
+	AArray<String> rxdata;
+	Mutex rxdata_mtx;
 
 	static void int_connect_callback(struct mosquitto *mosq, void *obj, int result);
 	static void int_message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message);
@@ -56,6 +58,7 @@ public:
 	bool connect(void);
 	void disconnect(void);
 	void publish(String topic, String message);
+	void publish_ifchanged(String topic, String message);
 	void subscribe(String topic);
 };
 
