@@ -67,6 +67,7 @@ public:
 	void publish_ifchanged(String topic, String message);
 	void subscribe(String topic);
 	Array<RXbuf> get_rxbuf(const String& maintopic);
+	String get_topic(const String& topic);
 };
 
 #endif /* I_MQTT */

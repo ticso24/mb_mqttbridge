@@ -156,3 +156,24 @@ MQTT::get_rxbuf(const String& maintopic)
 	return tmp;
 }
 
+String
+MQTT::get_topic(const String& topic)
+{
+	String ret;
+	bool existing;
+
+	rxdata_mtx.lock();
+	if (rxdata.exists(topic)) {
+		ret = rxdata[topic];
+		existing = true;
+	} else {
+		existing = false;
+	}
+	rxdata_mtx.unlock();
+
+	if (!existing) {
+		throw Error(S + "No data for topic " + topic);
+	}
+	return ret;
+}
+
