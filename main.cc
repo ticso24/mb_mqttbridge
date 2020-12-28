@@ -368,6 +368,26 @@ main(int argc, char *argv[]) {
 
 							auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
 						}
+						if (devdata[bus][dev]["product"] == "RS485-THERMOCOUPLE") {
+							{
+								SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 24);
+								for (int i = 0; i < 8; i++) {
+									mqtt.publish_ifchanged(maintopic + "/open_error" + i, bin_inputs[i * 3] ? "1" : "0");
+									mqtt.publish_ifchanged(maintopic + "/gnd_short" + i, bin_inputs[i * 3 + 1] ? "1" : "0");
+									mqtt.publish_ifchanged(maintopic + "/vcc_short" + i, bin_inputs[i * 3 + 2] ? "1" : "0");
+								}
+							}
+
+							{
+								SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 16);
+								for (int i = 0; i < 8; i++) {
+									mqtt.publish_ifchanged(maintopic + "/temperature" + i, S + (int16_t)int_inputs[i * 2]);
+									mqtt.publish_ifchanged(maintopic + "/cold_temperature" + i, S + (int16_t)int_inputs[ i * 2 + 1]);
+								}
+							}
+
+							auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+						}
 						if (devdata[bus][dev]["product"] == "RS485-Chamberpump") {
 							{
 								SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 9);
