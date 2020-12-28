@@ -31,6 +31,12 @@
 #include "main.h"
 #include <bwctmb/bwctmb.h>
 #include <mosquitto.h>
+#include "mqtt.h"
+
+a_refptr<JSON> config;
+SArray<Modbus*> mbs; // XXX no automatic deletion
+Array<Array<AArray<String>>> global_devdata;
+Mutex devdata_mtx;
 
 void
 siginit()
@@ -74,10 +80,248 @@ main(int argc, char *argv[]) {
 	argc -= optind;
 	argv += optind;
 
+	{
+		File f;
+		f.open(configfile, O_RDONLY);
+		String json(f);
+		config = new(JSON);
+		config->parse(json);
+	}
+
 	mosquitto_lib_init();
 
+	MQTT mqtt;
+	a_refptr<JSON> my_config = config;
+	JSON& cfg = *my_config.get();
+
+	if (cfg.exists("mqtt")) {
+		JSON& mqtt_cfg = cfg["mqtt"];
+		String id = mqtt_cfg["id"];
+		mqtt.id = id;
+		String host = mqtt_cfg["host"];
+		mqtt.host = host;
+		String port = mqtt_cfg["port"];
+		mqtt.port = port.getll();
+		String username = mqtt_cfg["username"];
+		mqtt.username = username;
+		String password = mqtt_cfg["password"];
+		mqtt.password = password;
+		String maintopic = mqtt_cfg["maintopic"];
+		mqtt.maintopic = maintopic;
+	} else {
+		printf("no mqtt setup in config\n");
+		exit(1);
+	}
+
+	if (cfg.exists("modbuses")) {
+		JSON& modbuses = cfg["modbuses"];
+		for (int64_t i = 0; i <= modbuses.get_array().max; i++) {
+			String host = modbuses[i]["host"];
+			String port = modbuses[i]["port"];
+			mbs[i] = new Modbus(host, port);
+		}
+	} else {
+		printf("no modbus setup in config\n");
+		exit(1);
+	}
+
+	for (int64_t bus = 0; bus <= mbs.max; bus++) {
+		JSON& bus_cfg = cfg["modbuses"][bus];
+		for (int64_t dev = 0; dev <= bus_cfg["devices"].get_array().max; dev++) {
+			JSON& dev_cfg = bus_cfg["devices"][dev];
+			String maintopic = dev_cfg["maintopic"];
+			mqtt.subscribe(maintopic + "/+");
+		}
+	}
+
 	for (;;) {
-		sleep(1);
+		// temporary poll loop
+		// TODO should have a single thread per bus
+		for (int64_t bus = 0; bus <= mbs.max; bus++) {
+			devdata_mtx.lock();
+			auto devdata = global_devdata;
+			devdata_mtx.unlock();
+			JSON& bus_cfg = cfg["modbuses"][bus];
+			for (int64_t dev = 0; dev <= bus_cfg["devices"].get_array().max; dev++) {
+				JSON& dev_cfg = bus_cfg["devices"][dev];
+				String maintopic = dev_cfg["maintopic"];
+				uint8_t address = dev_cfg["address"].get_numstr().getll();
+				Modbus& mb = *mbs[bus];
+				try {
+					if (!devdata[bus][dev].exists("vendor")) {
+						String tmp = mb.identification(address, 0);
+						devdata[bus][dev]["vendor"] = tmp;
+						mqtt.publish_ifchanged(maintopic + "/vendor", tmp);
+					}
+					if (!devdata[bus][dev].exists("product")) {
+						String tmp = mb.identification(address, 1);
+						devdata[bus][dev]["product"] = tmp;
+						mqtt.publish_ifchanged(maintopic + "/product", tmp);
+					}
+					if (!devdata[bus][dev].exists("version")) {
+						String tmp = mb.identification(address, 2);
+						devdata[bus][dev]["version"] = tmp;
+						mqtt.publish_ifchanged(maintopic + "/version", tmp);
+					}
+					if (devdata[bus][dev]["maintopic"].empty()) {
+						// at this stage we know the device and can handle incoming data
+						devdata[bus][dev]["maintopic"] = maintopic;
+						devdata_mtx.lock();
+						global_devdata = devdata;
+						devdata_mtx.unlock();
+						mqtt.subscribe(maintopic + "/+");
+					}
+					if (devdata[bus][dev]["vendor"] == "Bernd Walter Computer Technology") {
+						if (devdata[bus][dev]["product"] == "Ethernet-MB RS485 / twin power relay / 4ch input / LDR / DS18B20") {
+							{
+								SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
+
+								mqtt.publish_ifchanged(maintopic + "/input0", bin_inputs[0] ? "1" : "0");
+								mqtt.publish_ifchanged(maintopic + "/input1", bin_inputs[2] ? "1" : "0");
+								mqtt.publish_ifchanged(maintopic + "/input2", bin_inputs[3] ? "1" : "0");
+								mqtt.publish_ifchanged(maintopic + "/input3", bin_inputs[4] ? "1" : "0");
+							}
+
+							{
+								SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 14);
+
+								// 0-3 16bit counter - should verify for rollover and restart
+								mqtt.publish_ifchanged(maintopic + "/counter0", S + int_inputs[0]);
+								mqtt.publish_ifchanged(maintopic + "/counter1", S + int_inputs[1]);
+								mqtt.publish_ifchanged(maintopic + "/counter2", S + int_inputs[2]);
+								mqtt.publish_ifchanged(maintopic + "/counter3", S + int_inputs[3]);
+
+								// 4,5 16bit LDR
+								mqtt.publish_ifchanged(maintopic + "/ldr0", S + int_inputs[4]);
+								// XXX check firmware version for functional LDR1 input
+								mqtt.publish_ifchanged(maintopic + "/ldr1", S + int_inputs[5]);
+
+								// 32 bit counter - should verify for restart if autoreset is not enabled
+								{
+									uint32_t tmp = (uint32_t)int_inputs[6] | (uint32_t)int_inputs[7] << 16;
+									mqtt.publish_ifchanged(maintopic + "/counter4", S + tmp);
+								}
+								{
+									uint32_t tmp = (uint32_t)int_inputs[8] | (uint32_t)int_inputs[9] << 16;
+									mqtt.publish_ifchanged(maintopic + "/counter5", S + tmp);
+								}
+								{
+									uint32_t tmp = (uint32_t)int_inputs[10] | (uint32_t)int_inputs[11] << 16;
+									mqtt.publish_ifchanged(maintopic + "/counter6", S + tmp);
+								}
+								{
+									uint32_t tmp = (uint32_t)int_inputs[12] | (uint32_t)int_inputs[13] << 16;
+									mqtt.publish_ifchanged(maintopic + "/counter7", S + tmp);
+								}
+							}
+
+							if (dev_cfg.exists("DS18B20")) {
+								int64_t max_sensor = dev_cfg["DS18B20"].get_array().max;
+								for (int64_t i = 0; i <= max_sensor; i++) {
+									int16_t sensor_register = dev_cfg["DS18B20"][i]["register"].get_numstr().getll();
+									try {
+										uint16_t value = mb.read_input_register(address, sensor_register);
+										double temp = (double)value / 16;
+										mqtt.publish_ifchanged(maintopic + "/temperature" + i, S + temp);
+									} catch (...) {
+									}
+								}
+							}
+
+							auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+							for (int64_t i = 0; i <= rxbuf.max; i++) {
+								if (rxbuf[i].topic == maintopic + "/relais0") {
+									bool val = (rxbuf[i].message == "0") ? 0 : 1;
+									mb.write_coil(address, 0, val);
+								}
+								if (rxbuf[i].topic == maintopic + "/relais1") {
+									bool val = (rxbuf[i].message == "0") ? 0 : 1;
+									mb.write_coil(address, 1, val);
+								}
+								if (rxbuf[i].topic == maintopic + "/counter_autoreset4") {
+									bool val = (rxbuf[i].message == "0") ? 0 : 1;
+									mb.write_coil(address, 2, val);
+								}
+								if (rxbuf[i].topic == maintopic + "/counter_autoreset5") {
+									bool val = (rxbuf[i].message == "0") ? 0 : 1;
+									mb.write_coil(address, 3, val);
+								}
+								if (rxbuf[i].topic == maintopic + "/counter_autoreset6") {
+									bool val = (rxbuf[i].message == "0") ? 0 : 1;
+									mb.write_coil(address, 4, val);
+								}
+								if (rxbuf[i].topic == maintopic + "/counter_autoreset7") {
+									bool val = (rxbuf[i].message == "0") ? 0 : 1;
+									mb.write_coil(address, 5, val);
+								}
+							}
+						}
+						if (devdata[bus][dev]["product"] == "RS485-Chamberpump") {
+							{
+								SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 9);
+								mqtt.publish_ifchanged(maintopic + "/adc0", S + int_inputs[0]);
+								mqtt.publish_ifchanged(maintopic + "/adc1", S + int_inputs[1]);
+								mqtt.publish_ifchanged(maintopic + "/adc2", S + int_inputs[2]);
+								mqtt.publish_ifchanged(maintopic + "/adc3", S + int_inputs[3]);
+								{
+									String state;
+									switch(int_inputs[4]) {
+									case 0:
+										state = "idle";
+										break;
+									case 1:
+										state = "filling";
+										break;
+									case 2:
+										state = "full";
+										break;
+									case 3:
+										state = "emptying";
+										break;
+									case 4:
+										state = "empty";
+										break;
+									case 5:
+										state = "unknown";
+									}
+									mqtt.publish_ifchanged(maintopic + "/state", "empty");
+								}
+								{
+									uint32_t tmp = (uint32_t)int_inputs[5] | (uint32_t)int_inputs[6] << 16;
+									mqtt.publish_ifchanged(maintopic + "/cyclecounter", S + tmp);
+								}
+								{
+									uint32_t tmp = (uint32_t)int_inputs[7] | (uint32_t)int_inputs[8] << 16;
+									mqtt.publish_ifchanged(maintopic + "/cycletime", S + tmp);
+								}
+
+								auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+								for (int64_t i = 0; i <= rxbuf.max; i++) {
+									if (rxbuf[i].topic == maintopic + "/triggerlevel_top") {
+										uint16_t val = rxbuf[i].message.getll();
+										mb.write_register(address, 0, val);
+									}
+									if (rxbuf[i].topic == maintopic + "/triggerlevel_bottom") {
+										uint16_t val = rxbuf[i].message.getll();
+										mb.write_register(address, 1, val);
+									}
+								}
+							}
+
+						}
+					}
+					mqtt.publish_ifchanged(maintopic + "/status", "online");
+					devdata[bus][dev]["status"] = "online";
+				} catch(...) {
+					mqtt.publish_ifchanged(maintopic + "/status", "offline");
+					devdata[bus][dev]["status"] = "offline";
+				}
+				devdata_mtx.lock();
+				std::swap(devdata, global_devdata);
+				devdata_mtx.unlock();
+			}
+		}
+		usleep(10000); // sleep 10ms
 	}
 
 	return 0;

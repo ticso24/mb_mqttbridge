@@ -36,10 +36,16 @@
 #include <mosquitto.h>
 
 class MQTT : public Base {
+public:
+	struct RXbuf {
+		String topic;
+		String message;
+	};
 private:
 	struct mosquitto *mosq;
 	AArray<String> rxdata;
 	Mutex rxdata_mtx;
+	Array<RXbuf> rxbuf;
 
 	static void int_connect_callback(struct mosquitto *mosq, void *obj, int result);
 	static void int_message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message);
@@ -60,6 +66,7 @@ public:
 	void publish(String topic, String message);
 	void publish_ifchanged(String topic, String message);
 	void subscribe(String topic);
+	Array<RXbuf> get_rxbuf(const String& maintopic);
 };
 
 #endif /* I_MQTT */
