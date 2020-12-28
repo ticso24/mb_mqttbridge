@@ -63,7 +63,7 @@ public:
 	~MQTT();
 	bool connect(void);
 	void disconnect(void);
-	void publish(String topic, String message);
+	void publish(String topic, String message, bool retain = true);
 	void publish_ifchanged(String topic, String message);
 	void subscribe(String topic);
 	Array<RXbuf> get_rxbuf(const String& maintopic);

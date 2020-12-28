@@ -100,9 +100,9 @@ MQTT::publish_ifchanged(String topic, String message)
 }
 
 void
-MQTT::publish(String topic, String message)
+MQTT::publish(String topic, String message, bool retain)
 {
-	mosquitto_publish(mosq, NULL, topic.c_str(), message.length(), message.c_str(), 1, true);
+	mosquitto_publish(mosq, NULL, topic.c_str(), message.length(), message.c_str(), 1, retain);
 	rxdata_mtx.lock();
 	rxdata[topic] = message;
 	rxdata_mtx.unlock();
