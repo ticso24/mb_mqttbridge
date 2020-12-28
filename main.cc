@@ -63,7 +63,7 @@ sighandler(int sig)
 
 int
 main(int argc, char *argv[]) {
-	String configfile = "/usr/local/etc/mb_mqttbridge.json";
+	String configfile = "/usr/local/etc/mb_mqttbridge.conf";
 
 	int ch;
 
