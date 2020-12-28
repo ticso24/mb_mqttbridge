@@ -109,6 +109,7 @@ main(int argc, char *argv[]) {
 		String maintopic = mqtt_cfg["maintopic"];
 		mqtt.maintopic = maintopic;
 		mqtt.rxbuf_enable = true;
+		mqtt.connect();
 	} else {
 		printf("no mqtt setup in config\n");
 		exit(1);
