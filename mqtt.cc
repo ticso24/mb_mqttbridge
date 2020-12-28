@@ -89,10 +89,10 @@ MQTT::publish_ifchanged(String topic, String message)
 	rxdata_mtx.lock();
 	if (rxdata[topic] != message) {
 		send = true;
+		rxdata[topic] = message;
 	} else {
 		send = false;
 	}
-	rxdata[topic] = message;
 	rxdata_mtx.unlock();
 	if (send) {
 		mosquitto_publish(mosq, NULL, topic.c_str(), message.length(), message.c_str(), 1, true);
