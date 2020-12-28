@@ -260,6 +260,8 @@ main(int argc, char *argv[]) {
 							SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 2);
 							mqtt.publish_ifchanged(maintopic + "/temperature", S + (int16_t)int_inputs[0]);
 							mqtt.publish_ifchanged(maintopic + "/humidity", S + int_inputs[1]);
+
+							auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
 						}
 						if (devdata[bus][dev]["product"] == "RS485-Laserdistance-Weight") {
 							SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 3);
@@ -268,6 +270,8 @@ main(int argc, char *argv[]) {
 								mqtt.publish_ifchanged(maintopic + "/weight", S + tmp);
 							}
 							mqtt.publish_ifchanged(maintopic + "/distance", S + int_inputs[2]);
+
+							auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
 						}
 						if (devdata[bus][dev]["product"] == "RS485-IO88") {
 							{
@@ -303,6 +307,7 @@ main(int argc, char *argv[]) {
 								mqtt.publish_ifchanged(maintopic + "/adc3", S + int_inputs[3]);
 								mqtt.publish_ifchanged(maintopic + "/ref", S + int_inputs[9]);
 							}
+
 							auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
 							for (int64_t i = 0; i <= rxbuf.max; i++) {
 								if (rxbuf[i].topic == maintopic + "/dac0") {
@@ -336,6 +341,8 @@ main(int argc, char *argv[]) {
 									mqtt.publish(maintopic + "/key", key, false);
 								}
 							}
+
+							auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
 						}
 						if (devdata[bus][dev]["product"] == "125kHz RFID Reader / Writer-Beta") {
 							{
@@ -358,6 +365,8 @@ main(int argc, char *argv[]) {
 									mqtt.publish(maintopic + "/key", key, false);
 								}
 							}
+
+							auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
 						}
 						if (devdata[bus][dev]["product"] == "RS485-Chamberpump") {
 							{
