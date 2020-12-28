@@ -34,6 +34,7 @@
 MQTT::MQTT()
 {
 	mosq = NULL;
+	rxbuf_enable = false;
 }
 
 MQTT::~MQTT()
@@ -134,9 +135,11 @@ MQTT::message_callback(String topic, String message)
 {
 	rxdata_mtx.lock();
 	rxdata[topic] = message;
-	int64_t newpos = rxbuf.max + 1;
-	rxbuf[newpos].topic = topic;
-	rxbuf[newpos].message = message;
+	if (rxbuf_enable) {
+		int64_t newpos = rxbuf.max + 1;
+		rxbuf[newpos].topic = topic;
+		rxbuf[newpos].message = message;
+	}
 	rxdata_mtx.unlock();
 }
 
@@ -144,15 +147,17 @@ Array<MQTT::RXbuf>
 MQTT::get_rxbuf(const String& maintopic)
 {
 	Array<RXbuf> tmp;
-	rxdata_mtx.lock();
-	for (int64_t i = 0; i <= rxbuf.max; i++) {
-		if (rxbuf[i].topic.strncmp(maintopic)) {
-			tmp << rxbuf[i];
-			rxbuf.del(i);
-			i--;
+	if (rxbuf_enable) {
+		rxdata_mtx.lock();
+		for (int64_t i = 0; i <= rxbuf.max; i++) {
+			if (rxbuf[i].topic.strncmp(maintopic)) {
+				tmp << rxbuf[i];
+				rxbuf.del(i);
+				i--;
+			}
 		}
+		rxdata_mtx.unlock();
 	}
-	rxdata_mtx.unlock();
 	return tmp;
 }
 

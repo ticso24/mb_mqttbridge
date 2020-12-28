@@ -58,6 +58,7 @@ public:
 	String username;
 	String password;
 	String maintopic;
+	bool rxbuf_enable;
 
 	MQTT();
 	~MQTT();
