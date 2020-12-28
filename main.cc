@@ -187,13 +187,12 @@ main(int argc, char *argv[]) {
 							{
 								SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 14);
 
-								// 0-3 16bit counter - should verify for rollover and restart
+								// 16bit counter - should verify for rollover and restart
 								mqtt.publish_ifchanged(maintopic + "/counter0", S + int_inputs[0]);
 								mqtt.publish_ifchanged(maintopic + "/counter1", S + int_inputs[1]);
 								mqtt.publish_ifchanged(maintopic + "/counter2", S + int_inputs[2]);
 								mqtt.publish_ifchanged(maintopic + "/counter3", S + int_inputs[3]);
 
-								// 4,5 16bit LDR
 								mqtt.publish_ifchanged(maintopic + "/ldr0", S + int_inputs[4]);
 								// XXX check firmware version for functional LDR1 input
 								mqtt.publish_ifchanged(maintopic + "/ldr1", S + int_inputs[5]);
