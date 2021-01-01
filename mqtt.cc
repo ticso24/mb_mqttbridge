@@ -126,7 +126,7 @@ MQTT::int_message_callback(struct mosquitto *mosq, void *obj, const struct mosqu
 	MQTT* me = (MQTT*)obj;
 
 	String topic = message->topic;
-	String msg = message->payload;
+	String msg = (char*)message->payload;
 	me->message_callback(topic, msg);
 }
 
