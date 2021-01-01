@@ -448,6 +448,7 @@ main(int argc, char *argv[]) {
 				} catch(...) {
 					mqtt.publish_ifchanged(maintopic + "/status", "offline");
 					devdata[bus][dev]["status"] = "offline";
+					sleep(1);
 				}
 				devdata_mtx.lock();
 				std::swap(devdata, global_devdata);
