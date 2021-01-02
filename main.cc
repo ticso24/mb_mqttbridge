@@ -114,9 +114,9 @@ ModbusLoop(void * arg)
 							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
 
 							mqtt.publish_ifchanged(maintopic + "/input0", bin_inputs[0] ? "1" : "0");
-							mqtt.publish_ifchanged(maintopic + "/input1", bin_inputs[2] ? "1" : "0");
-							mqtt.publish_ifchanged(maintopic + "/input2", bin_inputs[3] ? "1" : "0");
-							mqtt.publish_ifchanged(maintopic + "/input3", bin_inputs[4] ? "1" : "0");
+							mqtt.publish_ifchanged(maintopic + "/input1", bin_inputs[1] ? "1" : "0");
+							mqtt.publish_ifchanged(maintopic + "/input2", bin_inputs[2] ? "1" : "0");
+							mqtt.publish_ifchanged(maintopic + "/input3", bin_inputs[3] ? "1" : "0");
 						}
 
 						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
@@ -136,9 +136,9 @@ ModbusLoop(void * arg)
 							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
 
 							mqtt.publish_ifchanged(maintopic + "/input0", bin_inputs[0] ? "1" : "0");
-							mqtt.publish_ifchanged(maintopic + "/input1", bin_inputs[2] ? "1" : "0");
-							mqtt.publish_ifchanged(maintopic + "/input2", bin_inputs[3] ? "1" : "0");
-							mqtt.publish_ifchanged(maintopic + "/input3", bin_inputs[4] ? "1" : "0");
+							mqtt.publish_ifchanged(maintopic + "/input1", bin_inputs[1] ? "1" : "0");
+							mqtt.publish_ifchanged(maintopic + "/input2", bin_inputs[2] ? "1" : "0");
+							mqtt.publish_ifchanged(maintopic + "/input3", bin_inputs[3] ? "1" : "0");
 						}
 
 						{
