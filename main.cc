@@ -109,6 +109,28 @@ ModbusLoop(void * arg)
 					mqtt.subscribe(maintopic + "/+");
 				}
 				if (devdata[dev]["vendor"] == "Bernd Walter Computer Technology") {
+					if (devdata[dev]["product"] == "Ethernet-MB twin power relay / 4ch input") {
+						{
+							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
+
+							mqtt.publish_ifchanged(maintopic + "/input0", bin_inputs[0] ? "1" : "0");
+							mqtt.publish_ifchanged(maintopic + "/input1", bin_inputs[2] ? "1" : "0");
+							mqtt.publish_ifchanged(maintopic + "/input2", bin_inputs[3] ? "1" : "0");
+							mqtt.publish_ifchanged(maintopic + "/input3", bin_inputs[4] ? "1" : "0");
+						}
+
+						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+						for (int64_t i = 0; i <= rxbuf.max; i++) {
+							if (rxbuf[i].topic == maintopic + "/relais0") {
+								bool val = (rxbuf[i].message == "0") ? 0 : 1;
+								mb.write_coil(address, 0, val);
+							}
+							if (rxbuf[i].topic == maintopic + "/relais1") {
+								bool val = (rxbuf[i].message == "0") ? 0 : 1;
+								mb.write_coil(address, 1, val);
+							}
+						}
+					}
 					if (devdata[dev]["product"] == "Ethernet-MB RS485 / twin power relay / 4ch input / LDR / DS18B20") {
 						{
 							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
