@@ -61,11 +61,9 @@ MQTT::connect()
 		rc = mosquitto_connect(mosq, host.c_str(), port, 5);
 
 		mosquitto_loop_start(mosq);
-		mosquitto_publish(mosq, NULL, willtopic.c_str(), strlen("online"), "online", 1, true);
-		String producttopic = maintopic + "/product";
-		mosquitto_publish(mosq, NULL, producttopic.c_str(), strlen("mb_mqttbridge"), "mb_mqttbridge", 1, true);
-		String versiontopic = maintopic + "/version";
-		mosquitto_publish(mosq, NULL, versiontopic.c_str(), strlen("0.1"), "0.1", 1, true);
+		publish(willtopic, "online", true);
+		publish(maintopic + "/product", product, true);
+		publish(maintopic + "/version", version, true);
 		return true;
 	}
 
