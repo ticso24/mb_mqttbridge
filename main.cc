@@ -130,8 +130,7 @@ ModbusLoop(void * arg)
 								mb.write_coil(address, 1, val);
 							}
 						}
-					}
-					if (devdata[dev]["product"] == "Ethernet-MB RS485 / twin power relay / 4ch input / LDR / DS18B20") {
+					} else if (devdata[dev]["product"] == "Ethernet-MB RS485 / twin power relay / 4ch input / LDR / DS18B20") {
 						{
 							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
 
@@ -213,15 +212,13 @@ ModbusLoop(void * arg)
 								mb.write_coil(address, 5, val);
 							}
 						}
-					}
-					if (devdata[dev]["product"] == "RS485-SHTC3") {
+					} else if (devdata[dev]["product"] == "RS485-SHTC3") {
 						SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 2);
 						mqtt.publish_ifchanged(maintopic + "/temperature", S + (int16_t)int_inputs[0]);
 						mqtt.publish_ifchanged(maintopic + "/humidity", S + int_inputs[1]);
 
 						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-					}
-					if (devdata[dev]["product"] == "RS485-Laserdistance-Weight") {
+					} else if (devdata[dev]["product"] == "RS485-Laserdistance-Weight") {
 						SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 3);
 						{
 							int32_t tmp = (uint32_t)int_inputs[0] | (uint32_t)int_inputs[1] << 16;
@@ -230,8 +227,7 @@ ModbusLoop(void * arg)
 						mqtt.publish_ifchanged(maintopic + "/distance", S + int_inputs[2]);
 
 						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-					}
-					if (devdata[dev]["product"] == "RS485-IO88") {
+					} else if (devdata[dev]["product"] == "RS485-IO88") {
 						{
 							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
 
@@ -255,8 +251,7 @@ ModbusLoop(void * arg)
 								}
 							}
 						}
-					}
-					if (devdata[dev]["product"] == "MB ADC DAC") {
+					} else if (devdata[dev]["product"] == "MB ADC DAC") {
 						{
 							SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 10);
 							mqtt.publish_ifchanged(maintopic + "/adc0", S + int_inputs[0]);
@@ -277,8 +272,7 @@ ModbusLoop(void * arg)
 								mb.write_register(address, 1, val);
 							}
 						}
-					}
-					if (devdata[dev]["product"] == "125kHz RFID Reader / Display") {
+					} else if (devdata[dev]["product"] == "125kHz RFID Reader / Display") {
 						{
 							SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 11);
 							if (int_inputs[0] != 0) {
@@ -301,8 +295,7 @@ ModbusLoop(void * arg)
 						}
 
 						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-					}
-					if (devdata[dev]["product"] == "125kHz RFID Reader / Writer-Beta") {
+					} else if (devdata[dev]["product"] == "125kHz RFID Reader / Writer-Beta") {
 						{
 							SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 11);
 							if (int_inputs[0] != 0) {
@@ -325,8 +318,7 @@ ModbusLoop(void * arg)
 						}
 
 						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-					}
-					if (devdata[dev]["product"] == "RS485-THERMOCOUPLE") {
+					} else if (devdata[dev]["product"] == "RS485-THERMOCOUPLE") {
 						{
 							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 24);
 							for (int i = 0; i < 8; i++) {
@@ -345,8 +337,7 @@ ModbusLoop(void * arg)
 						}
 
 						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-					}
-					if (devdata[dev]["product"] == "RS485-Chamberpump") {
+					} else if (devdata[dev]["product"] == "RS485-Chamberpump") {
 						{
 							SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 9);
 							mqtt.publish_ifchanged(maintopic + "/adc0", S + int_inputs[0]);
