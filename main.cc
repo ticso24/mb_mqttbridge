@@ -212,6 +212,58 @@ ModbusLoop(void * arg)
 								mb.write_coil(address, 5, val);
 							}
 						}
+					} else if (devdata[dev]["product"] == "MB 3x jalousie actor / 8ch input") {
+						{
+							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
+
+							for (int64_t i = 0; i < 8; i++) {
+								mqtt.publish_ifchanged(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0");
+							}
+						}
+						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+						for (int64_t i = 0; i <= rxbuf.max; i++) {
+							for (int64_t n = 0; n < 3; n++) {
+								if (rxbuf[i].topic == maintopic + "/blind" + n) {
+									if (rxbuf[i].message == "stop") {
+										mb.write_coil(address, n * 2, 0);
+										usleep(100000);
+										mb.write_coil(address, n * 2 + 1, 0);
+									} else if (rxbuf[i].message == "up") {
+										mb.write_coil(address, n * 2, 0);
+										usleep(100000);
+										mb.write_coil(address, n * 2 + 1, 0);
+										usleep(100000);
+										mb.write_coil(address, n * 2, 1);
+									} else if (rxbuf[i].message == "down") {
+										mb.write_coil(address, n * 2, 0);
+										usleep(100000);
+										mb.write_coil(address, n * 2 + 1, 1);
+										usleep(100000);
+										mb.write_coil(address, n * 2, 1);
+									}
+									bool val = (rxbuf[i].message == "0") ? 0 : 1;
+									mb.write_coil(address, n, val);
+								}
+							}
+						}
+					} else if (devdata[dev]["product"] == "MB 6x power relay / 8ch input") {
+						// XXX no counter support yet
+						{
+							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
+
+							for (int64_t i = 0; i < 8; i++) {
+								mqtt.publish_ifchanged(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0");
+							}
+						}
+						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+						for (int64_t i = 0; i <= rxbuf.max; i++) {
+							for (int64_t n = 0; n < 6; n++) {
+								if (rxbuf[i].topic == maintopic + "/relais" + n) {
+									bool val = (rxbuf[i].message == "0") ? 0 : 1;
+									mb.write_coil(address, n, val);
+								}
+							}
+						}
 					} else if (devdata[dev]["product"] == "RS485-SHTC3") {
 						SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 2);
 						mqtt.publish_ifchanged(maintopic + "/temperature", S + (int16_t)int_inputs[0]);
