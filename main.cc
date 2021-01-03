@@ -35,6 +35,7 @@
 
 a_refptr<JSON> config;
 SArray<Modbus*> mbs; // XXX no automatic deletion
+AArray<void (*)(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)> devfunctions;
 
 void
 siginit()
@@ -61,6 +62,385 @@ sighandler(int sig)
 
 static MQTT mqtt;
 
+void
+eth_tpr(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	{
+		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
+
+		mqtt.publish_ifchanged(maintopic + "/input0", bin_inputs[0] ? "1" : "0");
+		mqtt.publish_ifchanged(maintopic + "/input1", bin_inputs[1] ? "1" : "0");
+		mqtt.publish_ifchanged(maintopic + "/input2", bin_inputs[2] ? "1" : "0");
+		mqtt.publish_ifchanged(maintopic + "/input3", bin_inputs[3] ? "1" : "0");
+	}
+
+	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/relais0") {
+			bool val = (rxbuf[i].message == "0") ? 0 : 1;
+			mb.write_coil(address, 0, val);
+		}
+		if (rxbuf[i].topic == maintopic + "/relais1") {
+			bool val = (rxbuf[i].message == "0") ? 0 : 1;
+			mb.write_coil(address, 1, val);
+		}
+	}
+}
+
+void
+eth_tpr_ldr(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	{
+		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
+
+		mqtt.publish_ifchanged(maintopic + "/input0", bin_inputs[0] ? "1" : "0");
+		mqtt.publish_ifchanged(maintopic + "/input1", bin_inputs[1] ? "1" : "0");
+		mqtt.publish_ifchanged(maintopic + "/input2", bin_inputs[2] ? "1" : "0");
+		mqtt.publish_ifchanged(maintopic + "/input3", bin_inputs[3] ? "1" : "0");
+	}
+
+	{
+		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 14);
+
+		// 16bit counter - should verify for rollover and restart
+		mqtt.publish_ifchanged(maintopic + "/counter0", S + int_inputs[0]);
+		mqtt.publish_ifchanged(maintopic + "/counter1", S + int_inputs[1]);
+		mqtt.publish_ifchanged(maintopic + "/counter2", S + int_inputs[2]);
+		mqtt.publish_ifchanged(maintopic + "/counter3", S + int_inputs[3]);
+
+		mqtt.publish_ifchanged(maintopic + "/ldr0", S + int_inputs[4]);
+		// XXX check firmware version for functional LDR1 input
+		mqtt.publish_ifchanged(maintopic + "/ldr1", S + int_inputs[5]);
+
+		// 32 bit counter - should verify for restart if autoreset is not enabled
+		{
+			uint32_t tmp = (uint32_t)int_inputs[6] | (uint32_t)int_inputs[7] << 16;
+			mqtt.publish_ifchanged(maintopic + "/counter4", S + tmp);
+		}
+		{
+			uint32_t tmp = (uint32_t)int_inputs[8] | (uint32_t)int_inputs[9] << 16;
+			mqtt.publish_ifchanged(maintopic + "/counter5", S + tmp);
+		}
+		{
+			uint32_t tmp = (uint32_t)int_inputs[10] | (uint32_t)int_inputs[11] << 16;
+			mqtt.publish_ifchanged(maintopic + "/counter6", S + tmp);
+		}
+		{
+			uint32_t tmp = (uint32_t)int_inputs[12] | (uint32_t)int_inputs[13] << 16;
+			mqtt.publish_ifchanged(maintopic + "/counter7", S + tmp);
+		}
+	}
+
+	if (dev_cfg.exists("DS18B20")) {
+		int64_t max_sensor = dev_cfg["DS18B20"].get_array().max;
+		for (int64_t i = 0; i <= max_sensor; i++) {
+			int16_t sensor_register = dev_cfg["DS18B20"][i]["register"].get_numstr().getll();
+			try {
+				uint16_t value = mb.read_input_register(address, sensor_register);
+				double temp = (double)value / 16;
+				mqtt.publish_ifchanged(maintopic + "/temperature" + i, S + temp);
+			} catch (...) {
+			}
+		}
+	}
+
+	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/relais0") {
+			bool val = (rxbuf[i].message == "0") ? 0 : 1;
+			mb.write_coil(address, 0, val);
+		}
+		if (rxbuf[i].topic == maintopic + "/relais1") {
+			bool val = (rxbuf[i].message == "0") ? 0 : 1;
+			mb.write_coil(address, 1, val);
+		}
+		if (rxbuf[i].topic == maintopic + "/counter_autoreset4") {
+			bool val = (rxbuf[i].message == "0") ? 0 : 1;
+			mb.write_coil(address, 2, val);
+		}
+		if (rxbuf[i].topic == maintopic + "/counter_autoreset5") {
+			bool val = (rxbuf[i].message == "0") ? 0 : 1;
+			mb.write_coil(address, 3, val);
+		}
+		if (rxbuf[i].topic == maintopic + "/counter_autoreset6") {
+			bool val = (rxbuf[i].message == "0") ? 0 : 1;
+			mb.write_coil(address, 4, val);
+		}
+		if (rxbuf[i].topic == maintopic + "/counter_autoreset7") {
+			bool val = (rxbuf[i].message == "0") ? 0 : 1;
+			mb.write_coil(address, 5, val);
+		}
+	}
+}
+
+void
+jalousie(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	{
+		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
+
+		for (int64_t i = 0; i < 8; i++) {
+			mqtt.publish_ifchanged(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0");
+		}
+	}
+	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		for (int64_t n = 0; n < 3; n++) {
+			if (rxbuf[i].topic == maintopic + "/blind" + n) {
+				if (rxbuf[i].message == "stop") {
+					mb.write_coil(address, n * 2, 0);
+					usleep(100000);
+					mb.write_coil(address, n * 2 + 1, 0);
+				} else if (rxbuf[i].message == "up") {
+					mb.write_coil(address, n * 2, 0);
+					usleep(100000);
+					mb.write_coil(address, n * 2 + 1, 0);
+					usleep(100000);
+					mb.write_coil(address, n * 2, 1);
+				} else if (rxbuf[i].message == "down") {
+					mb.write_coil(address, n * 2, 0);
+					usleep(100000);
+					mb.write_coil(address, n * 2 + 1, 1);
+					usleep(100000);
+					mb.write_coil(address, n * 2, 1);
+				}
+				bool val = (rxbuf[i].message == "0") ? 0 : 1;
+				mb.write_coil(address, n, val);
+			}
+		}
+	}
+}
+
+void
+relais6(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	// XXX no counter support yet
+	{
+		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
+
+		for (int64_t i = 0; i < 8; i++) {
+			mqtt.publish_ifchanged(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0");
+		}
+	}
+	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		for (int64_t n = 0; n < 6; n++) {
+			if (rxbuf[i].topic == maintopic + "/relais" + n) {
+				bool val = (rxbuf[i].message == "0") ? 0 : 1;
+				mb.write_coil(address, n, val);
+			}
+		}
+	}
+}
+
+void
+shct3(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 2);
+	mqtt.publish_ifchanged(maintopic + "/temperature", S + (int16_t)int_inputs[0]);
+	mqtt.publish_ifchanged(maintopic + "/humidity", S + int_inputs[1]);
+
+	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+}
+
+void
+laserdistance(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 3);
+	{
+		int32_t tmp = (uint32_t)int_inputs[0] | (uint32_t)int_inputs[1] << 16;
+		mqtt.publish_ifchanged(maintopic + "/weight", S + tmp);
+	}
+	mqtt.publish_ifchanged(maintopic + "/distance", S + int_inputs[2]);
+
+	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+}
+
+void
+io88(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	{
+		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
+
+		for (int i = 0; i < 8; i++) {
+			mqtt.publish_ifchanged(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0");
+		}
+	}
+
+	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		for (int r = 0; r < 8; r++) {
+			if (rxbuf[i].topic == maintopic + "/output" + r) {
+				bool val = (rxbuf[i].message == "0") ? 0 : 1;
+				mb.write_coil(address, r, val);
+			}
+		}
+		for (int r = 0; r < 8; r++) {
+			if (rxbuf[i].topic == maintopic + "/pwm" + r) {
+				int16_t val = rxbuf[i].message.getll();
+				mb.write_register(address, r, val);
+			}
+		}
+	}
+}
+
+void
+adc_dac(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	{
+		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 10);
+		mqtt.publish_ifchanged(maintopic + "/adc0", S + int_inputs[0]);
+		mqtt.publish_ifchanged(maintopic + "/adc1", S + int_inputs[1]);
+		mqtt.publish_ifchanged(maintopic + "/adc2", S + int_inputs[2]);
+		mqtt.publish_ifchanged(maintopic + "/adc3", S + int_inputs[3]);
+		mqtt.publish_ifchanged(maintopic + "/ref", S + int_inputs[9]);
+	}
+
+	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/dac0") {
+			int16_t val = rxbuf[i].message.getll();
+			mb.write_register(address, 0, val);
+		}
+		if (rxbuf[i].topic == maintopic + "/dac1") {
+			int16_t val = rxbuf[i].message.getll();
+			mb.write_register(address, 1, val);
+		}
+	}
+}
+
+void
+rfid125_disp(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	{
+		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 11);
+		if (int_inputs[0] != 0) {
+			String key;
+			String tmp;
+			uint8_t nibble;
+			for (int i = 1; i <= int_inputs[0]; i++) {
+				nibble = (int_inputs[i] >> 4) & 0x0f;
+				tmp.printf("%c", (nibble > 9) ? 'a' - 10 + nibble : '0' + nibble);
+				key += tmp;
+				nibble = int_inputs[i] & 0x0f;
+				tmp.printf("%c", (nibble > 9) ? 'a' - 10 + nibble : '0' + nibble);
+				key += tmp;
+				if (i < int_inputs[0]) {
+					key += ":";
+				}
+			}
+			mqtt.publish(maintopic + "/key", key, false);
+		}
+	}
+
+	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+}
+
+void
+rfid125(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	{
+		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 11);
+		if (int_inputs[0] != 0) {
+			String key;
+			String tmp;
+			uint8_t nibble;
+			for (int i = 1; i <= int_inputs[0]; i++) {
+				nibble = (int_inputs[i] >> 4) & 0x0f;
+				tmp.printf("%c", (nibble > 9) ? 'a' - 10 + nibble : '0' + nibble);
+				key += tmp;
+				nibble = int_inputs[i] & 0x0f;
+				tmp.printf("%c", (nibble > 9) ? 'a' - 10 + nibble : '0' + nibble);
+				key += tmp;
+				if (i < int_inputs[0]) {
+					key += ":";
+				}
+			}
+			mqtt.publish(maintopic + "/key", key, false);
+		}
+	}
+
+	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+}
+
+void
+thermocouple(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	{
+		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 24);
+		for (int i = 0; i < 8; i++) {
+			mqtt.publish_ifchanged(maintopic + "/open_error" + i, bin_inputs[i * 3] ? "1" : "0");
+			mqtt.publish_ifchanged(maintopic + "/gnd_short" + i, bin_inputs[i * 3 + 1] ? "1" : "0");
+			mqtt.publish_ifchanged(maintopic + "/vcc_short" + i, bin_inputs[i * 3 + 2] ? "1" : "0");
+		}
+	}
+
+	{
+		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 16);
+		for (int i = 0; i < 8; i++) {
+			mqtt.publish_ifchanged(maintopic + "/temperature" + i, S + (int16_t)int_inputs[i * 2]);
+			mqtt.publish_ifchanged(maintopic + "/cold_temperature" + i, S + (int16_t)int_inputs[ i * 2 + 1]);
+		}
+	}
+
+	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+}
+
+void
+chamberpump(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	{
+		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 9);
+		mqtt.publish_ifchanged(maintopic + "/adc0", S + int_inputs[0]);
+		mqtt.publish_ifchanged(maintopic + "/adc1", S + int_inputs[1]);
+		mqtt.publish_ifchanged(maintopic + "/adc2", S + int_inputs[2]);
+		mqtt.publish_ifchanged(maintopic + "/adc3", S + int_inputs[3]);
+		{
+			String state;
+			switch(int_inputs[4]) {
+			case 0:
+				state = "idle";
+				break;
+			case 1:
+				state = "filling";
+				break;
+			case 2:
+				state = "full";
+				break;
+			case 3:
+				state = "emptying";
+				break;
+			case 4:
+				state = "empty";
+				break;
+			case 5:
+				state = "unknown";
+			}
+			mqtt.publish_ifchanged(maintopic + "/state", "empty");
+		}
+		{
+			uint32_t tmp = (uint32_t)int_inputs[5] | (uint32_t)int_inputs[6] << 16;
+			mqtt.publish_ifchanged(maintopic + "/cyclecounter", S + tmp);
+		}
+		{
+			uint32_t tmp = (uint32_t)int_inputs[7] | (uint32_t)int_inputs[8] << 16;
+			mqtt.publish_ifchanged(maintopic + "/cycletime", S + tmp);
+		}
+
+		auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+		for (int64_t i = 0; i <= rxbuf.max; i++) {
+			if (rxbuf[i].topic == maintopic + "/triggerlevel_top") {
+				uint16_t val = rxbuf[i].message.getll();
+				mb.write_register(address, 0, val);
+			}
+			if (rxbuf[i].topic == maintopic + "/triggerlevel_bottom") {
+				uint16_t val = rxbuf[i].message.getll();
+				mb.write_register(address, 1, val);
+			}
+		}
+	}
+}
+
 void*
 ModbusLoop(void * arg)
 {
@@ -76,12 +456,6 @@ ModbusLoop(void * arg)
 	String port = modbuses[bus]["port"];
 	Modbus mb(host, port);
 
-	for (int64_t dev = 0; dev <= bus_cfg["devices"].get_array().max; dev++) {
-		JSON& dev_cfg = bus_cfg["devices"][dev];
-		String maintopic = dev_cfg["maintopic"];
-		mqtt.subscribe(maintopic + "/+");
-	}
-
 	for(;;) {
 		for (int64_t dev = 0; dev <= bus_cfg["devices"].get_array().max; dev++) {
 			JSON& dev_cfg = bus_cfg["devices"][dev];
@@ -89,9 +463,15 @@ ModbusLoop(void * arg)
 			uint8_t address = dev_cfg["address"].get_numstr().getll();
 			try {
 				if (!devdata[dev].exists("vendor")) {
-					String tmp = mb.identification(address, 0);
-					devdata[dev]["vendor"] = tmp;
-					mqtt.publish_ifchanged(maintopic + "/vendor", tmp);
+					String product = mb.identification(address, 0);
+					devdata[dev]["vendor"] = product;
+					mqtt.publish_ifchanged(maintopic + "/vendor", product);
+					if (devdata[dev]["vendor"] == "Bernd Walter Computer Technology") {
+						if (!devfunctions.exists(product)) {
+							throw(Error(S + "unknown product" + product));
+						}
+						devdata[dev]["product"] = "";
+					}
 				}
 				if (!devdata[dev].exists("product")) {
 					String tmp = mb.identification(address, 1);
@@ -106,341 +486,16 @@ ModbusLoop(void * arg)
 				if (devdata[dev]["maintopic"].empty()) {
 					// at this stage we know the device and can handle incoming data
 					devdata[dev]["maintopic"] = maintopic;
-					mqtt.subscribe(maintopic + "/+");
+					String product = devdata[dev]["product"];
+					if (!product.empty()) {
+						// only suscribe, if we have a handler function
+						mqtt.subscribe(maintopic + "/+");
+					}
 				}
 				if (devdata[dev]["vendor"] == "Bernd Walter Computer Technology") {
-					if (devdata[dev]["product"] == "Ethernet-MB twin power relay / 4ch input") {
-						{
-							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
-
-							mqtt.publish_ifchanged(maintopic + "/input0", bin_inputs[0] ? "1" : "0");
-							mqtt.publish_ifchanged(maintopic + "/input1", bin_inputs[1] ? "1" : "0");
-							mqtt.publish_ifchanged(maintopic + "/input2", bin_inputs[2] ? "1" : "0");
-							mqtt.publish_ifchanged(maintopic + "/input3", bin_inputs[3] ? "1" : "0");
-						}
-
-						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-						for (int64_t i = 0; i <= rxbuf.max; i++) {
-							if (rxbuf[i].topic == maintopic + "/relais0") {
-								bool val = (rxbuf[i].message == "0") ? 0 : 1;
-								mb.write_coil(address, 0, val);
-							}
-							if (rxbuf[i].topic == maintopic + "/relais1") {
-								bool val = (rxbuf[i].message == "0") ? 0 : 1;
-								mb.write_coil(address, 1, val);
-							}
-						}
-					} else if (devdata[dev]["product"] == "Ethernet-MB RS485 / twin power relay / 4ch input / LDR / DS18B20") {
-						{
-							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
-
-							mqtt.publish_ifchanged(maintopic + "/input0", bin_inputs[0] ? "1" : "0");
-							mqtt.publish_ifchanged(maintopic + "/input1", bin_inputs[1] ? "1" : "0");
-							mqtt.publish_ifchanged(maintopic + "/input2", bin_inputs[2] ? "1" : "0");
-							mqtt.publish_ifchanged(maintopic + "/input3", bin_inputs[3] ? "1" : "0");
-						}
-
-						{
-							SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 14);
-
-							// 16bit counter - should verify for rollover and restart
-							mqtt.publish_ifchanged(maintopic + "/counter0", S + int_inputs[0]);
-							mqtt.publish_ifchanged(maintopic + "/counter1", S + int_inputs[1]);
-							mqtt.publish_ifchanged(maintopic + "/counter2", S + int_inputs[2]);
-							mqtt.publish_ifchanged(maintopic + "/counter3", S + int_inputs[3]);
-
-							mqtt.publish_ifchanged(maintopic + "/ldr0", S + int_inputs[4]);
-							// XXX check firmware version for functional LDR1 input
-							mqtt.publish_ifchanged(maintopic + "/ldr1", S + int_inputs[5]);
-
-							// 32 bit counter - should verify for restart if autoreset is not enabled
-							{
-								uint32_t tmp = (uint32_t)int_inputs[6] | (uint32_t)int_inputs[7] << 16;
-								mqtt.publish_ifchanged(maintopic + "/counter4", S + tmp);
-							}
-							{
-								uint32_t tmp = (uint32_t)int_inputs[8] | (uint32_t)int_inputs[9] << 16;
-								mqtt.publish_ifchanged(maintopic + "/counter5", S + tmp);
-							}
-							{
-								uint32_t tmp = (uint32_t)int_inputs[10] | (uint32_t)int_inputs[11] << 16;
-								mqtt.publish_ifchanged(maintopic + "/counter6", S + tmp);
-							}
-							{
-								uint32_t tmp = (uint32_t)int_inputs[12] | (uint32_t)int_inputs[13] << 16;
-								mqtt.publish_ifchanged(maintopic + "/counter7", S + tmp);
-							}
-						}
-
-						if (dev_cfg.exists("DS18B20")) {
-							int64_t max_sensor = dev_cfg["DS18B20"].get_array().max;
-							for (int64_t i = 0; i <= max_sensor; i++) {
-								int16_t sensor_register = dev_cfg["DS18B20"][i]["register"].get_numstr().getll();
-								try {
-									uint16_t value = mb.read_input_register(address, sensor_register);
-									double temp = (double)value / 16;
-									mqtt.publish_ifchanged(maintopic + "/temperature" + i, S + temp);
-								} catch (...) {
-								}
-							}
-						}
-
-						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-						for (int64_t i = 0; i <= rxbuf.max; i++) {
-							if (rxbuf[i].topic == maintopic + "/relais0") {
-								bool val = (rxbuf[i].message == "0") ? 0 : 1;
-								mb.write_coil(address, 0, val);
-							}
-							if (rxbuf[i].topic == maintopic + "/relais1") {
-								bool val = (rxbuf[i].message == "0") ? 0 : 1;
-								mb.write_coil(address, 1, val);
-							}
-							if (rxbuf[i].topic == maintopic + "/counter_autoreset4") {
-								bool val = (rxbuf[i].message == "0") ? 0 : 1;
-								mb.write_coil(address, 2, val);
-							}
-							if (rxbuf[i].topic == maintopic + "/counter_autoreset5") {
-								bool val = (rxbuf[i].message == "0") ? 0 : 1;
-								mb.write_coil(address, 3, val);
-							}
-							if (rxbuf[i].topic == maintopic + "/counter_autoreset6") {
-								bool val = (rxbuf[i].message == "0") ? 0 : 1;
-								mb.write_coil(address, 4, val);
-							}
-							if (rxbuf[i].topic == maintopic + "/counter_autoreset7") {
-								bool val = (rxbuf[i].message == "0") ? 0 : 1;
-								mb.write_coil(address, 5, val);
-							}
-						}
-					} else if (devdata[dev]["product"] == "MB 3x jalousie actor / 8ch input") {
-						{
-							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
-
-							for (int64_t i = 0; i < 8; i++) {
-								mqtt.publish_ifchanged(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0");
-							}
-						}
-						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-						for (int64_t i = 0; i <= rxbuf.max; i++) {
-							for (int64_t n = 0; n < 3; n++) {
-								if (rxbuf[i].topic == maintopic + "/blind" + n) {
-									if (rxbuf[i].message == "stop") {
-										mb.write_coil(address, n * 2, 0);
-										usleep(100000);
-										mb.write_coil(address, n * 2 + 1, 0);
-									} else if (rxbuf[i].message == "up") {
-										mb.write_coil(address, n * 2, 0);
-										usleep(100000);
-										mb.write_coil(address, n * 2 + 1, 0);
-										usleep(100000);
-										mb.write_coil(address, n * 2, 1);
-									} else if (rxbuf[i].message == "down") {
-										mb.write_coil(address, n * 2, 0);
-										usleep(100000);
-										mb.write_coil(address, n * 2 + 1, 1);
-										usleep(100000);
-										mb.write_coil(address, n * 2, 1);
-									}
-									bool val = (rxbuf[i].message == "0") ? 0 : 1;
-									mb.write_coil(address, n, val);
-								}
-							}
-						}
-					} else if (devdata[dev]["product"] == "MB 6x power relay / 8ch input") {
-						// XXX no counter support yet
-						{
-							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
-
-							for (int64_t i = 0; i < 8; i++) {
-								mqtt.publish_ifchanged(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0");
-							}
-						}
-						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-						for (int64_t i = 0; i <= rxbuf.max; i++) {
-							for (int64_t n = 0; n < 6; n++) {
-								if (rxbuf[i].topic == maintopic + "/relais" + n) {
-									bool val = (rxbuf[i].message == "0") ? 0 : 1;
-									mb.write_coil(address, n, val);
-								}
-							}
-						}
-					} else if (devdata[dev]["product"] == "RS485-SHTC3") {
-						SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 2);
-						mqtt.publish_ifchanged(maintopic + "/temperature", S + (int16_t)int_inputs[0]);
-						mqtt.publish_ifchanged(maintopic + "/humidity", S + int_inputs[1]);
-
-						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-					} else if (devdata[dev]["product"] == "RS485-Laserdistance-Weight") {
-						SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 3);
-						{
-							int32_t tmp = (uint32_t)int_inputs[0] | (uint32_t)int_inputs[1] << 16;
-							mqtt.publish_ifchanged(maintopic + "/weight", S + tmp);
-						}
-						mqtt.publish_ifchanged(maintopic + "/distance", S + int_inputs[2]);
-
-						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-					} else if (devdata[dev]["product"] == "RS485-IO88") {
-						{
-							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
-
-							for (int i = 0; i < 8; i++) {
-								mqtt.publish_ifchanged(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0");
-							}
-						}
-
-						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-						for (int64_t i = 0; i <= rxbuf.max; i++) {
-							for (int r = 0; r < 8; r++) {
-								if (rxbuf[i].topic == maintopic + "/output" + r) {
-									bool val = (rxbuf[i].message == "0") ? 0 : 1;
-									mb.write_coil(address, r, val);
-								}
-							}
-							for (int r = 0; r < 8; r++) {
-								if (rxbuf[i].topic == maintopic + "/pwm" + r) {
-									int16_t val = rxbuf[i].message.getll();
-									mb.write_register(address, r, val);
-								}
-							}
-						}
-					} else if (devdata[dev]["product"] == "MB ADC DAC") {
-						{
-							SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 10);
-							mqtt.publish_ifchanged(maintopic + "/adc0", S + int_inputs[0]);
-							mqtt.publish_ifchanged(maintopic + "/adc1", S + int_inputs[1]);
-							mqtt.publish_ifchanged(maintopic + "/adc2", S + int_inputs[2]);
-							mqtt.publish_ifchanged(maintopic + "/adc3", S + int_inputs[3]);
-							mqtt.publish_ifchanged(maintopic + "/ref", S + int_inputs[9]);
-						}
-
-						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-						for (int64_t i = 0; i <= rxbuf.max; i++) {
-							if (rxbuf[i].topic == maintopic + "/dac0") {
-								int16_t val = rxbuf[i].message.getll();
-								mb.write_register(address, 0, val);
-							}
-							if (rxbuf[i].topic == maintopic + "/dac1") {
-								int16_t val = rxbuf[i].message.getll();
-								mb.write_register(address, 1, val);
-							}
-						}
-					} else if (devdata[dev]["product"] == "125kHz RFID Reader / Display") {
-						{
-							SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 11);
-							if (int_inputs[0] != 0) {
-								String key;
-								String tmp;
-								uint8_t nibble;
-								for (int i = 1; i <= int_inputs[0]; i++) {
-									nibble = (int_inputs[i] >> 4) & 0x0f;
-									tmp.printf("%c", (nibble > 9) ? 'a' - 10 + nibble : '0' + nibble);
-									key += tmp;
-									nibble = int_inputs[i] & 0x0f;
-									tmp.printf("%c", (nibble > 9) ? 'a' - 10 + nibble : '0' + nibble);
-									key += tmp;
-									if (i < int_inputs[0]) {
-										key += ":";
-									}
-								}
-								mqtt.publish(maintopic + "/key", key, false);
-							}
-						}
-
-						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-					} else if (devdata[dev]["product"] == "125kHz RFID Reader / Writer-Beta") {
-						{
-							SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 11);
-							if (int_inputs[0] != 0) {
-								String key;
-								String tmp;
-								uint8_t nibble;
-								for (int i = 1; i <= int_inputs[0]; i++) {
-									nibble = (int_inputs[i] >> 4) & 0x0f;
-									tmp.printf("%c", (nibble > 9) ? 'a' - 10 + nibble : '0' + nibble);
-									key += tmp;
-									nibble = int_inputs[i] & 0x0f;
-									tmp.printf("%c", (nibble > 9) ? 'a' - 10 + nibble : '0' + nibble);
-									key += tmp;
-									if (i < int_inputs[0]) {
-										key += ":";
-									}
-								}
-								mqtt.publish(maintopic + "/key", key, false);
-							}
-						}
-
-						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-					} else if (devdata[dev]["product"] == "RS485-THERMOCOUPLE") {
-						{
-							SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 24);
-							for (int i = 0; i < 8; i++) {
-								mqtt.publish_ifchanged(maintopic + "/open_error" + i, bin_inputs[i * 3] ? "1" : "0");
-								mqtt.publish_ifchanged(maintopic + "/gnd_short" + i, bin_inputs[i * 3 + 1] ? "1" : "0");
-								mqtt.publish_ifchanged(maintopic + "/vcc_short" + i, bin_inputs[i * 3 + 2] ? "1" : "0");
-							}
-						}
-
-						{
-							SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 16);
-							for (int i = 0; i < 8; i++) {
-								mqtt.publish_ifchanged(maintopic + "/temperature" + i, S + (int16_t)int_inputs[i * 2]);
-								mqtt.publish_ifchanged(maintopic + "/cold_temperature" + i, S + (int16_t)int_inputs[ i * 2 + 1]);
-							}
-						}
-
-						auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-					} else if (devdata[dev]["product"] == "RS485-Chamberpump") {
-						{
-							SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 9);
-							mqtt.publish_ifchanged(maintopic + "/adc0", S + int_inputs[0]);
-							mqtt.publish_ifchanged(maintopic + "/adc1", S + int_inputs[1]);
-							mqtt.publish_ifchanged(maintopic + "/adc2", S + int_inputs[2]);
-							mqtt.publish_ifchanged(maintopic + "/adc3", S + int_inputs[3]);
-							{
-								String state;
-								switch(int_inputs[4]) {
-								case 0:
-									state = "idle";
-									break;
-								case 1:
-									state = "filling";
-									break;
-								case 2:
-									state = "full";
-									break;
-								case 3:
-									state = "emptying";
-									break;
-								case 4:
-									state = "empty";
-									break;
-								case 5:
-									state = "unknown";
-								}
-								mqtt.publish_ifchanged(maintopic + "/state", "empty");
-							}
-							{
-								uint32_t tmp = (uint32_t)int_inputs[5] | (uint32_t)int_inputs[6] << 16;
-								mqtt.publish_ifchanged(maintopic + "/cyclecounter", S + tmp);
-							}
-							{
-								uint32_t tmp = (uint32_t)int_inputs[7] | (uint32_t)int_inputs[8] << 16;
-								mqtt.publish_ifchanged(maintopic + "/cycletime", S + tmp);
-							}
-
-							auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
-							for (int64_t i = 0; i <= rxbuf.max; i++) {
-								if (rxbuf[i].topic == maintopic + "/triggerlevel_top") {
-									uint16_t val = rxbuf[i].message.getll();
-									mb.write_register(address, 0, val);
-								}
-								if (rxbuf[i].topic == maintopic + "/triggerlevel_bottom") {
-									uint16_t val = rxbuf[i].message.getll();
-									mb.write_register(address, 1, val);
-								}
-							}
-						}
-
+					String product = devdata[dev]["product"];
+					if (!product.empty()) {
+						(*devfunctions[product])(mb, address, maintopic, devdata[dev], dev_cfg);
 					}
 				}
 				mqtt.publish_ifchanged(maintopic + "/status", "online");
@@ -520,6 +575,20 @@ main(int argc, char *argv[]) {
 		printf("no modbus setup in config\n");
 		exit(1);
 	}
+
+	// register devicefunctions
+	devfunctions["Ethernet-MB twin power relay / 4ch input"] = eth_tpr;
+	devfunctions["Ethernet-MB RS485 / twin power relay / 4ch input / LDR / DS18B20"] = eth_tpr_ldr;
+	devfunctions["MB 3x jalousie actor / 8ch input"] = jalousie;
+	devfunctions["MB 6x power relay / 8ch input"] = relais6;
+	devfunctions["RS485-SHTC3"] = shct3;
+	devfunctions["RS485-Laserdistance-Weight"] = laserdistance;
+	devfunctions["RS485-IO88"] = io88;
+	devfunctions["MB ADC DAC"] = adc_dac;
+	devfunctions["125kHz RFID Reader / Display"] = rfid125_disp;
+	devfunctions["125kHz RFID Reader / Writer-Beta"] = rfid125;
+	devfunctions["RS485-THERMOCOUPLE"] = thermocouple;
+	devfunctions["RS485-Chamberpump"] = chamberpump;
 
 	// start poll loops
 	JSON& modbuses = cfg["modbuses"];
