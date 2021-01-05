@@ -566,7 +566,7 @@ main(int argc, char *argv[]) {
 		mqtt.maintopic = maintopic;
 		mqtt.rxbuf_enable = true;
 		mqtt.product = "mb_mqttbridge";
-		mqtt.version = "0.2";
+		mqtt.version = "0.3";
 		mqtt.connect();
 	} else {
 		printf("no mqtt setup in config\n");
