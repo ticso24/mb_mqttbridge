@@ -177,7 +177,7 @@ MQTT::get_rxbuf(const String& maintopic)
 }
 
 String
-MQTT::get_topic(const String& topic)
+MQTT::operator[](const String& topic)
 {
 	String ret;
 	bool existing;
