@@ -81,7 +81,7 @@ MQTT::disconnect()
 }
 
 void
-MQTT::publish_ifchanged(String topic, String message)
+MQTT::publish_ifchanged(const String& topic, const String& message)
 {
 	bool send;
 
@@ -99,7 +99,7 @@ MQTT::publish_ifchanged(String topic, String message)
 }
 
 void
-MQTT::publish(String topic, String message, bool retain)
+MQTT::publish(const String& topic, const String& message, bool retain)
 {
 	mosquitto_publish(mosq, NULL, topic.c_str(), message.length(), message.c_str(), 1, retain);
 	rxdata_mtx.lock();
@@ -108,7 +108,7 @@ MQTT::publish(String topic, String message, bool retain)
 }
 
 void
-MQTT::subscribe(String topic)
+MQTT::subscribe(const String& topic)
 {
 	subscribtion_mtx.lock();
 	mosquitto_subscribe(mosq, NULL, topic.c_str(), 0);
@@ -146,7 +146,7 @@ MQTT::int_message_callback(struct mosquitto *mosq, void *obj, const struct mosqu
 }
 
 void
-MQTT::message_callback(String topic, String message)
+MQTT::message_callback(const String& topic, const String& message)
 {
 	rxdata_mtx.lock();
 	rxdata[topic] = message;
