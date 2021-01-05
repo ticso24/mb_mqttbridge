@@ -110,12 +110,29 @@ MQTT::publish(String topic, String message, bool retain)
 void
 MQTT::subscribe(String topic)
 {
+	subscribtion_mtx.lock();
 	mosquitto_subscribe(mosq, NULL, topic.c_str(), 0);
+	subscribtions << topic;
+	subscribtion_mtx.unlock();
 }
 
 void
 MQTT::int_connect_callback(struct mosquitto *mosq, void *obj, int result)
 {
+	MQTT* me = (MQTT*)obj;
+	me->connect_callback(result);
+}
+
+void
+MQTT::connect_callback(int result)
+{
+	if (result == 0) {
+		subscribtion_mtx.lock();
+		for (int64_t i = 0; i <= subscribtions.max; i++) {
+			mosquitto_subscribe(mosq, NULL, subscribtions[i].c_str(), 0);
+		}
+		subscribtion_mtx.unlock();
+	}
 }
 
 void

@@ -46,8 +46,11 @@ private:
 	AArray<String> rxdata;
 	Mutex rxdata_mtx;
 	Array<RXbuf> rxbuf;
+	Array<String> subscribtions;
+	Mutex subscribtion_mtx;
 
 	static void int_connect_callback(struct mosquitto *mosq, void *obj, int result);
+	void connect_callback(int result);
 	static void int_message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message);
 	void message_callback(String topic, String message);
 
