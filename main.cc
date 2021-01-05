@@ -33,9 +33,10 @@
 #include <mosquitto.h>
 #include "mqtt.h"
 
-a_refptr<JSON> config;
-SArray<Modbus*> mbs; // XXX no automatic deletion
-AArray<void (*)(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)> devfunctions;
+static a_refptr<JSON> config;
+static SArray<Modbus*> mbs; // XXX no automatic deletion
+static AArray<void (*)(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)> devfunctions;
+static MQTT mqtt;
 
 void
 siginit()
@@ -59,8 +60,6 @@ sighandler(int sig)
 		break;
 	}
 }
-
-static MQTT mqtt;
 
 void
 eth_tpr(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)

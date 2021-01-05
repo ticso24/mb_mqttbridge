@@ -37,6 +37,5 @@ int main(int argc, char *argv[]);
 void usage(void);
 void siginit(void);
 void sighandler(int sig);
-extern a_refptr<JSON> config;
 
 #endif /* MAIN */
