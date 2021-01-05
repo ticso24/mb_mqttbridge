@@ -590,7 +590,7 @@ main(int argc, char *argv[]) {
 		String willtopic = maintopic + "/status";
 		main_mqtt.publish(willtopic, "online", true);
 		main_mqtt.publish(maintopic + "/product", "mb_mqttbridge", true);
-		main_mqtt.publish(maintopic + "/version", "0.3", true);
+		main_mqtt.publish(maintopic + "/version", "0.4", true);
 	} else {
 		printf("no mqtt setup in config\n");
 		exit(1);
