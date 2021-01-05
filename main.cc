@@ -534,17 +534,23 @@ ModbusLoop(void * arg)
 int
 main(int argc, char *argv[]) {
 	String configfile = "/usr/local/etc/mb_mqttbridge.conf";
+	String pidfile = "/var/run/mb_mqttbridge.pid";
+
+	openlog(argv[0], LOG_PID, LOG_LOCAL0);
 
 	int ch;
 	bool debug = false;
 
-	while ((ch = getopt(argc, argv, "dc:")) != -1) {
+	while ((ch = getopt(argc, argv, "c:dp:")) != -1) {
 		switch (ch) {
 		case 'c':
 			configfile = optarg;
 			break;
 		case 'd':
 			debug = true;
+			break;
+		case 'p':
+			pidfile = optarg;
 			break;
 		case '?':
 			default:
@@ -556,6 +562,16 @@ main(int argc, char *argv[]) {
 
 	if (!debug) {
 		daemon(0, 0);
+	}
+
+	// write pidfile
+	{
+		pid_t pid;
+		pid = getpid();
+		File pfile;
+		pfile.open(pidfile, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		pfile.write(String(pid) + "\n");
+		pfile.close();
 	}
 
 	{
@@ -634,7 +650,7 @@ main(int argc, char *argv[]) {
 void
 usage(void) {
 
-	printf("usage: mb_mqttbridge [-d] [-c configfile]\n");
+	printf("usage: mb_mqttbridge [-d] [-c configfile] [-p pidfile]\n");
 	exit(1);
 }
 
