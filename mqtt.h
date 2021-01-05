@@ -72,7 +72,7 @@ public:
 	void publish(const String& topic, const String& message, bool retain = true);
 	void publish_ifchanged(const String& topic, const String& message);
 	void subscribe(const String& topic);
-	Array<RXbuf> get_rxbuf(const String& maintopic);
+	Array<RXbuf> get_rxbuf();
 	String operator[](const String& topic);
 };
 

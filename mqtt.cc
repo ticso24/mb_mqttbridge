@@ -61,9 +61,6 @@ MQTT::connect()
 		rc = mosquitto_connect(mosq, host.c_str(), port, 5);
 
 		mosquitto_loop_start(mosq);
-		publish(willtopic, "online", true);
-		publish(maintopic + "/product", product, true);
-		publish(maintopic + "/version", version, true);
 		return true;
 	}
 
@@ -159,20 +156,12 @@ MQTT::message_callback(const String& topic, const String& message)
 }
 
 Array<MQTT::RXbuf>
-MQTT::get_rxbuf(const String& maintopic)
+MQTT::get_rxbuf()
 {
 	Array<RXbuf> tmp;
-	if (rxbuf_enable) {
-		rxdata_mtx.lock();
-		for (int64_t i = 0; i <= rxbuf.max; i++) {
-			if (rxbuf[i].topic.strncmp(maintopic)) {
-				tmp << rxbuf[i];
-				rxbuf.del(i);
-				i--;
-			}
-		}
-		rxdata_mtx.unlock();
-	}
+	rxdata_mtx.lock();
+	std::swap(tmp, rxbuf);
+	rxdata_mtx.unlock();
 	return tmp;
 }
 

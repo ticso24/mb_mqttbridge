@@ -35,8 +35,8 @@
 
 static a_refptr<JSON> config;
 static SArray<Modbus*> mbs; // XXX no automatic deletion
-static AArray<void (*)(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)> devfunctions;
-static MQTT mqtt;
+static AArray<void (*)(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)> devfunctions;
+static MQTT main_mqtt;
 
 void
 siginit()
@@ -62,7 +62,7 @@ sighandler(int sig)
 }
 
 void
-eth_tpr(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+eth_tpr(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
@@ -73,7 +73,7 @@ eth_tpr(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& de
 		mqtt.publish_ifchanged(maintopic + "/input3", bin_inputs[3] ? "1" : "0");
 	}
 
-	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	auto rxbuf = mqtt.get_rxbuf();
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
 		if (rxbuf[i].topic == maintopic + "/relais0") {
 			bool val = (rxbuf[i].message == "0") ? 0 : 1;
@@ -87,7 +87,7 @@ eth_tpr(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& de
 }
 
 void
-eth_tpr_ldr(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+eth_tpr_ldr(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
@@ -143,7 +143,7 @@ eth_tpr_ldr(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>
 		}
 	}
 
-	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	auto rxbuf = mqtt.get_rxbuf();
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
 		if (rxbuf[i].topic == maintopic + "/relais0") {
 			bool val = (rxbuf[i].message == "0") ? 0 : 1;
@@ -173,7 +173,7 @@ eth_tpr_ldr(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>
 }
 
 void
-jalousie(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+jalousie(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
@@ -182,7 +182,7 @@ jalousie(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& d
 			mqtt.publish_ifchanged(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0");
 		}
 	}
-	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	auto rxbuf = mqtt.get_rxbuf();
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
 		for (int64_t n = 0; n < 3; n++) {
 			if (rxbuf[i].topic == maintopic + "/blind" + n) {
@@ -211,7 +211,7 @@ jalousie(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& d
 }
 
 void
-relais6(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+relais6(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	// XXX no counter support yet
 	{
@@ -221,7 +221,7 @@ relais6(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& de
 			mqtt.publish_ifchanged(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0");
 		}
 	}
-	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	auto rxbuf = mqtt.get_rxbuf();
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
 		for (int64_t n = 0; n < 6; n++) {
 			if (rxbuf[i].topic == maintopic + "/relais" + n) {
@@ -233,17 +233,17 @@ relais6(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& de
 }
 
 void
-shct3(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+shct3(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 2);
 	mqtt.publish_ifchanged(maintopic + "/temperature", S + (int16_t)int_inputs[0]);
 	mqtt.publish_ifchanged(maintopic + "/humidity", S + int_inputs[1]);
 
-	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	auto rxbuf = mqtt.get_rxbuf();
 }
 
 void
-laserdistance(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+laserdistance(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 3);
 	{
@@ -252,11 +252,11 @@ laserdistance(Modbus& mb, uint8_t address, const String& maintopic, AArray<Strin
 	}
 	mqtt.publish_ifchanged(maintopic + "/distance", S + int_inputs[2]);
 
-	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	auto rxbuf = mqtt.get_rxbuf();
 }
 
 void
-io88(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+io88(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
@@ -266,7 +266,7 @@ io88(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devda
 		}
 	}
 
-	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	auto rxbuf = mqtt.get_rxbuf();
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
 		for (int r = 0; r < 8; r++) {
 			if (rxbuf[i].topic == maintopic + "/output" + r) {
@@ -284,7 +284,7 @@ io88(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devda
 }
 
 void
-adc_dac(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+adc_dac(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	{
 		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 10);
@@ -295,7 +295,7 @@ adc_dac(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& de
 		mqtt.publish_ifchanged(maintopic + "/ref", S + int_inputs[9]);
 	}
 
-	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	auto rxbuf = mqtt.get_rxbuf();
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
 		if (rxbuf[i].topic == maintopic + "/dac0") {
 			int16_t val = rxbuf[i].message.getll();
@@ -309,7 +309,7 @@ adc_dac(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& de
 }
 
 void
-rfid125_disp(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+rfid125_disp(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	{
 		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 11);
@@ -332,11 +332,11 @@ rfid125_disp(Modbus& mb, uint8_t address, const String& maintopic, AArray<String
 		}
 	}
 
-	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	auto rxbuf = mqtt.get_rxbuf();
 }
 
 void
-rfid125(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+rfid125(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	{
 		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 11);
@@ -359,11 +359,11 @@ rfid125(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& de
 		}
 	}
 
-	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	auto rxbuf = mqtt.get_rxbuf();
 }
 
 void
-thermocouple(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+thermocouple(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 24);
@@ -382,11 +382,11 @@ thermocouple(Modbus& mb, uint8_t address, const String& maintopic, AArray<String
 		}
 	}
 
-	auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+	auto rxbuf = mqtt.get_rxbuf();
 }
 
 void
-chamberpump(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+chamberpump(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	{
 		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 9);
@@ -426,7 +426,7 @@ chamberpump(Modbus& mb, uint8_t address, const String& maintopic, AArray<String>
 			mqtt.publish_ifchanged(maintopic + "/cycletime", S + tmp);
 		}
 
-		auto rxbuf = mqtt.get_rxbuf(maintopic + "/");
+		auto rxbuf = mqtt.get_rxbuf();
 		for (int64_t i = 0; i <= rxbuf.max; i++) {
 			if (rxbuf[i].topic == maintopic + "/triggerlevel_top") {
 				uint16_t val = rxbuf[i].message.getll();
@@ -454,12 +454,34 @@ ModbusLoop(void * arg)
 	String host = modbuses[bus]["host"];
 	String port = modbuses[bus]["port"];
 	Modbus mb(host, port);
+	Array<MQTT> dev_mqtts;
 
 	for(;;) {
 		for (int64_t dev = 0; dev <= bus_cfg["devices"].get_array().max; dev++) {
 			JSON& dev_cfg = bus_cfg["devices"][dev];
 			String maintopic = dev_cfg["maintopic"];
 			uint8_t address = dev_cfg["address"].get_numstr().getll();
+			if (!dev_mqtts.exists(dev)) {
+				MQTT& mqtt = dev_mqtts[dev];
+				JSON& mqtt_cfg = cfg["mqtt"];
+				String id = mqtt_cfg["id"];
+				if (!id.empty()) {
+					id += S + "[" + host + "]" + port + "/" + address;
+				}
+				mqtt.id = id;
+				String host = mqtt_cfg["host"];
+				mqtt.host = host;
+				String port = mqtt_cfg["port"];
+				mqtt.port = port.getll();
+				String username = mqtt_cfg["username"];
+				mqtt.username = username;
+				String password = mqtt_cfg["password"];
+				mqtt.password = password;
+				mqtt.maintopic = maintopic;
+				mqtt.rxbuf_enable = true;
+				mqtt.connect();
+			};
+			MQTT& mqtt = dev_mqtts[dev];
 			try {
 				if (!devdata[dev].exists("vendor")) {
 					String product = mb.identification(address, 0);
@@ -494,7 +516,7 @@ ModbusLoop(void * arg)
 				if (devdata[dev]["vendor"] == "Bernd Walter Computer Technology") {
 					String product = devdata[dev]["product"];
 					if (!product.empty()) {
-						(*devfunctions[product])(mb, address, maintopic, devdata[dev], dev_cfg);
+						(*devfunctions[product])(mb, mqtt, address, maintopic, devdata[dev], dev_cfg);
 					}
 				}
 				mqtt.publish_ifchanged(maintopic + "/status", "online");
@@ -552,21 +574,23 @@ main(int argc, char *argv[]) {
 	if (cfg.exists("mqtt")) {
 		JSON& mqtt_cfg = cfg["mqtt"];
 		String id = mqtt_cfg["id"];
-		mqtt.id = id;
+		main_mqtt.id = id;
 		String host = mqtt_cfg["host"];
-		mqtt.host = host;
+		main_mqtt.host = host;
 		String port = mqtt_cfg["port"];
-		mqtt.port = port.getll();
+		main_mqtt.port = port.getll();
 		String username = mqtt_cfg["username"];
-		mqtt.username = username;
+		main_mqtt.username = username;
 		String password = mqtt_cfg["password"];
-		mqtt.password = password;
+		main_mqtt.password = password;
 		String maintopic = mqtt_cfg["maintopic"];
-		mqtt.maintopic = maintopic;
-		mqtt.rxbuf_enable = true;
-		mqtt.product = "mb_mqttbridge";
-		mqtt.version = "0.3";
-		mqtt.connect();
+		main_mqtt.maintopic = maintopic;
+		main_mqtt.rxbuf_enable = true;
+		main_mqtt.connect();
+		String willtopic = maintopic + "/status";
+		main_mqtt.publish(willtopic, "online", true);
+		main_mqtt.publish(maintopic + "/product", "mb_mqttbridge", true);
+		main_mqtt.publish(maintopic + "/version", "0.3", true);
 	} else {
 		printf("no mqtt setup in config\n");
 		exit(1);
