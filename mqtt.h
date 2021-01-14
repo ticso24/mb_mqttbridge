@@ -69,11 +69,15 @@ public:
 	~MQTT();
 	bool connect(void);
 	void disconnect(void);
+	void publish(const JSON& element, const String& message, bool retain = true);
+	void publish_ifchanged(const JSON& element, const String& message);
 	void publish(const String& topic, const String& message, bool retain = true);
 	void publish_ifchanged(const String& topic, const String& message);
 	void subscribe(const String& topic);
 	Array<RXbuf> get_rxbuf();
 	String operator[](const String& topic);
+	String operator[](const JSON& element);
+	void check_online(const JSON& element);
 };
 
 #endif /* I_MQTT */

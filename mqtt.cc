@@ -78,6 +78,22 @@ MQTT::disconnect()
 }
 
 void
+MQTT::publish_ifchanged(const JSON& element, const String& message)
+{
+	check_online(element);
+	String topic = element["topic"];
+	publish_ifchanged(topic, message);
+}
+
+void
+MQTT::publish(const JSON& element, const String& message, bool retain)
+{
+	check_online(element);
+	String topic = element["topic"];
+	publish(topic, message, retain);
+}
+
+void
 MQTT::publish_ifchanged(const String& topic, const String& message)
 {
 	bool send;
@@ -163,6 +179,26 @@ MQTT::get_rxbuf()
 	std::swap(tmp, rxbuf);
 	rxdata_mtx.unlock();
 	return tmp;
+}
+
+void
+MQTT::check_online(const JSON& element)
+{
+	if (element.exists("status_topic")) {
+		String status_topic = element["status_topic"];
+		if ((*this)[status_topic] != "online") {
+			String topic = element["topic"];
+			throw(Error(S + "device " + topic + " not online"));
+		}
+	}
+}
+
+String
+MQTT::operator[](const JSON& element)
+{
+	check_online(element);
+	String topic = element["topic"];
+	return (*this)[topic];
 }
 
 String
