@@ -484,20 +484,21 @@ ModbusLoop(void * arg)
 			MQTT& mqtt = dev_mqtts[dev];
 			try {
 				if (!devdata[dev].exists("vendor")) {
-					String product = mb.identification(address, 0);
-					devdata[dev]["vendor"] = product;
-					mqtt.publish_ifchanged(maintopic + "/vendor", product);
-					if (devdata[dev]["vendor"] == "Bernd Walter Computer Technology") {
-						if (!devfunctions.exists(product)) {
-							throw(Error(S + "unknown product" + product));
-						}
-						devdata[dev]["product"] = "";
-					}
+					String vendor = mb.identification(address, 0);
+					devdata[dev]["vendor"] = vendor;
+					mqtt.publish_ifchanged(maintopic + "/vendor", vendor);
 				}
 				if (!devdata[dev].exists("product")) {
-					String tmp = mb.identification(address, 1);
-					devdata[dev]["product"] = tmp;
-					mqtt.publish_ifchanged(maintopic + "/product", tmp);
+					String product = mb.identification(address, 1);
+					if (devdata[dev]["vendor"] == "Bernd Walter Computer Technology") {
+						if (!devfunctions.exists(product)) {
+							throw(Error(S + "unknown product " + product));
+						}
+						devdata[dev]["product"] = "";
+					} else {
+						devdata[dev]["product"] = product;
+					}
+					mqtt.publish_ifchanged(maintopic + "/product", product);
 				}
 				if (!devdata[dev].exists("version")) {
 					String tmp = mb.identification(address, 2);
