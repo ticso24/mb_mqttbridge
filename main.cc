@@ -494,9 +494,9 @@ ModbusLoop(void * arg)
 						if (!devfunctions.exists(product)) {
 							throw(Error(S + "unknown product " + product));
 						}
-						devdata[dev]["product"] = "";
-					} else {
 						devdata[dev]["product"] = product;
+					} else {
+						devdata[dev]["product"] = "";
 					}
 					mqtt.publish_ifchanged(maintopic + "/product", product);
 				}
