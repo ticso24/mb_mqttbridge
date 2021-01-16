@@ -484,12 +484,24 @@ ModbusLoop(void * arg)
 			MQTT& mqtt = dev_mqtts[dev];
 			try {
 				if (!devdata[dev].exists("vendor")) {
-					String vendor = mb.identification(address, 0);
+					String vendor;
+					if (dev_cfg.exists("vendor")) {
+						String tmp = dev_cfg["vendor"];
+						vendor = tmp;
+					} else {
+						vendor = mb.identification(address, 0);
+					}
 					devdata[dev]["vendor"] = vendor;
 					mqtt.publish_ifchanged(maintopic + "/vendor", vendor);
 				}
 				if (!devdata[dev].exists("product")) {
-					String product = mb.identification(address, 1);
+					String product;
+					if (dev_cfg.exists("product")) {
+						String tmp = dev_cfg["product"];
+						product = tmp;
+					} else {
+						product = mb.identification(address, 1);
+					}
 					if (devdata[dev]["vendor"] == "Bernd Walter Computer Technology") {
 						if (!devfunctions.exists(product)) {
 							throw(Error(S + "unknown product " + product));
@@ -501,9 +513,15 @@ ModbusLoop(void * arg)
 					mqtt.publish_ifchanged(maintopic + "/product", product);
 				}
 				if (!devdata[dev].exists("version")) {
-					String tmp = mb.identification(address, 2);
-					devdata[dev]["version"] = tmp;
-					mqtt.publish_ifchanged(maintopic + "/version", tmp);
+					String version;
+					if (dev_cfg.exists("version")) {
+						String tmp = dev_cfg["version"];
+						version = tmp;
+					} else {
+						version = mb.identification(address, 2);
+					}
+					devdata[dev]["version"] = version;
+					mqtt.publish_ifchanged(maintopic + "/version", version);
 				}
 				if (devdata[dev]["maintopic"].empty()) {
 					// at this stage we know the device and can handle incoming data
