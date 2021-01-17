@@ -37,6 +37,91 @@
 
 class MQTT : public Base {
 public:
+	class Datawrapper : public Base {
+	public:
+		String data;
+		Datawrapper()
+		{
+		}
+		Datawrapper(const String& arg)
+		{
+			data = arg;
+		}
+		Datawrapper(const Datawrapper& arg)
+		{
+			data = arg.data;
+		}
+		Datawrapper(Datawrapper&& arg)
+		{
+			std::swap(data, arg.data);
+		}
+		~Datawrapper()
+		{
+		}
+		Datawrapper operator= (const String& arg)
+		{
+			data = arg;
+			return *this;
+		}
+		Datawrapper operator= (const Datawrapper& arg)
+		{
+			data = arg.data;
+			return *this;
+		}
+		Datawrapper operator= (Datawrapper&& arg)
+		{
+			std::swap(data, arg.data);
+			return *this;
+		}
+		operator bool() const
+		{
+			return (data == "1");
+		}
+		operator float() const
+		{
+			return data.getd();
+		}
+		operator double() const
+		{
+			return data.getd();
+		}
+		operator unsigned char() const
+		{
+			return data.getll();
+		}
+		operator char() const
+		{
+			return data.getll();
+		}
+		operator unsigned short() const
+		{
+			return data.getll();
+		}
+		operator short() const
+		{
+			return data.getll();
+		}
+		operator unsigned long() const
+		{
+			return data.getll();
+		}
+		operator long() const
+		{
+			return data.getll();
+		}
+		operator unsigned long long() const
+		{
+			return data.getll();
+		}
+		operator long long() const
+		{
+			return data.getll();
+		}
+		operator String() const
+		{
+			return data;
+		}
+	};
 	struct RXbuf {
 		String topic;
 		String message;
@@ -75,8 +160,8 @@ public:
 	void publish_ifchanged(const String& topic, const String& message);
 	void subscribe(const String& topic);
 	Array<RXbuf> get_rxbuf();
-	String operator[](const String& topic);
-	String operator[](const JSON& element);
+	Datawrapper operator[](const String& topic);
+	Datawrapper operator[](const JSON& element);
 	void check_online(const JSON& element);
 };
 

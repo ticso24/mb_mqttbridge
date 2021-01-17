@@ -186,14 +186,15 @@ MQTT::check_online(const JSON& element)
 {
 	if (element.exists("status_topic")) {
 		String status_topic = element["status_topic"];
-		if ((*this)[status_topic] != "online") {
+		String status = (*this)[status_topic];
+		if (status != "online") {
 			String topic = element["topic"];
 			throw(Error(S + "device " + topic + " not online"));
 		}
 	}
 }
 
-String
+MQTT::Datawrapper
 MQTT::operator[](const JSON& element)
 {
 	check_online(element);
@@ -201,7 +202,7 @@ MQTT::operator[](const JSON& element)
 	return (*this)[topic];
 }
 
-String
+MQTT::Datawrapper
 MQTT::operator[](const String& topic)
 {
 	String ret;
