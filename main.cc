@@ -552,7 +552,7 @@ ModbusLoop(void * arg)
 
 int
 main(int argc, char *argv[]) {
-	String configfile = "/usr/local/etc/mb_mqttbridge.conf";
+	String configfile = "/usr/local/etc/mb_mqttbridge.json";
 	String pidfile = "/var/run/mb_mqttbridge.pid";
 
 	openlog(argv[0], LOG_PID, LOG_LOCAL0);
