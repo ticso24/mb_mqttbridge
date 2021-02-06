@@ -533,10 +533,7 @@ ModbusLoop(void * arg)
 					}
 				}
 				if (!product.empty() && !vendor.empty()) {
-					String product = devdata[dev]["product"];
-					if (!product.empty()) {
-						(*devfunctions[vendor][product])(mb, mqtt, address, maintopic, devdata[dev], dev_cfg);
-					}
+					(*devfunctions[vendor][product])(mb, mqtt, address, maintopic, devdata[dev], dev_cfg);
 				}
 				mqtt.publish_ifchanged(maintopic + "/status", "online");
 			} catch(...) {
