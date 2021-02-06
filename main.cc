@@ -35,7 +35,7 @@
 
 static a_refptr<JSON> config;
 static SArray<Modbus*> mbs; // XXX no automatic deletion
-static AArray<void (*)(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)> devfunctions;
+static AArray<AArray<void (*)(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)>> devfunctions;
 static MQTT main_mqtt;
 
 void
@@ -494,6 +494,7 @@ ModbusLoop(void * arg)
 					devdata[dev]["vendor"] = vendor;
 					mqtt.publish_ifchanged(maintopic + "/vendor", vendor);
 				}
+				String vendor = devdata[dev]["vendor"];
 				if (!devdata[dev].exists("product")) {
 					String product;
 					if (dev_cfg.exists("product")) {
@@ -502,15 +503,14 @@ ModbusLoop(void * arg)
 					} else {
 						product = mb.identification(address, 1);
 					}
-					if (devdata[dev]["vendor"] == "Bernd Walter Computer Technology") {
-						if (!devfunctions.exists(product)) {
-							throw(Error(S + "unknown product " + product));
-						}
-						devdata[dev]["product"] = product;
-					} else {
-						devdata[dev]["product"] = "";
-					}
+					devdata[dev]["product"] = product;
 					mqtt.publish_ifchanged(maintopic + "/product", product);
+				}
+				String product = devdata[dev]["product"];
+				if (!product.empty() && !vendor.empty()) {
+					if (!devfunctions.exists(vendor) || !devfunctions[vendor].exists(product)) {
+						throw(Error(S + "unknown product " + vendor + " " + product));
+					}
 				}
 				if (!devdata[dev].exists("version")) {
 					String version;
@@ -532,10 +532,10 @@ ModbusLoop(void * arg)
 						mqtt.subscribe(maintopic + "/+");
 					}
 				}
-				if (devdata[dev]["vendor"] == "Bernd Walter Computer Technology") {
+				if (!product.empty() && !vendor.empty()) {
 					String product = devdata[dev]["product"];
 					if (!product.empty()) {
-						(*devfunctions[product])(mb, mqtt, address, maintopic, devdata[dev], dev_cfg);
+						(*devfunctions[vendor][product])(mb, mqtt, address, maintopic, devdata[dev], dev_cfg);
 					}
 				}
 				mqtt.publish_ifchanged(maintopic + "/status", "online");
@@ -637,18 +637,18 @@ main(int argc, char *argv[]) {
 	}
 
 	// register devicefunctions
-	devfunctions["Ethernet-MB twin power relay / 4ch input"] = eth_tpr;
-	devfunctions["Ethernet-MB RS485 / twin power relay / 4ch input / LDR / DS18B20"] = eth_tpr_ldr;
-	devfunctions["MB 3x jalousie actor / 8ch input"] = jalousie;
-	devfunctions["MB 6x power relay / 8ch input"] = relais6;
-	devfunctions["RS485-SHTC3"] = shct3;
-	devfunctions["RS485-Laserdistance-Weight"] = laserdistance;
-	devfunctions["RS485-IO88"] = io88;
-	devfunctions["MB ADC DAC"] = adc_dac;
-	devfunctions["125kHz RFID Reader / Display"] = rfid125_disp;
-	devfunctions["125kHz RFID Reader / Writer-Beta"] = rfid125;
-	devfunctions["RS485-THERMOCOUPLE"] = thermocouple;
-	devfunctions["RS485-Chamberpump"] = chamberpump;
+	devfunctions["Bernd Walter Computer Technology"]["Ethernet-MB twin power relay / 4ch input"] = eth_tpr;
+	devfunctions["Bernd Walter Computer Technology"]["Ethernet-MB RS485 / twin power relay / 4ch input / LDR / DS18B20"] = eth_tpr_ldr;
+	devfunctions["Bernd Walter Computer Technology"]["MB 3x jalousie actor / 8ch input"] = jalousie;
+	devfunctions["Bernd Walter Computer Technology"]["MB 6x power relay / 8ch input"] = relais6;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-SHTC3"] = shct3;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-Laserdistance-Weight"] = laserdistance;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-IO88"] = io88;
+	devfunctions["Bernd Walter Computer Technology"]["MB ADC DAC"] = adc_dac;
+	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Display"] = rfid125_disp;
+	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Writer-Beta"] = rfid125;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-THERMOCOUPLE"] = thermocouple;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-Chamberpump"] = chamberpump;
 
 	// start poll loops
 	JSON& modbuses = cfg["modbuses"];
