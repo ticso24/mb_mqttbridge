@@ -182,6 +182,7 @@ jalousie(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArra
 			mqtt.publish_ifchanged(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0");
 		}
 	}
+
 	auto rxbuf = mqtt.get_rxbuf();
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
 		for (int64_t n = 0; n < 3; n++) {
@@ -425,17 +426,17 @@ chamberpump(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AA
 			uint32_t tmp = (uint32_t)int_inputs[7] | (uint32_t)int_inputs[8] << 16;
 			mqtt.publish_ifchanged(maintopic + "/cycletime", S + tmp);
 		}
+	}
 
-		auto rxbuf = mqtt.get_rxbuf();
-		for (int64_t i = 0; i <= rxbuf.max; i++) {
-			if (rxbuf[i].topic == maintopic + "/triggerlevel_top") {
-				uint16_t val = rxbuf[i].message.getll();
-				mb.write_register(address, 0, val);
-			}
-			if (rxbuf[i].topic == maintopic + "/triggerlevel_bottom") {
-				uint16_t val = rxbuf[i].message.getll();
-				mb.write_register(address, 1, val);
-			}
+	auto rxbuf = mqtt.get_rxbuf();
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/triggerlevel_top") {
+			uint16_t val = rxbuf[i].message.getll();
+			mb.write_register(address, 0, val);
+		}
+		if (rxbuf[i].topic == maintopic + "/triggerlevel_bottom") {
+			uint16_t val = rxbuf[i].message.getll();
+			mb.write_register(address, 1, val);
 		}
 	}
 }
