@@ -311,6 +311,28 @@ laserdistance(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 }
 
 void
+eth_io88(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	{
+		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
+
+		for (int i = 0; i < 8; i++) {
+			mqtt.publish_ifchanged(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0");
+		}
+	}
+
+	auto rxbuf = mqtt.get_rxbuf();
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		for (int r = 0; r < 8; r++) {
+			if (rxbuf[i].topic == maintopic + "/output" + r) {
+				bool val = (rxbuf[i].message == "0") ? 0 : 1;
+				mb.write_coil(address, r, val);
+			}
+		}
+	}
+}
+
+void
 io88(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	{
@@ -696,6 +718,7 @@ main(int argc, char *argv[]) {
 	devfunctions["Bernd Walter Computer Technology"]["RS485-SHTC3"] = shct3;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-Laserdistance-Weight"] = laserdistance;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-IO88"] = io88;
+	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88"] = eth_io88;
 	devfunctions["Bernd Walter Computer Technology"]["MB ADC DAC"] = adc_dac;
 	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Display"] = rfid125_disp;
 	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Writer-Beta"] = rfid125;
