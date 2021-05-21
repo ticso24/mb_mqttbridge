@@ -144,6 +144,8 @@ MQTT::connect_callback(int result)
 		for (int64_t i = 0; i <= subscribtions.max; i++) {
 			mosquitto_subscribe(mosq, NULL, subscribtions[i].c_str(), 0);
 		}
+		String willtopic = maintopic + "/status";
+		publish(willtopic, "online", true);
 		subscribtion_mtx.unlock();
 	}
 }
