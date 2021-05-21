@@ -541,8 +541,16 @@ ModbusLoop(void * arg)
 	String port = modbuses[bus]["port"];
 	Modbus mb(host, port);
 	Array<MQTT> dev_mqtts;
+	Array<struct timespec> lasttime;
+
+	for (int64_t dev = 0; dev <= bus_cfg["devices"].get_array().max; dev++) {
+		clock_gettime(CLOCK_MONOTONIC, &lasttime[dev]);
+	}
 
 	for(;;) {
+		struct timespec now;
+		clock_gettime(CLOCK_MONOTONIC, &now);
+
 		for (int64_t dev = 0; dev <= bus_cfg["devices"].get_array().max; dev++) {
 			JSON& dev_cfg = bus_cfg["devices"][dev];
 			String maintopic = dev_cfg["maintopic"];
@@ -618,15 +626,30 @@ ModbusLoop(void * arg)
 						mqtt.subscribe(maintopic + "/+");
 					}
 				}
-				if (!product.empty() && !vendor.empty()) {
-					(*devfunctions[vendor][product])(mb, mqtt, address, maintopic, devdata[dev], dev_cfg);
+				bool poll = true;
+				if (dev_cfg.exists("min_pollintervall")) {
+					String tmp = dev_cfg["min_pollintervall"].get_numstr();
+					double intervall = (double)tmp.getd();
+					struct timespec timespecdiff;
+					timespecsub(&now, &lasttime[dev], &timespecdiff);
+					double timediff = (double)(timespecdiff.tv_sec) + (double)(timespecdiff.tv_nsec) / 1000000000;
+					if (timediff < intervall) {
+						poll = false;
+					}
 				}
-				mqtt.publish_ifchanged(maintopic + "/status", "online");
+				if (poll) {
+					if (!product.empty() && !vendor.empty()) {
+						(*devfunctions[vendor][product])(mb, mqtt, address, maintopic, devdata[dev], dev_cfg);
+					}
+					mqtt.publish_ifchanged(maintopic + "/status", "online");
+					lasttime[dev] = now;
+				}
 			} catch(...) {
 				mqtt.publish_ifchanged(maintopic + "/status", "offline");
 				sleep(1);
 			}
 		}
+
 		usleep(10000); // sleep 10ms
 	}
 
