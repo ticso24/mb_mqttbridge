@@ -76,12 +76,12 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 	{
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3000, 9);
-			mqtt.publish_ifchanged(maintopic + "/PV array rated voltage", d_to_s((double)int_inputs[0] / 100));
-			mqtt.publish_ifchanged(maintopic + "/PV array rated current", d_to_s((double)int_inputs[1] / 100));
-			mqtt.publish_ifchanged(maintopic + "/PV array rated power", d_to_s((double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100));
-			mqtt.publish_ifchanged(maintopic + "/rated voltage to battery", d_to_s((double)int_inputs[4] / 100));
-			mqtt.publish_ifchanged(maintopic + "/rated current to battery", d_to_s((double)int_inputs[5] / 100));
-			mqtt.publish_ifchanged(maintopic + "/rated power to battery", d_to_s((double)((uint32_t)int_inputs[7] << 16 | int_inputs[6]) / 100));
+			mqtt.publish_ifchanged(maintopic + "/PV array rated voltage", d_to_s((double)int_inputs[0] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/PV array rated current", d_to_s((double)int_inputs[1] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/PV array rated power", d_to_s((double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/rated voltage to battery", d_to_s((double)int_inputs[4] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/rated current to battery", d_to_s((double)int_inputs[5] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/rated power to battery", d_to_s((double)((uint32_t)int_inputs[7] << 16 | int_inputs[6]) / 100, 2));
 			switch(int_inputs[8]) {
 			case 0x000:
 				mqtt.publish_ifchanged(maintopic + "/charging mode", S + "connect/disconnect");
@@ -96,28 +96,28 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x300e, 1);
-			mqtt.publish_ifchanged(maintopic + "/rated current of load", d_to_s((double)int_inputs[0] / 100));
+			mqtt.publish_ifchanged(maintopic + "/rated current of load", d_to_s((double)int_inputs[0] / 100, 2));
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3100, 4);
-			mqtt.publish_ifchanged(maintopic + "/PV voltage", d_to_s((double)int_inputs[0] / 100));
-			mqtt.publish_ifchanged(maintopic + "/PV current", d_to_s((double)int_inputs[1] / 100));
-			mqtt.publish_ifchanged(maintopic + "/PV power", d_to_s((double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100));
+			mqtt.publish_ifchanged(maintopic + "/PV voltage", d_to_s((double)int_inputs[0] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/PV current", d_to_s((double)int_inputs[1] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/PV power", d_to_s((double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3106, 2);
-			mqtt.publish_ifchanged(maintopic + "/battery charging power", d_to_s((double)((uint32_t)int_inputs[1] << 16 | int_inputs[0]) / 100));
+			mqtt.publish_ifchanged(maintopic + "/battery charging power", d_to_s((double)((uint32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2));
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x310c, 4);
-			mqtt.publish_ifchanged(maintopic + "/battery voltage", d_to_s((double)int_inputs[0] / 100));
-			mqtt.publish_ifchanged(maintopic + "/battery current", d_to_s((double)int_inputs[1] / 100));
-			mqtt.publish_ifchanged(maintopic + "/battery power", d_to_s((double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100));
+			mqtt.publish_ifchanged(maintopic + "/battery voltage", d_to_s((double)int_inputs[0] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/battery current", d_to_s((double)int_inputs[1] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/battery power", d_to_s((double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3110, 2);
-			mqtt.publish_ifchanged(maintopic + "/battery temperature", d_to_s((double)int_inputs[0] / 100));
-			mqtt.publish_ifchanged(maintopic + "/case temperature", d_to_s((double)int_inputs[1] / 100));
+			mqtt.publish_ifchanged(maintopic + "/battery temperature", d_to_s((double)int_inputs[0] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/case temperature", d_to_s((double)int_inputs[1] / 100, 2));
 		}
 	}
 
