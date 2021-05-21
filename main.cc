@@ -83,13 +83,13 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 			mqtt.publish_ifchanged(maintopic + "/rated current to battery", d_to_s((double)int_inputs[5] / 100, 2));
 			mqtt.publish_ifchanged(maintopic + "/rated power to battery", d_to_s((double)((uint32_t)int_inputs[7] << 16 | int_inputs[6]) / 100, 2));
 			switch(int_inputs[8]) {
-			case 0x000:
+			case 0x0000:
 				mqtt.publish_ifchanged(maintopic + "/charging mode", S + "connect/disconnect");
 				break;
-			case 0x001:
+			case 0x0001:
 				mqtt.publish_ifchanged(maintopic + "/charging mode", S + "PWM");
 				break;
-			case 0x002:
+			case 0x0002:
 				mqtt.publish_ifchanged(maintopic + "/charging mode", S + "MPPT");
 				break;
 			}
@@ -102,22 +102,79 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3100, 4);
 			mqtt.publish_ifchanged(maintopic + "/PV voltage", d_to_s((double)int_inputs[0] / 100, 2));
 			mqtt.publish_ifchanged(maintopic + "/PV current", d_to_s((double)int_inputs[1] / 100, 2));
-			mqtt.publish_ifchanged(maintopic + "/PV power", d_to_s((double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/PV power", d_to_s((double)((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
 		}
-		{
+		if (0) {
+			// value makes no sense, identic to PV power
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3106, 2);
-			mqtt.publish_ifchanged(maintopic + "/battery charging power", d_to_s((double)((uint32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/battery charging power", d_to_s((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2));
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x310c, 4);
-			mqtt.publish_ifchanged(maintopic + "/battery voltage", d_to_s((double)int_inputs[0] / 100, 2));
-			mqtt.publish_ifchanged(maintopic + "/battery current", d_to_s((double)int_inputs[1] / 100, 2));
-			mqtt.publish_ifchanged(maintopic + "/battery power", d_to_s((double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/load voltage", d_to_s((double)int_inputs[0] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/load current", d_to_s((double)int_inputs[1] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/load power", d_to_s((double)((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3110, 2);
 			mqtt.publish_ifchanged(maintopic + "/battery temperature", d_to_s((double)int_inputs[0] / 100, 2));
 			mqtt.publish_ifchanged(maintopic + "/case temperature", d_to_s((double)int_inputs[1] / 100, 2));
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3201, 2);
+			int state;
+			state = (int_inputs[0] >> 2) & 0x3;
+			switch(state) {
+			case 0x0:
+				mqtt.publish_ifchanged(maintopic + "/charging status", S + "no charging");
+				break;
+			case 0x1:
+				mqtt.publish_ifchanged(maintopic + "/charging status", S + "float");
+				break;
+			case 0x2:
+				mqtt.publish_ifchanged(maintopic + "/charging status", S + "boost");
+				break;
+			case 0x3:
+				mqtt.publish_ifchanged(maintopic + "/charging status", S + "equalization");
+				break;
+			}
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x331a, 3);
+			mqtt.publish_ifchanged(maintopic + "/battery voltage", d_to_s((double)int_inputs[0] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/battery current", d_to_s((double)((int32_t)int_inputs[2] << 16 | int_inputs[1]) / 100, 2));
+		}
+
+		{
+			SArray<uint16_t> int_inputs = mb.read_holding_registers(address, 0x9000, 15);
+			switch(int_inputs[0]) {
+			case 0x0000:
+				mqtt.publish_ifchanged(maintopic + "/battery type", S + "user defined");
+				break;
+			case 0x0001:
+				mqtt.publish_ifchanged(maintopic + "/battery type", S + "sealed");
+				break;
+			case 0x0002:
+				mqtt.publish_ifchanged(maintopic + "/battery type", S + "GEL");
+				break;
+			case 0x0003:
+				mqtt.publish_ifchanged(maintopic + "/battery type", S + "flooded");
+				break;
+			}
+			mqtt.publish_ifchanged(maintopic + "/battery capacity", S + int_inputs[1]);
+			mqtt.publish_ifchanged(maintopic + "/temperature compensation coefficient", d_to_s((double)int_inputs[2] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/high voltage disconnect", d_to_s((double)int_inputs[3] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/charging limit voltage", d_to_s((double)int_inputs[4] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/over voltage reconnect", d_to_s((double)int_inputs[5] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/equalization voltage", d_to_s((double)int_inputs[6] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/boost voltage", d_to_s((double)int_inputs[7] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/float voltage", d_to_s((double)int_inputs[8] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/boost reconnect voltage", d_to_s((double)int_inputs[9] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/low voltage reconnect", d_to_s((double)int_inputs[10] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/under voltage recover", d_to_s((double)int_inputs[11] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/under voltage warning", d_to_s((double)int_inputs[12] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/low voltage disconnect", d_to_s((double)int_inputs[13] / 100, 2));
+			mqtt.publish_ifchanged(maintopic + "/discharging limit voltage", d_to_s((double)int_inputs[14] / 100, 2));
 		}
 	}
 
