@@ -62,6 +62,60 @@ sighandler(int sig)
 }
 
 void
+Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	{
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3000, 9);
+			mqtt.publish_ifchanged(maintopic + "/PV array rated voltage", (double)int_inputs[0] / 100);
+			mqtt.publish_ifchanged(maintopic + "/PV array rated current", (double)int_inputs[1] / 100);
+			mqtt.publish_ifchanged(maintopic + "/PV array rated power", (double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100);
+			mqtt.publish_ifchanged(maintopic + "/rated voltage to battery", (double)int_inputs[4] / 100);
+			mqtt.publish_ifchanged(maintopic + "/rated current to battery", (double)int_inputs[5] / 100);
+			mqtt.publish_ifchanged(maintopic + "/rated power to battery", (double)((uint32_t)int_inputs[7] << 16 | int_inputs[6]) / 100);
+			switch(int_inputs[8]) {
+			case 0x000:
+				mqtt.publish_ifchanged(maintopic + "/charging mode", "connect/disconnect");
+				break;
+			case 0x001:
+				mqtt.publish_ifchanged(maintopic + "/charging mode", "PWM");
+				break;
+			case 0x002:
+				mqtt.publish_ifchanged(maintopic + "/charging mode", "MPPT");
+				break;
+			}
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x300e, 1);
+			mqtt.publish_ifchanged(maintopic + "/rated current of load", (double)int_inputs[0] / 100);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3100, 4);
+			mqtt.publish_ifchanged(maintopic + "/PV voltage", (double)int_inputs[0] / 100);
+			mqtt.publish_ifchanged(maintopic + "/PV current", (double)int_inputs[1] / 100);
+			mqtt.publish_ifchanged(maintopic + "/PV power", (double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3106, 2);
+			mqtt.publish_ifchanged(maintopic + "/battery charging power", (double)((uint32_t)int_inputs[1] << 16 | int_inputs[0]) / 100);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x310c, 4);
+			mqtt.publish_ifchanged(maintopic + "/battery voltage", (double)int_inputs[0] / 100);
+			mqtt.publish_ifchanged(maintopic + "/battery current", (double)int_inputs[1] / 100);
+			mqtt.publish_ifchanged(maintopic + "/battery power", (double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3110, 2);
+			mqtt.publish_ifchanged(maintopic + "/battery temperature", (double)int_inputs[0] / 100);
+			mqtt.publish_ifchanged(maintopic + "/case temperature", (double)int_inputs[1] / 100);
+		}
+	}
+
+	auto rxbuf = mqtt.get_rxbuf();
+}
+
+void
 eth_tpr(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	{
@@ -647,6 +701,7 @@ main(int argc, char *argv[]) {
 	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Writer-Beta"] = rfid125;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-THERMOCOUPLE"] = thermocouple;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-Chamberpump"] = chamberpump;
+	devfunctions["Epever"]["Triron"] = Epever_Triron;
 
 	// start poll loops
 	JSON& modbuses = cfg["modbuses"];
