@@ -26,7 +26,6 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-CXX = c++
 CFLAGS = -O2 -g -Wall -Wsystem-headers -Wno-format-y2k -Wno-uninitialized `libbwctmb-config --cflags`
 LDFLAGS = `libbwctmb-config --libs` -lmosquitto
 
