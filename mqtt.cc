@@ -79,46 +79,33 @@ MQTT::disconnect()
 }
 
 void
-MQTT::publish_ifchanged(const JSON& element, const String& message)
+MQTT::publish(const JSON& element, const String& message, bool retain, bool if_changed)
 {
 	check_online(element);
 	String topic = element["topic"];
-	publish_ifchanged(topic, message);
+	publish(topic, message, retain, if_changed);
 }
 
 void
-MQTT::publish(const JSON& element, const String& message, bool retain)
+MQTT::publish(const String& topic, const String& message, bool retain, bool if_changed)
 {
-	check_online(element);
-	String topic = element["topic"];
-	publish(topic, message, retain);
-}
-
-void
-MQTT::publish_ifchanged(const String& topic, const String& message)
-{
-	bool send;
-
-	rxdata_mtx.lock();
-	if (rxdata[topic] != message) {
-		send = true;
-		rxdata[topic] = message;
-	} else {
-		send = false;
+	bool send = true;
+	if (if_changed) {
+		rxdata_mtx.lock();
+		if (rxdata[topic] == message) {
+			rxdata[topic] = message;
+			send = false;
+		}
+		rxdata_mtx.unlock();
 	}
-	rxdata_mtx.unlock();
 	if (send) {
-		mosquitto_publish(mosq, NULL, topic.c_str(), message.length(), message.c_str(), 1, true);
+		mosquitto_publish(mosq, NULL, topic.c_str(), message.length(), message.c_str(), 1, retain);
+		if (!if_changed) {
+			rxdata_mtx.lock();
+			rxdata[topic] = message;
+			rxdata_mtx.unlock();
+		}
 	}
-}
-
-void
-MQTT::publish(const String& topic, const String& message, bool retain)
-{
-	mosquitto_publish(mosq, NULL, topic.c_str(), message.length(), message.c_str(), 1, retain);
-	rxdata_mtx.lock();
-	rxdata[topic] = message;
-	rxdata_mtx.unlock();
 }
 
 void
