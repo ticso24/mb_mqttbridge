@@ -149,6 +149,7 @@ public:
 	bool rxbuf_enable;
 	String product;
 	String version;
+	bool autoonline;
 
 	MQTT();
 	~MQTT();

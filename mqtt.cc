@@ -35,6 +35,7 @@ MQTT::MQTT()
 {
 	mosq = NULL;
 	rxbuf_enable = false;
+	autoonline = false;
 }
 
 MQTT::~MQTT()
@@ -145,7 +146,9 @@ MQTT::connect_callback(int result)
 			mosquitto_subscribe(mosq, NULL, subscribtions[i].c_str(), 0);
 		}
 		String willtopic = maintopic + "/status";
-		publish(willtopic, "online", true);
+		if (autoonline) {
+			publish(willtopic, "online", true);
+		}
 		subscribtion_mtx.unlock();
 	}
 }

@@ -800,6 +800,7 @@ main(int argc, char *argv[]) {
 		String maintopic = mqtt_cfg["maintopic"];
 		main_mqtt.maintopic = maintopic;
 		main_mqtt.rxbuf_enable = true;
+		main_mqtt.autoonline = true;
 		main_mqtt.connect();
 		String willtopic = maintopic + "/status";
 		main_mqtt.publish(willtopic, "online", true);
