@@ -85,56 +85,59 @@ d_to_s(double val, int digits = 3)
 void
 Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	bool persistent = true;
+	bool if_changed = true;
+
 	{
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3000, 9);
-			mqtt.publish(maintopic + "/PV array rated voltage", d_to_s((double)int_inputs[0] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/PV array rated current", d_to_s((double)int_inputs[1] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/PV array rated power", d_to_s((double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2), true, true);
-			mqtt.publish(maintopic + "/rated voltage to battery", d_to_s((double)int_inputs[4] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/rated current to battery", d_to_s((double)int_inputs[5] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/rated power to battery", d_to_s((double)((uint32_t)int_inputs[7] << 16 | int_inputs[6]) / 100, 2), true, true);
+			mqtt.publish(maintopic + "/PV array rated voltage", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/PV array rated current", d_to_s((double)int_inputs[1] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/PV array rated power", d_to_s((double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/rated voltage to battery", d_to_s((double)int_inputs[4] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/rated current to battery", d_to_s((double)int_inputs[5] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/rated power to battery", d_to_s((double)((uint32_t)int_inputs[7] << 16 | int_inputs[6]) / 100, 2), persistent, if_changed);
 			switch(int_inputs[8]) {
 			case 0x0000:
-				mqtt.publish(maintopic + "/charging mode", S + "connect/disconnect", true, true);
+				mqtt.publish(maintopic + "/charging mode", S + "connect/disconnect", persistent, if_changed);
 				break;
 			case 0x0001:
-				mqtt.publish(maintopic + "/charging mode", S + "PWM", true, true);
+				mqtt.publish(maintopic + "/charging mode", S + "PWM", persistent, if_changed);
 				break;
 			case 0x0002:
-				mqtt.publish(maintopic + "/charging mode", S + "MPPT", true, true);
+				mqtt.publish(maintopic + "/charging mode", S + "MPPT", persistent, if_changed);
 				break;
 			}
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x300e, 1);
-			mqtt.publish(maintopic + "/rated current of load", d_to_s((double)int_inputs[0] / 100, 2), true, true);
+			mqtt.publish(maintopic + "/rated current of load", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed);
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3100, 4);
-			mqtt.publish(maintopic + "/PV voltage", d_to_s((double)int_inputs[0] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/PV current", d_to_s((double)int_inputs[1] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/PV power", d_to_s((double)((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2), true, true);
+			mqtt.publish(maintopic + "/PV voltage", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/PV current", d_to_s((double)int_inputs[1] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/PV power", d_to_s((double)((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2), persistent, if_changed);
 		}
 		if (0) {
 			// value makes no sense, identic to PV power
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3106, 2);
-			mqtt.publish(maintopic + "/battery charging power", d_to_s((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2), true, true);
+			mqtt.publish(maintopic + "/battery charging power", d_to_s((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2), persistent, if_changed);
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x310c, 4);
-			mqtt.publish(maintopic + "/load voltage", d_to_s((double)int_inputs[0] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/load current", d_to_s((double)int_inputs[1] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/load power", d_to_s((double)((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2), true, true);
+			mqtt.publish(maintopic + "/load voltage", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/load current", d_to_s((double)int_inputs[1] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/load power", d_to_s((double)((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2), persistent, if_changed);
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3110, 2);
-			mqtt.publish(maintopic + "/battery temperature", d_to_s((double)int_inputs[0] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/case temperature", d_to_s((double)int_inputs[1] / 100, 2), true, true);
+			mqtt.publish(maintopic + "/battery temperature", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/case temperature", d_to_s((double)int_inputs[1] / 100, 2), persistent, if_changed);
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x311a, 1);
-			mqtt.publish(maintopic + "/battery charged capacity", d_to_s((double)int_inputs[0] / 100, 2), true, true);
+			mqtt.publish(maintopic + "/battery charged capacity", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed);
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3201, 2);
@@ -142,55 +145,55 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 			state = (int_inputs[0] >> 2) & 0x3;
 			switch(state) {
 			case 0x0:
-				mqtt.publish(maintopic + "/charging status", S + "no charging", true, true);
+				mqtt.publish(maintopic + "/charging status", S + "no charging", persistent, if_changed);
 				break;
 			case 0x1:
-				mqtt.publish(maintopic + "/charging status", S + "float", true, true);
+				mqtt.publish(maintopic + "/charging status", S + "float", persistent, if_changed);
 				break;
 			case 0x2:
-				mqtt.publish(maintopic + "/charging status", S + "boost", true, true);
+				mqtt.publish(maintopic + "/charging status", S + "boost", persistent, if_changed);
 				break;
 			case 0x3:
-				mqtt.publish(maintopic + "/charging status", S + "equalization", true, true);
+				mqtt.publish(maintopic + "/charging status", S + "equalization", persistent, if_changed);
 				break;
 			}
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x331a, 3);
-			mqtt.publish(maintopic + "/battery voltage", d_to_s((double)int_inputs[0] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/battery current", d_to_s((double)((int32_t)int_inputs[2] << 16 | int_inputs[1]) / 100, 2), true, true);
+			mqtt.publish(maintopic + "/battery voltage", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/battery current", d_to_s((double)((int32_t)int_inputs[2] << 16 | int_inputs[1]) / 100, 2), persistent, if_changed);
 		}
 
 		{
 			SArray<uint16_t> int_inputs = mb.read_holding_registers(address, 0x9000, 15);
 			switch(int_inputs[0]) {
 			case 0x0000:
-				mqtt.publish(maintopic + "/battery type", S + "user defined", true, true);
+				mqtt.publish(maintopic + "/battery type", S + "user defined", persistent, if_changed);
 				break;
 			case 0x0001:
-				mqtt.publish(maintopic + "/battery type", S + "sealed", true, true);
+				mqtt.publish(maintopic + "/battery type", S + "sealed", persistent, if_changed);
 				break;
 			case 0x0002:
-				mqtt.publish(maintopic + "/battery type", S + "GEL", true, true);
+				mqtt.publish(maintopic + "/battery type", S + "GEL", persistent, if_changed);
 				break;
 			case 0x0003:
-				mqtt.publish(maintopic + "/battery type", S + "flooded", true, true);
+				mqtt.publish(maintopic + "/battery type", S + "flooded", persistent, if_changed);
 				break;
 			}
-			mqtt.publish(maintopic + "/battery capacity", S + int_inputs[1], true, true);
-			mqtt.publish(maintopic + "/temperature compensation coefficient", d_to_s((double)int_inputs[2] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/high voltage disconnect", d_to_s((double)int_inputs[3] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/charging limit voltage", d_to_s((double)int_inputs[4] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/over voltage reconnect", d_to_s((double)int_inputs[5] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/equalization voltage", d_to_s((double)int_inputs[6] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/boost voltage", d_to_s((double)int_inputs[7] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/float voltage", d_to_s((double)int_inputs[8] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/boost reconnect voltage", d_to_s((double)int_inputs[9] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/low voltage reconnect", d_to_s((double)int_inputs[10] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/under voltage recover", d_to_s((double)int_inputs[11] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/under voltage warning", d_to_s((double)int_inputs[12] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/low voltage disconnect", d_to_s((double)int_inputs[13] / 100, 2), true, true);
-			mqtt.publish(maintopic + "/discharging limit voltage", d_to_s((double)int_inputs[14] / 100, 2), true, true);
+			mqtt.publish(maintopic + "/battery capacity", S + int_inputs[1], persistent, if_changed);
+			mqtt.publish(maintopic + "/temperature compensation coefficient", d_to_s((double)int_inputs[2] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/high voltage disconnect", d_to_s((double)int_inputs[3] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/charging limit voltage", d_to_s((double)int_inputs[4] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/over voltage reconnect", d_to_s((double)int_inputs[5] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/equalization voltage", d_to_s((double)int_inputs[6] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/boost voltage", d_to_s((double)int_inputs[7] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/float voltage", d_to_s((double)int_inputs[8] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/boost reconnect voltage", d_to_s((double)int_inputs[9] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/low voltage reconnect", d_to_s((double)int_inputs[10] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/under voltage recover", d_to_s((double)int_inputs[11] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/under voltage warning", d_to_s((double)int_inputs[12] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/low voltage disconnect", d_to_s((double)int_inputs[13] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/discharging limit voltage", d_to_s((double)int_inputs[14] / 100, 2), persistent, if_changed);
 		}
 	}
 
@@ -200,13 +203,16 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 void
 eth_tpr(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	bool persistent = true;
+	bool if_changed = true;
+
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
 
-		mqtt.publish(maintopic + "/input0", bin_inputs[0] ? "1" : "0", true, true);
-		mqtt.publish(maintopic + "/input1", bin_inputs[1] ? "1" : "0", true, true);
-		mqtt.publish(maintopic + "/input2", bin_inputs[2] ? "1" : "0", true, true);
-		mqtt.publish(maintopic + "/input3", bin_inputs[3] ? "1" : "0", true, true);
+		mqtt.publish(maintopic + "/input0", bin_inputs[0] ? "1" : "0", persistent, if_changed);
+		mqtt.publish(maintopic + "/input1", bin_inputs[1] ? "1" : "0", persistent, if_changed);
+		mqtt.publish(maintopic + "/input2", bin_inputs[2] ? "1" : "0", persistent, if_changed);
+		mqtt.publish(maintopic + "/input3", bin_inputs[3] ? "1" : "0", persistent, if_changed);
 	}
 
 	auto rxbuf = mqtt.get_rxbuf();
@@ -225,44 +231,47 @@ eth_tpr(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray
 void
 eth_tpr_ldr(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	bool persistent = true;
+	bool if_changed = true;
+
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
 
-		mqtt.publish(maintopic + "/input0", bin_inputs[0] ? "1" : "0", true, true);
-		mqtt.publish(maintopic + "/input1", bin_inputs[1] ? "1" : "0", true, true);
-		mqtt.publish(maintopic + "/input2", bin_inputs[2] ? "1" : "0", true, true);
-		mqtt.publish(maintopic + "/input3", bin_inputs[3] ? "1" : "0", true, true);
+		mqtt.publish(maintopic + "/input0", bin_inputs[0] ? "1" : "0", persistent, if_changed);
+		mqtt.publish(maintopic + "/input1", bin_inputs[1] ? "1" : "0", persistent, if_changed);
+		mqtt.publish(maintopic + "/input2", bin_inputs[2] ? "1" : "0", persistent, if_changed);
+		mqtt.publish(maintopic + "/input3", bin_inputs[3] ? "1" : "0", persistent, if_changed);
 	}
 
 	{
 		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 14);
 
 		// 16bit counter - should verify for rollover and restart
-		mqtt.publish(maintopic + "/counter0", S + int_inputs[0], true, true);
-		mqtt.publish(maintopic + "/counter1", S + int_inputs[1], true, true);
-		mqtt.publish(maintopic + "/counter2", S + int_inputs[2], true, true);
-		mqtt.publish(maintopic + "/counter3", S + int_inputs[3], true, true);
+		mqtt.publish(maintopic + "/counter0", S + int_inputs[0], persistent, if_changed);
+		mqtt.publish(maintopic + "/counter1", S + int_inputs[1], persistent, if_changed);
+		mqtt.publish(maintopic + "/counter2", S + int_inputs[2], persistent, if_changed);
+		mqtt.publish(maintopic + "/counter3", S + int_inputs[3], persistent, if_changed);
 
-		mqtt.publish(maintopic + "/ldr0", S + int_inputs[4], true, true);
+		mqtt.publish(maintopic + "/ldr0", S + int_inputs[4], persistent, if_changed);
 		// XXX check firmware version for functional LDR1 input
-		mqtt.publish(maintopic + "/ldr1", S + int_inputs[5], true, true);
+		mqtt.publish(maintopic + "/ldr1", S + int_inputs[5], persistent, if_changed);
 
 		// 32 bit counter - should verify for restart if autoreset is not enabled
 		{
 			uint32_t tmp = (uint32_t)int_inputs[6] | (uint32_t)int_inputs[7] << 16;
-			mqtt.publish(maintopic + "/counter4", S + tmp, true, true);
+			mqtt.publish(maintopic + "/counter4", S + tmp, persistent, if_changed);
 		}
 		{
 			uint32_t tmp = (uint32_t)int_inputs[8] | (uint32_t)int_inputs[9] << 16;
-			mqtt.publish(maintopic + "/counter5", S + tmp, true, true);
+			mqtt.publish(maintopic + "/counter5", S + tmp, persistent, if_changed);
 		}
 		{
 			uint32_t tmp = (uint32_t)int_inputs[10] | (uint32_t)int_inputs[11] << 16;
-			mqtt.publish(maintopic + "/counter6", S + tmp, true, true);
+			mqtt.publish(maintopic + "/counter6", S + tmp, persistent, if_changed);
 		}
 		{
 			uint32_t tmp = (uint32_t)int_inputs[12] | (uint32_t)int_inputs[13] << 16;
-			mqtt.publish(maintopic + "/counter7", S + tmp, true, true);
+			mqtt.publish(maintopic + "/counter7", S + tmp, persistent, if_changed);
 		}
 	}
 
@@ -273,7 +282,7 @@ eth_tpr_ldr(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AA
 			try {
 				uint16_t value = mb.read_input_register(address, sensor_register);
 				double temp = (double)value / 16;
-				mqtt.publish(maintopic + "/temperature" + i, d_to_s(temp), true, true);
+				mqtt.publish(maintopic + "/temperature" + i, d_to_s(temp), persistent, if_changed);
 			} catch (...) {
 			}
 		}
@@ -309,13 +318,16 @@ eth_tpr_ldr(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AA
 }
 
 void
-jalousie(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+rs485_jalousie(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	bool persistent = true;
+	bool if_changed = true;
+
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
 
 		for (int64_t i = 0; i < 8; i++) {
-			mqtt.publish(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0", true, true);
+			mqtt.publish(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0", persistent, if_changed);
 		}
 	}
 
@@ -348,14 +360,17 @@ jalousie(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArra
 }
 
 void
-relais6(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+rs485_relais6(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	bool persistent = true;
+	bool if_changed = true;
+
 	// XXX no counter support yet
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
 
 		for (int64_t i = 0; i < 8; i++) {
-			mqtt.publish(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0", true, true);
+			mqtt.publish(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0", persistent, if_changed);
 		}
 	}
 	auto rxbuf = mqtt.get_rxbuf();
@@ -370,24 +385,30 @@ relais6(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray
 }
 
 void
-shct3(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+rs485_shct3(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	bool persistent = true;
+	bool if_changed = true;
+
 	SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 2);
-	mqtt.publish(maintopic + "/temperature", S + (int16_t)int_inputs[0], true, true);
-	mqtt.publish(maintopic + "/humidity", S + int_inputs[1], true, true);
+	mqtt.publish(maintopic + "/temperature", S + (int16_t)int_inputs[0], persistent, if_changed);
+	mqtt.publish(maintopic + "/humidity", S + int_inputs[1], persistent, if_changed);
 
 	auto rxbuf = mqtt.get_rxbuf();
 }
 
 void
-laserdistance(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+rs485_laserdistance(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	bool persistent = true;
+	bool if_changed = true;
+
 	SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 3);
 	{
 		int32_t tmp = (uint32_t)int_inputs[0] | (uint32_t)int_inputs[1] << 16;
-		mqtt.publish(maintopic + "/weight", S + tmp, true, true);
+		mqtt.publish(maintopic + "/weight", S + tmp, persistent, if_changed);
 	}
-	mqtt.publish(maintopic + "/distance", S + int_inputs[2], true, true);
+	mqtt.publish(maintopic + "/distance", S + int_inputs[2], persistent, if_changed);
 
 	auto rxbuf = mqtt.get_rxbuf();
 }
@@ -395,11 +416,14 @@ laserdistance(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 void
 eth_io88(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	bool persistent = true;
+	bool if_changed = true;
+
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
 
 		for (int i = 0; i < 8; i++) {
-			mqtt.publish(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0", true, true);
+			mqtt.publish(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0", persistent, if_changed);
 		}
 	}
 
@@ -415,13 +439,16 @@ eth_io88(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArra
 }
 
 void
-io88(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+rs485_io88(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	bool persistent = true;
+	bool if_changed = true;
+
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
 
 		for (int i = 0; i < 8; i++) {
-			mqtt.publish(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0", true, true);
+			mqtt.publish(maintopic + "/input" + i, bin_inputs[i] ? "1" : "0", persistent, if_changed);
 		}
 	}
 
@@ -443,15 +470,18 @@ io88(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<St
 }
 
 void
-adc_dac(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+rs485_adc_dac(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	bool persistent = true;
+	bool if_changed = true;
+
 	{
 		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 10);
-		mqtt.publish(maintopic + "/adc0", S + int_inputs[0], true, true);
-		mqtt.publish(maintopic + "/adc1", S + int_inputs[1], true, true);
-		mqtt.publish(maintopic + "/adc2", S + int_inputs[2], true, true);
-		mqtt.publish(maintopic + "/adc3", S + int_inputs[3], true, true);
-		mqtt.publish(maintopic + "/ref", S + int_inputs[9], true, true);
+		mqtt.publish(maintopic + "/adc0", S + int_inputs[0], persistent, if_changed);
+		mqtt.publish(maintopic + "/adc1", S + int_inputs[1], persistent, if_changed);
+		mqtt.publish(maintopic + "/adc2", S + int_inputs[2], persistent, if_changed);
+		mqtt.publish(maintopic + "/adc3", S + int_inputs[3], persistent, if_changed);
+		mqtt.publish(maintopic + "/ref", S + int_inputs[9], persistent, if_changed);
 	}
 
 	auto rxbuf = mqtt.get_rxbuf();
@@ -468,8 +498,11 @@ adc_dac(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray
 }
 
 void
-rfid125_disp(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+rs485_rfid125_disp(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	//bool persistent = true;
+	//bool if_changed = true;
+
 	{
 		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 11);
 		if (int_inputs[0] != 0) {
@@ -495,8 +528,11 @@ rfid125_disp(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, A
 }
 
 void
-rfid125(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+rs485_rfid125(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	//bool persistent = true;
+	//bool if_changed = true;
+
 	{
 		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 11);
 		if (int_inputs[0] != 0) {
@@ -522,22 +558,25 @@ rfid125(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray
 }
 
 void
-thermocouple(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+rs485_thermocouple(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	bool persistent = true;
+	bool if_changed = true;
+
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 24);
 		for (int i = 0; i < 8; i++) {
-			mqtt.publish(maintopic + "/open_error" + i, bin_inputs[i * 3] ? "1" : "0", true, true);
-			mqtt.publish(maintopic + "/gnd_short" + i, bin_inputs[i * 3 + 1] ? "1" : "0", true, true);
-			mqtt.publish(maintopic + "/vcc_short" + i, bin_inputs[i * 3 + 2] ? "1" : "0", true, true);
+			mqtt.publish(maintopic + "/open_error" + i, bin_inputs[i * 3] ? "1" : "0", persistent, if_changed);
+			mqtt.publish(maintopic + "/gnd_short" + i, bin_inputs[i * 3 + 1] ? "1" : "0", persistent, if_changed);
+			mqtt.publish(maintopic + "/vcc_short" + i, bin_inputs[i * 3 + 2] ? "1" : "0", persistent, if_changed);
 		}
 	}
 
 	{
 		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 16);
 		for (int i = 0; i < 8; i++) {
-			mqtt.publish(maintopic + "/temperature" + i, S + (int16_t)int_inputs[i * 2], true, true);
-			mqtt.publish(maintopic + "/cold_temperature" + i, S + (int16_t)int_inputs[ i * 2 + 1], true, true);
+			mqtt.publish(maintopic + "/temperature" + i, S + (int16_t)int_inputs[i * 2], persistent, if_changed);
+			mqtt.publish(maintopic + "/cold_temperature" + i, S + (int16_t)int_inputs[ i * 2 + 1], persistent, if_changed);
 		}
 	}
 
@@ -545,14 +584,17 @@ thermocouple(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, A
 }
 
 void
-chamberpump(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+rs485_chamberpump(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	bool persistent = true;
+	bool if_changed = true;
+
 	{
 		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 9);
-		mqtt.publish(maintopic + "/adc0", S + int_inputs[0], true, true);
-		mqtt.publish(maintopic + "/adc1", S + int_inputs[1], true, true);
-		mqtt.publish(maintopic + "/adc2", S + int_inputs[2], true, true);
-		mqtt.publish(maintopic + "/adc3", S + int_inputs[3], true, true);
+		mqtt.publish(maintopic + "/adc0", S + int_inputs[0], persistent, if_changed);
+		mqtt.publish(maintopic + "/adc1", S + int_inputs[1], persistent, if_changed);
+		mqtt.publish(maintopic + "/adc2", S + int_inputs[2], persistent, if_changed);
+		mqtt.publish(maintopic + "/adc3", S + int_inputs[3], persistent, if_changed);
 		{
 			String state;
 			switch(int_inputs[4]) {
@@ -574,15 +616,15 @@ chamberpump(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AA
 			case 5:
 				state = "unknown";
 			}
-			mqtt.publish(maintopic + "/state", "empty", true, true);
+			mqtt.publish(maintopic + "/state", "empty", persistent, if_changed);
 		}
 		{
 			uint32_t tmp = (uint32_t)int_inputs[5] | (uint32_t)int_inputs[6] << 16;
-			mqtt.publish(maintopic + "/cyclecounter", S + tmp, true, true);
+			mqtt.publish(maintopic + "/cyclecounter", S + tmp, persistent, if_changed);
 		}
 		{
 			uint32_t tmp = (uint32_t)int_inputs[7] | (uint32_t)int_inputs[8] << 16;
-			mqtt.publish(maintopic + "/cycletime", S + tmp, true, true);
+			mqtt.publish(maintopic + "/cycletime", S + tmp, persistent, if_changed);
 		}
 	}
 
@@ -626,6 +668,9 @@ ModbusLoop(void * arg)
 
 		for (int64_t dev = 0; dev <= bus_cfg["devices"].get_array().max; dev++) {
 			JSON& dev_cfg = bus_cfg["devices"][dev];
+			bool persistent = true;
+			bool if_changed = true;
+
 			String maintopic = dev_cfg["maintopic"];
 			uint8_t address = dev_cfg["address"].get_numstr().getll();
 			if (!dev_mqtts.exists(dev)) {
@@ -659,7 +704,7 @@ ModbusLoop(void * arg)
 						vendor = mb.identification(address, 0);
 					}
 					devdata[dev]["vendor"] = vendor;
-					mqtt.publish(maintopic + "/vendor", vendor, true, true);
+					mqtt.publish(maintopic + "/vendor", vendor, persistent, if_changed);
 				}
 				String vendor = devdata[dev]["vendor"];
 				if (!devdata[dev].exists("product")) {
@@ -671,7 +716,7 @@ ModbusLoop(void * arg)
 						product = mb.identification(address, 1);
 					}
 					devdata[dev]["product"] = product;
-					mqtt.publish(maintopic + "/product", product, true, true);
+					mqtt.publish(maintopic + "/product", product, persistent, if_changed);
 				}
 				String product = devdata[dev]["product"];
 				if (!product.empty() && !vendor.empty()) {
@@ -688,7 +733,7 @@ ModbusLoop(void * arg)
 						version = mb.identification(address, 2);
 					}
 					devdata[dev]["version"] = version;
-					mqtt.publish(maintopic + "/version", version, true, true);
+					mqtt.publish(maintopic + "/version", version, persistent, if_changed);
 				}
 				if (devdata[dev]["maintopic"].empty()) {
 					// at this stage we know the device and can handle incoming data
@@ -714,11 +759,11 @@ ModbusLoop(void * arg)
 					if (!product.empty() && !vendor.empty()) {
 						(*devfunctions[vendor][product])(mb, mqtt, address, maintopic, devdata[dev], dev_cfg);
 					}
-					mqtt.publish(maintopic + "/status", "online", true, true);
+					mqtt.publish(maintopic + "/status", "online", persistent, if_changed);
 					lasttime[dev] = now;
 				}
 			} catch(...) {
-				mqtt.publish(maintopic + "/status", "offline", true, true);
+				mqtt.publish(maintopic + "/status", "offline", persistent, if_changed);
 				sleep(1);
 			}
 		}
@@ -819,17 +864,17 @@ main(int argc, char *argv[]) {
 	// register devicefunctions
 	devfunctions["Bernd Walter Computer Technology"]["Ethernet-MB twin power relay / 4ch input"] = eth_tpr;
 	devfunctions["Bernd Walter Computer Technology"]["Ethernet-MB RS485 / twin power relay / 4ch input / LDR / DS18B20"] = eth_tpr_ldr;
-	devfunctions["Bernd Walter Computer Technology"]["MB 3x jalousie actor / 8ch input"] = jalousie;
-	devfunctions["Bernd Walter Computer Technology"]["MB 6x power relay / 8ch input"] = relais6;
-	devfunctions["Bernd Walter Computer Technology"]["RS485-SHTC3"] = shct3;
-	devfunctions["Bernd Walter Computer Technology"]["RS485-Laserdistance-Weight"] = laserdistance;
-	devfunctions["Bernd Walter Computer Technology"]["RS485-IO88"] = io88;
+	devfunctions["Bernd Walter Computer Technology"]["MB 3x jalousie actor / 8ch input"] = rs485_jalousie;
+	devfunctions["Bernd Walter Computer Technology"]["MB 6x power relay / 8ch input"] = rs485_relais6;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-SHTC3"] = rs485_shct3;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-Laserdistance-Weight"] = rs485_laserdistance;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-IO88"] = rs485_io88;
 	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88"] = eth_io88;
-	devfunctions["Bernd Walter Computer Technology"]["MB ADC DAC"] = adc_dac;
-	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Display"] = rfid125_disp;
-	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Writer-Beta"] = rfid125;
-	devfunctions["Bernd Walter Computer Technology"]["RS485-THERMOCOUPLE"] = thermocouple;
-	devfunctions["Bernd Walter Computer Technology"]["RS485-Chamberpump"] = chamberpump;
+	devfunctions["Bernd Walter Computer Technology"]["MB ADC DAC"] = rs485_adc_dac;
+	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Display"] = rs485_rfid125_disp;
+	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Writer-Beta"] = rs485_rfid125;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-THERMOCOUPLE"] = rs485_thermocouple;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-Chamberpump"] = rs485_chamberpump;
 	devfunctions["Epever"]["Triron"] = Epever_Triron;
 
 	// start poll loops
