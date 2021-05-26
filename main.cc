@@ -87,6 +87,12 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 {
 	bool persistent = true;
 	bool if_changed = true;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
 
 	{
 		{
@@ -205,6 +211,12 @@ eth_tpr(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray
 {
 	bool persistent = true;
 	bool if_changed = true;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
 
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
@@ -233,6 +245,12 @@ eth_tpr_ldr(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AA
 {
 	bool persistent = true;
 	bool if_changed = true;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
 
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 4);
@@ -322,6 +340,12 @@ rs485_jalousie(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic,
 {
 	bool persistent = true;
 	bool if_changed = true;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
 
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
@@ -364,6 +388,12 @@ rs485_relais6(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 {
 	bool persistent = true;
 	bool if_changed = true;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
 
 	// XXX no counter support yet
 	{
@@ -389,6 +419,12 @@ rs485_shct3(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AA
 {
 	bool persistent = true;
 	bool if_changed = true;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
 
 	SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 2);
 	mqtt.publish(maintopic + "/temperature", S + (int16_t)int_inputs[0], persistent, if_changed);
@@ -402,6 +438,12 @@ rs485_laserdistance(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maint
 {
 	bool persistent = true;
 	bool if_changed = true;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
 
 	SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 3);
 	{
@@ -418,6 +460,12 @@ eth_io88(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArra
 {
 	bool persistent = true;
 	bool if_changed = true;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
 
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
@@ -443,6 +491,12 @@ rs485_io88(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AAr
 {
 	bool persistent = true;
 	bool if_changed = true;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
 
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 8);
@@ -474,6 +528,12 @@ rs485_adc_dac(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 {
 	bool persistent = true;
 	bool if_changed = true;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
 
 	{
 		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 10);
@@ -500,9 +560,6 @@ rs485_adc_dac(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 void
 rs485_rfid125_disp(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
-	//bool persistent = true;
-	//bool if_changed = true;
-
 	{
 		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 11);
 		if (int_inputs[0] != 0) {
@@ -530,9 +587,6 @@ rs485_rfid125_disp(Modbus& mb, MQTT& mqtt, uint8_t address, const String& mainto
 void
 rs485_rfid125(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
-	//bool persistent = true;
-	//bool if_changed = true;
-
 	{
 		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 11);
 		if (int_inputs[0] != 0) {
@@ -562,6 +616,12 @@ rs485_thermocouple(Modbus& mb, MQTT& mqtt, uint8_t address, const String& mainto
 {
 	bool persistent = true;
 	bool if_changed = true;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
 
 	{
 		SArray<bool> bin_inputs = mb.read_discrete_inputs(address, 0, 24);
@@ -588,6 +648,12 @@ rs485_chamberpump(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintop
 {
 	bool persistent = true;
 	bool if_changed = true;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
 
 	{
 		SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 9);
@@ -670,6 +736,12 @@ ModbusLoop(void * arg)
 			JSON& dev_cfg = bus_cfg["devices"][dev];
 			bool persistent = true;
 			bool if_changed = true;
+			if (dev_cfg.exists("persistent")) {
+				persistent = dev_cfg["persistent"];
+			}
+			if (dev_cfg.exists("unchanged")) {
+				if_changed = !dev_cfg["unchanged"];
+			}
 
 			String maintopic = dev_cfg["maintopic"];
 			uint8_t address = dev_cfg["address"].get_numstr().getll();
@@ -704,7 +776,6 @@ ModbusLoop(void * arg)
 						vendor = mb.identification(address, 0);
 					}
 					devdata[dev]["vendor"] = vendor;
-					mqtt.publish(maintopic + "/vendor", vendor, persistent, if_changed);
 				}
 				String vendor = devdata[dev]["vendor"];
 				if (!devdata[dev].exists("product")) {
@@ -716,7 +787,6 @@ ModbusLoop(void * arg)
 						product = mb.identification(address, 1);
 					}
 					devdata[dev]["product"] = product;
-					mqtt.publish(maintopic + "/product", product, persistent, if_changed);
 				}
 				String product = devdata[dev]["product"];
 				if (!product.empty() && !vendor.empty()) {
@@ -733,7 +803,6 @@ ModbusLoop(void * arg)
 						version = mb.identification(address, 2);
 					}
 					devdata[dev]["version"] = version;
-					mqtt.publish(maintopic + "/version", version, persistent, if_changed);
 				}
 				if (devdata[dev]["maintopic"].empty()) {
 					// at this stage we know the device and can handle incoming data
@@ -756,6 +825,15 @@ ModbusLoop(void * arg)
 					}
 				}
 				if (poll) {
+					if (devdata[dev].exists("vendor")) {
+						mqtt.publish(maintopic + "/vendor", devdata[dev]["vendor"], persistent, if_changed);
+					}
+					if (!devdata[dev].exists("product")) {
+						mqtt.publish(maintopic + "/product", devdata[dev]["product"], persistent, if_changed);
+					}
+					if (!devdata[dev].exists("version")) {
+						mqtt.publish(maintopic + "/version", devdata[dev]["version"], persistent, if_changed);
+					}
 					if (!product.empty() && !vendor.empty()) {
 						(*devfunctions[vendor][product])(mb, mqtt, address, maintopic, devdata[dev], dev_cfg);
 					}
