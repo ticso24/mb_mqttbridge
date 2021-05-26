@@ -138,8 +138,8 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3110, 2);
-			mqtt.publish(maintopic + "/battery temperature", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed);
-			mqtt.publish(maintopic + "/case temperature", d_to_s((double)int_inputs[1] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/battery temperature", d_to_s((double)(int16_t)int_inputs[0] / 100, 2), persistent, if_changed);
+			mqtt.publish(maintopic + "/case temperature", d_to_s((double)(int16_t)int_inputs[1] / 100, 2), persistent, if_changed);
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x311a, 1);
