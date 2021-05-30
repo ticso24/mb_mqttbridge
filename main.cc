@@ -207,6 +207,134 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 }
 
 void
+ZGEJ_powermeter(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	bool persistent = true;
+	bool if_changed = true;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
+
+	{
+		union {
+			float f;
+			uint16_t i[2];
+		};
+
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0018, 2 * 34);
+			i[0] = int_inputs[0];
+			i[1] = int_inputs[1];
+			mqtt.publish(maintopic + "/A phase voltage", (double)f, persistent, if_changed);
+			i[0] = int_inputs[2];
+			i[1] = int_inputs[3];
+			mqtt.publish(maintopic + "/B phase voltage", (double)f, persistent, if_changed);
+			i[0] = int_inputs[4];
+			i[1] = int_inputs[5];
+			mqtt.publish(maintopic + "/C phase voltage", (double)f, persistent, if_changed);
+			i[0] = int_inputs[6];
+			i[1] = int_inputs[7];
+			mqtt.publish(maintopic + "/AB line voltage", (double)f, persistent, if_changed);
+			i[0] = int_inputs[8];
+			i[1] = int_inputs[9];
+			mqtt.publish(maintopic + "/BC line voltage", (double)f, persistent, if_changed);
+			i[0] = int_inputs[10];
+			i[1] = int_inputs[11];
+			mqtt.publish(maintopic + "/CA line voltage", (double)f, persistent, if_changed);
+			i[0] = int_inputs[12];
+			i[1] = int_inputs[13];
+			mqtt.publish(maintopic + "/A phase ampere", (double)f, persistent, if_changed);
+			i[0] = int_inputs[14];
+			i[1] = int_inputs[15];
+			mqtt.publish(maintopic + "/B phase ampere", (double)f, persistent, if_changed);
+			i[0] = int_inputs[16];
+			i[1] = int_inputs[17];
+			mqtt.publish(maintopic + "/C phase ampere", (double)f, persistent, if_changed);
+			i[0] = int_inputs[18];
+			i[1] = int_inputs[19];
+			mqtt.publish(maintopic + "/A phase active power", (double)f, persistent, if_changed);
+			i[0] = int_inputs[20];
+			i[1] = int_inputs[21];
+			mqtt.publish(maintopic + "/B phase active power", (double)f, persistent, if_changed);
+			i[0] = int_inputs[22];
+			i[1] = int_inputs[23];
+			mqtt.publish(maintopic + "/C phase active power", (double)f, persistent, if_changed);
+			i[0] = int_inputs[24];
+			i[1] = int_inputs[25];
+			mqtt.publish(maintopic + "/total active power", (double)f, persistent, if_changed);
+			i[0] = int_inputs[26];
+			i[1] = int_inputs[27];
+			mqtt.publish(maintopic + "/A phase reactive power", (double)f, persistent, if_changed);
+			i[0] = int_inputs[28];
+			i[1] = int_inputs[29];
+			mqtt.publish(maintopic + "/B phase reactive power", (double)f, persistent, if_changed);
+			i[0] = int_inputs[30];
+			i[1] = int_inputs[31];
+			mqtt.publish(maintopic + "/C phase reactive power", (double)f, persistent, if_changed);
+			i[0] = int_inputs[32];
+			i[1] = int_inputs[33];
+			mqtt.publish(maintopic + "/total reactive power", (double)f, persistent, if_changed);
+			i[0] = int_inputs[34];
+			i[1] = int_inputs[35];
+			mqtt.publish(maintopic + "/A phase apparent power", (double)f, persistent, if_changed);
+			i[0] = int_inputs[36];
+			i[1] = int_inputs[37];
+			mqtt.publish(maintopic + "/B phase apparent power", (double)f, persistent, if_changed);
+			i[0] = int_inputs[38];
+			i[1] = int_inputs[39];
+			mqtt.publish(maintopic + "/C phase apparent power", (double)f, persistent, if_changed);
+			i[0] = int_inputs[40];
+			i[1] = int_inputs[41];
+			mqtt.publish(maintopic + "/total apparent power", (double)f, persistent, if_changed);
+			i[0] = int_inputs[42];
+			i[1] = int_inputs[43];
+			mqtt.publish(maintopic + "/A phase power factor", (double)f, persistent, if_changed);
+			i[0] = int_inputs[44];
+			i[1] = int_inputs[45];
+			mqtt.publish(maintopic + "/B phase power factor", (double)f, persistent, if_changed);
+			i[0] = int_inputs[46];
+			i[1] = int_inputs[47];
+			mqtt.publish(maintopic + "/C phase power factor", (double)f, persistent, if_changed);
+			i[0] = int_inputs[48];
+			i[1] = int_inputs[49];
+			mqtt.publish(maintopic + "/total power factor", (double)f, persistent, if_changed);
+			i[0] = int_inputs[50];
+			i[1] = int_inputs[51];
+			mqtt.publish(maintopic + "/frequency", (double)f, persistent, if_changed);
+			i[0] = int_inputs[52];
+			i[1] = int_inputs[53];
+			mqtt.publish(maintopic + "/forward active energy 2", (double)f, persistent, if_changed);
+			i[0] = int_inputs[54];
+			i[1] = int_inputs[55];
+			mqtt.publish(maintopic + "/reverse active energy 2", (double)f, persistent, if_changed);
+			i[0] = int_inputs[56];
+			i[1] = int_inputs[57];
+			mqtt.publish(maintopic + "/forward reactive energy 2", (double)f, persistent, if_changed);
+			i[0] = int_inputs[58];
+			i[1] = int_inputs[59];
+			mqtt.publish(maintopic + "/reverse reactive energy 2", (double)f, persistent, if_changed);
+			i[0] = int_inputs[60];
+			i[1] = int_inputs[61];
+			mqtt.publish(maintopic + "/forward active energy", (double)f, persistent, if_changed);
+			i[0] = int_inputs[62];
+			i[1] = int_inputs[63];
+			mqtt.publish(maintopic + "/reverse active energy", (double)f, persistent, if_changed);
+			i[0] = int_inputs[64];
+			i[1] = int_inputs[65];
+			mqtt.publish(maintopic + "/forward reactive energy", (double)f, persistent, if_changed);
+			i[0] = int_inputs[66];
+			i[1] = int_inputs[67];
+			mqtt.publish(maintopic + "/reverse reactive energy", (double)f, persistent, if_changed);
+		}
+	}
+
+	auto rxbuf = mqtt.get_rxbuf();
+}
+
+void
 eth_tpr(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	bool persistent = true;
@@ -954,6 +1082,7 @@ main(int argc, char *argv[]) {
 	devfunctions["Bernd Walter Computer Technology"]["RS485-THERMOCOUPLE"] = rs485_thermocouple;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-Chamberpump"] = rs485_chamberpump;
 	devfunctions["Epever"]["Triron"] = Epever_Triron;
+	devfunctions["Shanghai Chujin Electric"]["Panel Powermeter"] = ZGEJ_powermeter;
 
 	// start poll loops
 	JSON& modbuses = cfg["modbuses"];
