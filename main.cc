@@ -95,7 +95,7 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 		if_changed = !dev_cfg["unchanged"];
 	}
 	if (dev_cfg.exists("qos")) {
-		qos = dev_cfg["qos"];
+		qos = dev_cfg["qos"].get_numstr().getll();
 	}
 
 	{
@@ -223,7 +223,7 @@ ZGEJ_powermeter(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic
 		if_changed = !dev_cfg["unchanged"];
 	}
 	if (dev_cfg.exists("qos")) {
-		qos = dev_cfg["qos"];
+		qos = dev_cfg["qos"].get_numstr().getll();
 	}
 
 	{
@@ -355,7 +355,7 @@ eth_tpr(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray
 		if_changed = !dev_cfg["unchanged"];
 	}
 	if (dev_cfg.exists("qos")) {
-		qos = dev_cfg["qos"];
+		qos = dev_cfg["qos"].get_numstr().getll();
 	}
 
 	{
@@ -393,7 +393,7 @@ eth_tpr_ldr(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AA
 		if_changed = !dev_cfg["unchanged"];
 	}
 	if (dev_cfg.exists("qos")) {
-		qos = dev_cfg["qos"];
+		qos = dev_cfg["qos"].get_numstr().getll();
 	}
 
 	{
@@ -492,7 +492,7 @@ rs485_jalousie(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic,
 		if_changed = !dev_cfg["unchanged"];
 	}
 	if (dev_cfg.exists("qos")) {
-		qos = dev_cfg["qos"];
+		qos = dev_cfg["qos"].get_numstr().getll();
 	}
 
 	{
@@ -544,7 +544,7 @@ rs485_relais6(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 		if_changed = !dev_cfg["unchanged"];
 	}
 	if (dev_cfg.exists("qos")) {
-		qos = dev_cfg["qos"];
+		qos = dev_cfg["qos"].get_numstr().getll();
 	}
 
 	// XXX no counter support yet
@@ -579,7 +579,7 @@ rs485_shct3(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AA
 		if_changed = !dev_cfg["unchanged"];
 	}
 	if (dev_cfg.exists("qos")) {
-		qos = dev_cfg["qos"];
+		qos = dev_cfg["qos"].get_numstr().getll();
 	}
 
 	SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 2);
@@ -602,7 +602,7 @@ rs485_laserdistance(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maint
 		if_changed = !dev_cfg["unchanged"];
 	}
 	if (dev_cfg.exists("qos")) {
-		qos = dev_cfg["qos"];
+		qos = dev_cfg["qos"].get_numstr().getll();
 	}
 
 	SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0, 3);
@@ -628,7 +628,7 @@ eth_io88(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArra
 		if_changed = !dev_cfg["unchanged"];
 	}
 	if (dev_cfg.exists("qos")) {
-		qos = dev_cfg["qos"];
+		qos = dev_cfg["qos"].get_numstr().getll();
 	}
 
 	{
@@ -663,7 +663,7 @@ rs485_io88(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AAr
 		if_changed = !dev_cfg["unchanged"];
 	}
 	if (dev_cfg.exists("qos")) {
-		qos = dev_cfg["qos"];
+		qos = dev_cfg["qos"].get_numstr().getll();
 	}
 
 	{
@@ -704,7 +704,7 @@ rs485_adc_dac(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 		if_changed = !dev_cfg["unchanged"];
 	}
 	if (dev_cfg.exists("qos")) {
-		qos = dev_cfg["qos"];
+		qos = dev_cfg["qos"].get_numstr().getll();
 	}
 
 	{
@@ -796,7 +796,7 @@ rs485_thermocouple(Modbus& mb, MQTT& mqtt, uint8_t address, const String& mainto
 		if_changed = !dev_cfg["unchanged"];
 	}
 	if (dev_cfg.exists("qos")) {
-		qos = dev_cfg["qos"];
+		qos = dev_cfg["qos"].get_numstr().getll();
 	}
 
 	{
@@ -832,7 +832,7 @@ rs485_chamberpump(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintop
 		if_changed = !dev_cfg["unchanged"];
 	}
 	if (dev_cfg.exists("qos")) {
-		qos = dev_cfg["qos"];
+		qos = dev_cfg["qos"].get_numstr().getll();
 	}
 
 	{
@@ -924,7 +924,7 @@ ModbusLoop(void * arg)
 				if_changed = !dev_cfg["unchanged"];
 			}
 			if (dev_cfg.exists("qos")) {
-				qos = dev_cfg["qos"];
+				qos = dev_cfg["qos"].get_numstr().getll();
 			}
 
 			String maintopic = dev_cfg["maintopic"];
