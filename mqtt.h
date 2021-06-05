@@ -155,8 +155,8 @@ public:
 	~MQTT();
 	bool connect(void);
 	void disconnect(void);
-	void publish(const JSON& element, const String& message, bool retain = true, bool if_changed = false);
-	void publish(const String& topic, const String& message, bool retain = true, bool if_changed = false);
+	void publish(const JSON& element, const String& message, bool retain = true, bool if_changed = false, int qos = 1);
+	void publish(const String& topic, const String& message, bool retain = true, bool if_changed = false, int qos = 1);
 	void subscribe(const String& topic);
 	Array<RXbuf> get_rxbuf();
 	Datawrapper operator[](const String& topic);
