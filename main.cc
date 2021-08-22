@@ -211,6 +211,110 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 }
 
 void
+eastron_sdm220(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	bool persistent = true;
+	bool if_changed = true;
+	int qos = 1;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
+	if (dev_cfg.exists("qos")) {
+		qos = dev_cfg["qos"].get_numstr().getll();
+	}
+
+	{
+		union {
+			float f;
+			uint16_t i[2];
+		};
+
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0000, 2 * 1);
+			i[1] = int_inputs[0];
+			i[0] = int_inputs[1];
+			mqtt.publish(maintopic + "/A phase voltage", (double)f, persistent, if_changed, qos);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0006, 2 * 1);
+			i[1] = int_inputs[0];
+			i[0] = int_inputs[1];
+			mqtt.publish(maintopic + "/A phase current", (double)f, persistent, if_changed, qos);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x000c, 2 * 1);
+			i[1] = int_inputs[0];
+			i[0] = int_inputs[1];
+			mqtt.publish(maintopic + "/A phase active power", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total active power", (double)f, persistent, if_changed, qos);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0012, 2 * 1);
+			i[1] = int_inputs[0];
+			i[0] = int_inputs[1];
+			mqtt.publish(maintopic + "/A phase apparent power", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total apparent power", (double)f, persistent, if_changed, qos);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0018, 2 * 1);
+			i[1] = int_inputs[0];
+			i[0] = int_inputs[1];
+			mqtt.publish(maintopic + "/A phase reactive power", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total reactive power", (double)f, persistent, if_changed, qos);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x001e, 2 * 1);
+			i[1] = int_inputs[0];
+			i[0] = int_inputs[1];
+			mqtt.publish(maintopic + "/A phase power factor", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total power factor", (double)f, persistent, if_changed, qos);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0024, 2 * 1);
+			i[1] = int_inputs[0];
+			i[0] = int_inputs[1];
+			mqtt.publish(maintopic + "/A phase angle", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total angle", (double)f, persistent, if_changed, qos);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0046, 2 * 1);
+			i[1] = int_inputs[0];
+			i[0] = int_inputs[1];
+			mqtt.publish(maintopic + "/frequency", (double)f, persistent, if_changed, qos);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0048, 2 * 1);
+			i[1] = int_inputs[0];
+			i[0] = int_inputs[1];
+			mqtt.publish(maintopic + "/forward active energy", (double)f, persistent, if_changed, qos);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x004a, 2 * 1);
+			i[1] = int_inputs[0];
+			i[0] = int_inputs[1];
+			mqtt.publish(maintopic + "/reverse active energy", (double)f, persistent, if_changed, qos);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x004c, 2 * 1);
+			i[1] = int_inputs[0];
+			i[0] = int_inputs[1];
+			mqtt.publish(maintopic + "/forward reactive energy", (double)f, persistent, if_changed, qos);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x004e, 2 * 1);
+			i[1] = int_inputs[0];
+			i[0] = int_inputs[1];
+			mqtt.publish(maintopic + "/reverse reactive energy", (double)f, persistent, if_changed, qos);
+		}
+	}
+
+	auto rxbuf = mqtt.get_rxbuf();
+}
+
+void
 ZGEJ_powermeter(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	bool persistent = true;
@@ -1112,7 +1216,7 @@ main(int argc, char *argv[]) {
 		String willtopic = maintopic + "/status";
 		main_mqtt.publish(willtopic, "online", true);
 		main_mqtt.publish(maintopic + "/product", "mb_mqttbridge", true);
-		main_mqtt.publish(maintopic + "/version", "0.6", true);
+		main_mqtt.publish(maintopic + "/version", "0.7", true);
 	} else {
 		printf("no mqtt setup in config\n");
 		exit(1);
@@ -1140,6 +1244,7 @@ main(int argc, char *argv[]) {
 	devfunctions["Epever"]["Triron"] = Epever_Triron;
 	devfunctions["Epever"]["Tracer"] = Epever_Triron;
 	devfunctions["Shanghai Chujin Electric"]["Panel Powermeter"] = ZGEJ_powermeter;
+	devfunctions["Eastron"]["SDM220"] = eastron_sdm220;
 
 	// start poll loops
 	JSON& modbuses = cfg["modbuses"];
