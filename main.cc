@@ -34,7 +34,6 @@
 #include "mqtt.h"
 
 static a_refptr<JSON> config;
-static SArray<Modbus*> mbs; // XXX no automatic deletion
 static AArray<AArray<void (*)(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)>> devfunctions;
 static MQTT main_mqtt;
 
