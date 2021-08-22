@@ -1001,9 +1001,8 @@ ModbusLoop(void * arg)
 	a_refptr<JSON> my_config = config;
 	JSON& cfg = *my_config.get();
 	JSON& bus_cfg = cfg["modbuses"][bus];
-	JSON& modbuses = cfg["modbuses"];
-	String host = modbuses[bus]["host"];
-	String port = modbuses[bus]["port"];
+	String host = bus_cfg["host"];
+	String port = bus_cfg["port"];
 	Modbus mb(host, port);
 	Array<MQTT> dev_mqtts;
 	Array<struct timespec> lasttime;
