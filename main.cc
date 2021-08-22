@@ -1138,6 +1138,7 @@ main(int argc, char *argv[]) {
 	devfunctions["Bernd Walter Computer Technology"]["RS485-THERMOCOUPLE"] = rs485_thermocouple;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-Chamberpump"] = rs485_chamberpump;
 	devfunctions["Epever"]["Triron"] = Epever_Triron;
+	devfunctions["Epever"]["Tracer"] = Epever_Triron;
 	devfunctions["Shanghai Chujin Electric"]["Panel Powermeter"] = ZGEJ_powermeter;
 
 	// start poll loops
