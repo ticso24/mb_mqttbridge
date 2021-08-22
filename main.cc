@@ -254,13 +254,13 @@ ZGEJ_powermeter(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic
 			mqtt.publish(maintopic + "/CA line voltage", (double)f, persistent, if_changed, qos);
 			i[0] = int_inputs[12];
 			i[1] = int_inputs[13];
-			mqtt.publish(maintopic + "/A phase ampere", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase current", (double)f, persistent, if_changed, qos);
 			i[0] = int_inputs[14];
 			i[1] = int_inputs[15];
-			mqtt.publish(maintopic + "/B phase ampere", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase current", (double)f, persistent, if_changed, qos);
 			i[0] = int_inputs[16];
 			i[1] = int_inputs[17];
-			mqtt.publish(maintopic + "/C phase ampere", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase current", (double)f, persistent, if_changed, qos);
 			i[0] = int_inputs[18];
 			i[1] = int_inputs[19];
 			mqtt.publish(maintopic + "/A phase active power", (double)f, persistent, if_changed, qos);
