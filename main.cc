@@ -279,33 +279,21 @@ eastron_sdm220(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic,
 			mqtt.publish(maintopic + "/total angle", (double)f, persistent, if_changed, qos);
 		}
 		{
-			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0046, 2 * 1);
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0046, 2 * 5);
 			i[1] = int_inputs[0];
 			i[0] = int_inputs[1];
 			mqtt.publish(maintopic + "/frequency", (double)f, persistent, if_changed, qos);
-		}
-		{
-			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0048, 2 * 1);
-			i[1] = int_inputs[0];
-			i[0] = int_inputs[1];
+			i[1] = int_inputs[2];
+			i[0] = int_inputs[3];
 			mqtt.publish(maintopic + "/forward active energy", (double)f, persistent, if_changed, qos);
-		}
-		{
-			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x004a, 2 * 1);
-			i[1] = int_inputs[0];
-			i[0] = int_inputs[1];
+			i[1] = int_inputs[4];
+			i[0] = int_inputs[5];
 			mqtt.publish(maintopic + "/reverse active energy", (double)f, persistent, if_changed, qos);
-		}
-		{
-			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x004c, 2 * 1);
-			i[1] = int_inputs[0];
-			i[0] = int_inputs[1];
+			i[1] = int_inputs[6];
+			i[0] = int_inputs[7];
 			mqtt.publish(maintopic + "/forward reactive energy", (double)f, persistent, if_changed, qos);
-		}
-		{
-			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x004e, 2 * 1);
-			i[1] = int_inputs[0];
-			i[0] = int_inputs[1];
+			i[1] = int_inputs[8];
+			i[0] = int_inputs[9];
 			mqtt.publish(maintopic + "/reverse reactive energy", (double)f, persistent, if_changed, qos);
 		}
 	}
