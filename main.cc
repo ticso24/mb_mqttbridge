@@ -172,7 +172,6 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 			mqtt.publish(maintopic + "/battery voltage", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed, qos);
 			mqtt.publish(maintopic + "/battery current", d_to_s((double)((int32_t)int_inputs[2] << 16 | int_inputs[1]) / 100, 2), persistent, if_changed, qos);
 		}
-
 		{
 			SArray<uint16_t> int_inputs = mb.read_holding_registers(address, 0x9000, 15);
 			switch(int_inputs[0]) {
@@ -203,6 +202,14 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 			mqtt.publish(maintopic + "/under voltage warning", d_to_s((double)int_inputs[12] / 100, 2), persistent, if_changed, qos);
 			mqtt.publish(maintopic + "/low voltage disconnect", d_to_s((double)int_inputs[13] / 100, 2), persistent, if_changed, qos);
 			mqtt.publish(maintopic + "/discharging limit voltage", d_to_s((double)int_inputs[14] / 100, 2), persistent, if_changed, qos);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x330a, 2);
+			mqtt.publish(maintopic + "/consumed energy", d_to_s((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2), persistent, if_changed, qos);
+		}
+		{
+			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x3312, 2);
+			mqtt.publish(maintopic + "/generated energy", d_to_s((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2), persistent, if_changed, qos);
 		}
 	}
 
