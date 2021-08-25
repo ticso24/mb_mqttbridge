@@ -72,6 +72,17 @@ sighandler(int sig)
 	}
 }
 
+static float
+reg_to_f (uint16_t d0, uint16_t d1) {
+	union {
+		float f;
+		uint16_t i[2];
+	};
+	i[1] = d0;
+	i[0] = d1;
+	return f;
+}
+
 String
 d_to_s(double val, int digits = 3)
 {
