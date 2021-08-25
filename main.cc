@@ -78,8 +78,8 @@ reg_to_f (uint16_t d0, uint16_t d1) {
 		float f;
 		uint16_t i[2];
 	};
-	i[1] = d0;
-	i[0] = d1;
+	i[0] = d0;
+	i[1] = d1;
 	return f;
 }
 
@@ -244,75 +244,46 @@ eastron_sdm220(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic,
 	}
 
 	{
-		union {
-			float f;
-			uint16_t i[2];
-		};
-
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0000, 2 * 1);
-			i[1] = int_inputs[0];
-			i[0] = int_inputs[1];
-			mqtt.publish(maintopic + "/A phase voltage", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase voltage", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0006, 2 * 1);
-			i[1] = int_inputs[0];
-			i[0] = int_inputs[1];
-			mqtt.publish(maintopic + "/A phase current", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase current", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x000c, 2 * 1);
-			i[1] = int_inputs[0];
-			i[0] = int_inputs[1];
-			mqtt.publish(maintopic + "/A phase active power", (double)f, persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/total active power", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase active power", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total active power", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0012, 2 * 1);
-			i[1] = int_inputs[0];
-			i[0] = int_inputs[1];
-			mqtt.publish(maintopic + "/A phase apparent power", (double)f, persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/total apparent power", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase apparent power", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total apparent power", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0018, 2 * 1);
-			i[1] = int_inputs[0];
-			i[0] = int_inputs[1];
-			mqtt.publish(maintopic + "/A phase reactive power", (double)f, persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/total reactive power", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase reactive power", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total reactive power", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x001e, 2 * 1);
-			i[1] = int_inputs[0];
-			i[0] = int_inputs[1];
-			mqtt.publish(maintopic + "/A phase power factor", (double)f, persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/total power factor", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase power factor", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total power factor", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0024, 2 * 1);
-			i[1] = int_inputs[0];
-			i[0] = int_inputs[1];
-			mqtt.publish(maintopic + "/A phase angle", (double)f, persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/total angle", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase angle", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total angle", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
 		}
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0046, 2 * 5);
-			i[1] = int_inputs[0];
-			i[0] = int_inputs[1];
-			mqtt.publish(maintopic + "/frequency", (double)f, persistent, if_changed, qos);
-			i[1] = int_inputs[2];
-			i[0] = int_inputs[3];
-			mqtt.publish(maintopic + "/forward active energy", (double)f, persistent, if_changed, qos);
-			i[1] = int_inputs[4];
-			i[0] = int_inputs[5];
-			mqtt.publish(maintopic + "/reverse active energy", (double)f, persistent, if_changed, qos);
-			i[1] = int_inputs[6];
-			i[0] = int_inputs[7];
-			mqtt.publish(maintopic + "/forward reactive energy", (double)f, persistent, if_changed, qos);
-			i[1] = int_inputs[8];
-			i[0] = int_inputs[9];
-			mqtt.publish(maintopic + "/reverse reactive energy", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/frequency", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/forward active energy", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/reverse active energy", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/forward reactive energy", (double)reg_to_f(int_inputs[7], int_inputs[6]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/reverse reactive energy", (double)reg_to_f(int_inputs[9], int_inputs[8]), persistent, if_changed, qos);
 		}
 	}
 
@@ -336,115 +307,42 @@ ZGEJ_powermeter(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic
 	}
 
 	{
-		union {
-			float f;
-			uint16_t i[2];
-		};
-
 		{
 			SArray<uint16_t> int_inputs = mb.read_input_registers(address, 0x0018, 2 * 34);
-			i[0] = int_inputs[0];
-			i[1] = int_inputs[1];
-			mqtt.publish(maintopic + "/A phase voltage", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[2];
-			i[1] = int_inputs[3];
-			mqtt.publish(maintopic + "/B phase voltage", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[4];
-			i[1] = int_inputs[5];
-			mqtt.publish(maintopic + "/C phase voltage", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[6];
-			i[1] = int_inputs[7];
-			mqtt.publish(maintopic + "/AB line voltage", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[8];
-			i[1] = int_inputs[9];
-			mqtt.publish(maintopic + "/BC line voltage", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[10];
-			i[1] = int_inputs[11];
-			mqtt.publish(maintopic + "/CA line voltage", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[12];
-			i[1] = int_inputs[13];
-			mqtt.publish(maintopic + "/A phase current", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[14];
-			i[1] = int_inputs[15];
-			mqtt.publish(maintopic + "/B phase current", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[16];
-			i[1] = int_inputs[17];
-			mqtt.publish(maintopic + "/C phase current", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[18];
-			i[1] = int_inputs[19];
-			mqtt.publish(maintopic + "/A phase active power", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[20];
-			i[1] = int_inputs[21];
-			mqtt.publish(maintopic + "/B phase active power", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[22];
-			i[1] = int_inputs[23];
-			mqtt.publish(maintopic + "/C phase active power", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[24];
-			i[1] = int_inputs[25];
-			mqtt.publish(maintopic + "/total active power", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[26];
-			i[1] = int_inputs[27];
-			mqtt.publish(maintopic + "/A phase reactive power", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[28];
-			i[1] = int_inputs[29];
-			mqtt.publish(maintopic + "/B phase reactive power", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[30];
-			i[1] = int_inputs[31];
-			mqtt.publish(maintopic + "/C phase reactive power", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[32];
-			i[1] = int_inputs[33];
-			mqtt.publish(maintopic + "/total reactive power", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[34];
-			i[1] = int_inputs[35];
-			mqtt.publish(maintopic + "/A phase apparent power", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[36];
-			i[1] = int_inputs[37];
-			mqtt.publish(maintopic + "/B phase apparent power", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[38];
-			i[1] = int_inputs[39];
-			mqtt.publish(maintopic + "/C phase apparent power", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[40];
-			i[1] = int_inputs[41];
-			mqtt.publish(maintopic + "/total apparent power", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[42];
-			i[1] = int_inputs[43];
-			mqtt.publish(maintopic + "/A phase power factor", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[44];
-			i[1] = int_inputs[45];
-			mqtt.publish(maintopic + "/B phase power factor", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[46];
-			i[1] = int_inputs[47];
-			mqtt.publish(maintopic + "/C phase power factor", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[48];
-			i[1] = int_inputs[49];
-			mqtt.publish(maintopic + "/total power factor", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[50];
-			i[1] = int_inputs[51];
-			mqtt.publish(maintopic + "/frequency", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[52];
-			i[1] = int_inputs[53];
-			mqtt.publish(maintopic + "/forward active energy 2", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[54];
-			i[1] = int_inputs[55];
-			mqtt.publish(maintopic + "/reverse active energy 2", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[56];
-			i[1] = int_inputs[57];
-			mqtt.publish(maintopic + "/forward reactive energy 2", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[58];
-			i[1] = int_inputs[59];
-			mqtt.publish(maintopic + "/reverse reactive energy 2", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[60];
-			i[1] = int_inputs[61];
-			mqtt.publish(maintopic + "/forward active energy", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[62];
-			i[1] = int_inputs[63];
-			mqtt.publish(maintopic + "/reverse active energy", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[64];
-			i[1] = int_inputs[65];
-			mqtt.publish(maintopic + "/forward reactive energy", (double)f, persistent, if_changed, qos);
-			i[0] = int_inputs[66];
-			i[1] = int_inputs[67];
-			mqtt.publish(maintopic + "/reverse reactive energy", (double)f, persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase voltage", (double)reg_to_f(int_inputs[0], int_inputs[1]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase voltage", (double)reg_to_f(int_inputs[2], int_inputs[3]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase voltage", (double)reg_to_f(int_inputs[4], int_inputs[5]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/AB line voltage", (double)reg_to_f(int_inputs[6], int_inputs[7]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/BC line voltage", (double)reg_to_f(int_inputs[8], int_inputs[9]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/CA line voltage", (double)reg_to_f(int_inputs[10], int_inputs[11]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase current", (double)reg_to_f(int_inputs[12], int_inputs[13]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase current", (double)reg_to_f(int_inputs[14], int_inputs[15]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase current", (double)reg_to_f(int_inputs[16], int_inputs[17]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase active power", (double)reg_to_f(int_inputs[18], int_inputs[19]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase active power", (double)reg_to_f(int_inputs[20], int_inputs[21]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase active power", (double)reg_to_f(int_inputs[22], int_inputs[23]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total active power", (double)reg_to_f(int_inputs[24], int_inputs[25]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase reactive power", (double)reg_to_f(int_inputs[26], int_inputs[27]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase reactive power", (double)reg_to_f(int_inputs[28], int_inputs[29]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase reactive power", (double)reg_to_f(int_inputs[30], int_inputs[31]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total reactive power", (double)reg_to_f(int_inputs[32], int_inputs[33]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase apparent power", (double)reg_to_f(int_inputs[34], int_inputs[35]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase apparent power", (double)reg_to_f(int_inputs[36], int_inputs[37]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase apparent power", (double)reg_to_f(int_inputs[38], int_inputs[39]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total apparent power", (double)reg_to_f(int_inputs[40], int_inputs[41]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase power factor", (double)reg_to_f(int_inputs[42], int_inputs[43]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase power factor", (double)reg_to_f(int_inputs[44], int_inputs[45]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase power factor", (double)reg_to_f(int_inputs[46], int_inputs[47]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total power factor", (double)reg_to_f(int_inputs[48], int_inputs[49]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/frequency", (double)reg_to_f(int_inputs[50], int_inputs[51]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/forward active energy 2", (double)reg_to_f(int_inputs[52], int_inputs[53]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/reverse active energy 2", (double)reg_to_f(int_inputs[54], int_inputs[55]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/forward reactive energy 2", (double)reg_to_f(int_inputs[56], int_inputs[57]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/reverse reactive energy 2", (double)reg_to_f(int_inputs[58], int_inputs[59]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/forward active energy", (double)reg_to_f(int_inputs[60], int_inputs[61]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/reverse active energy", (double)reg_to_f(int_inputs[62], int_inputs[63]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/forward reactive energy", (double)reg_to_f(int_inputs[64], int_inputs[65]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/reverse reactive energy", (double)reg_to_f(int_inputs[66], int_inputs[67]), persistent, if_changed, qos);
 		}
 	}
 
