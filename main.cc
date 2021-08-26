@@ -228,6 +228,68 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 }
 
 void
+eastron_sdm630(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	bool persistent = true;
+	bool if_changed = true;
+	int qos = 1;
+	if (dev_cfg.exists("persistent")) {
+		persistent = dev_cfg["persistent"];
+	}
+	if (dev_cfg.exists("unchanged")) {
+		if_changed = !dev_cfg["unchanged"];
+	}
+	if (dev_cfg.exists("qos")) {
+		qos = dev_cfg["qos"].get_numstr().getll();
+	}
+
+	{
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x0000, 2 * 54);
+			mqtt.publish(maintopic + "/A phase voltage", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase voltage", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase voltage", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase current", (double)reg_to_f(int_inputs[7], int_inputs[6]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase current", (double)reg_to_f(int_inputs[9], int_inputs[8]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase current", (double)reg_to_f(int_inputs[11], int_inputs[10]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase active power", (double)reg_to_f(int_inputs[13], int_inputs[12]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase active power", (double)reg_to_f(int_inputs[15], int_inputs[14]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase active power", (double)reg_to_f(int_inputs[17], int_inputs[16]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase apparent power", (double)reg_to_f(int_inputs[19], int_inputs[18]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase apparent power", (double)reg_to_f(int_inputs[21], int_inputs[20]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase apparent power", (double)reg_to_f(int_inputs[23], int_inputs[22]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase reactive power", (double)reg_to_f(int_inputs[25], int_inputs[24]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase reactive power", (double)reg_to_f(int_inputs[27], int_inputs[26]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase reactive power", (double)reg_to_f(int_inputs[29], int_inputs[28]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase power factor", (double)reg_to_f(int_inputs[31], int_inputs[30]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase power factor", (double)reg_to_f(int_inputs[33], int_inputs[32]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase power factor", (double)reg_to_f(int_inputs[35], int_inputs[34]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase angle", (double)reg_to_f(int_inputs[37], int_inputs[36]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase angle", (double)reg_to_f(int_inputs[39], int_inputs[38]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase angle", (double)reg_to_f(int_inputs[41], int_inputs[40]), persistent, if_changed, qos);
+		}
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x0034, 2 * 5);
+			mqtt.publish(maintopic + "/total active power", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total apparent power", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total reactive power", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total power factor", (double)reg_to_f(int_inputs[7], int_inputs[6]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/total angle", (double)reg_to_f(int_inputs[9], int_inputs[8]), persistent, if_changed, qos);
+		}
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x0046, 2 * 5);
+			mqtt.publish(maintopic + "/frequency", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/forward active energy", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/reverse active energy", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/forward reactive energy", (double)reg_to_f(int_inputs[7], int_inputs[6]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/reverse reactive energy", (double)reg_to_f(int_inputs[9], int_inputs[8]), persistent, if_changed, qos);
+		}
+	}
+
+	auto rxbuf = mqtt.get_rxbuf();
+}
+
+void
 eastron_sdm220(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	bool persistent = true;
@@ -1147,6 +1209,7 @@ main(int argc, char *argv[]) {
 	devfunctions["Epever"]["Tracer"] = Epever_Triron;
 	devfunctions["Shanghai Chujin Electric"]["Panel Powermeter"] = ZGEJ_powermeter;
 	devfunctions["Eastron"]["SDM220"] = eastron_sdm220;
+	devfunctions["Eastron"]["SDM630"] = eastron_sdm630;
 
 	// start poll loops
 	JSON& modbuses = cfg["modbuses"];
