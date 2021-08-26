@@ -269,10 +269,8 @@ eastron_sdm630(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic,
 			mqtt.publish(maintopic + "/C phase angle", (double)reg_to_f(int_inputs[41], int_inputs[40]), persistent, if_changed, qos);
 		}
 		{
-			auto int_inputs = mb.read_input_registers(address, 0x0034, 2 * 5);
-			mqtt.publish(maintopic + "/total active power", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/total apparent power", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/total reactive power", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
+			auto int_inputs = mb.read_input_registers(address, 0x003c, 2 * 3);
+			mqtt.publish(maintopic + "/total reactive power", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
 			mqtt.publish(maintopic + "/total power factor", (double)reg_to_f(int_inputs[7], int_inputs[6]), persistent, if_changed, qos);
 			mqtt.publish(maintopic + "/total angle", (double)reg_to_f(int_inputs[9], int_inputs[8]), persistent, if_changed, qos);
 		}
@@ -283,6 +281,32 @@ eastron_sdm630(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic,
 			mqtt.publish(maintopic + "/reverse active energy", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
 			mqtt.publish(maintopic + "/forward reactive energy", (double)reg_to_f(int_inputs[7], int_inputs[6]), persistent, if_changed, qos);
 			mqtt.publish(maintopic + "/reverse reactive energy", (double)reg_to_f(int_inputs[9], int_inputs[8]), persistent, if_changed, qos);
+		}
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x0054, 2 * 1);
+			mqtt.publish(maintopic + "/total active power", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+		}
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x0064, 2 * 1);
+			mqtt.publish(maintopic + "/total apparent power", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+		}
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x015a, 2 * 6);
+			mqtt.publish(maintopic + "/A phase forward active energy", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase forward active energy", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase forward active energy", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase reverse active energy", (double)reg_to_f(int_inputs[7], int_inputs[6]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase reverse active energy", (double)reg_to_f(int_inputs[9], int_inputs[8]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase reverse active energy", (double)reg_to_f(int_inputs[11], int_inputs[10]), persistent, if_changed, qos);
+		}
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x016c, 2 * 6);
+			mqtt.publish(maintopic + "/A phase forward reactive energy", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase forward reactive energy", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase forward reactive energy", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/A phase reverse reactive energy", (double)reg_to_f(int_inputs[7], int_inputs[6]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase reverse reactive energy", (double)reg_to_f(int_inputs[9], int_inputs[8]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase reverse reactive energy", (double)reg_to_f(int_inputs[11], int_inputs[10]), persistent, if_changed, qos);
 		}
 	}
 
@@ -346,6 +370,16 @@ eastron_sdm220(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic,
 			mqtt.publish(maintopic + "/reverse active energy", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
 			mqtt.publish(maintopic + "/forward reactive energy", (double)reg_to_f(int_inputs[7], int_inputs[6]), persistent, if_changed, qos);
 			mqtt.publish(maintopic + "/reverse reactive energy", (double)reg_to_f(int_inputs[9], int_inputs[8]), persistent, if_changed, qos);
+		}
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x00c8, 2 * 3);
+			mqtt.publish(maintopic + "/AB line voltage", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/BC line voltage", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/CA line voltage", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
+		}
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x00c8, 2 * 3);
+			mqtt.publish(maintopic + "/AB line voltage", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
 		}
 	}
 
