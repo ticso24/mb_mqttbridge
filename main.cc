@@ -1100,15 +1100,16 @@ ModbusLoop(void * arg)
 					}
 				}
 				bool poll = true;
+				double intervall = 1.0;
 				if (dev_cfg.exists("min_pollintervall")) {
 					String tmp = dev_cfg["min_pollintervall"].get_numstr();
-					double intervall = (double)tmp.getd();
-					struct timespec timespecdiff;
-					timespecsub(&now, &lasttime[dev], &timespecdiff);
-					double timediff = (double)(timespecdiff.tv_sec) + (double)(timespecdiff.tv_nsec) / 1000000000;
-					if (timediff < intervall) {
-						poll = false;
-					}
+					intervall = (double)tmp.getd();
+				}
+				struct timespec timespecdiff;
+				timespecsub(&now, &lasttime[dev], &timespecdiff);
+				double timediff = (double)(timespecdiff.tv_sec) + (double)(timespecdiff.tv_nsec) / 1000000000;
+				if (timediff < intervall) {
+					poll = false;
 				}
 				if (poll) {
 					if (devdata[dev].exists("vendor")) {
