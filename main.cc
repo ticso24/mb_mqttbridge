@@ -1002,7 +1002,7 @@ ModbusLoop(void * arg)
 	JSON& bus_cfg = cfg["modbuses"][bus];
 	String host = bus_cfg["host"];
 	String port = bus_cfg["port"];
-	String threadname = String() + "mb_" + host + "@" + port;
+	String threadname = String() + "mb[" + host + "]@" + port;
 	pthread_setname_np(pthread_self(), threadname.c_str());
 	Modbus mb(host, port);
 	Array<MQTT> dev_mqtts;
