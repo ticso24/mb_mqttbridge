@@ -670,7 +670,7 @@ rs485_relais6(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 }
 
 void
-rs485_shct3(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+rs485_shtc3(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	bool persistent = true;
 	bool if_changed = true;
@@ -686,8 +686,10 @@ rs485_shct3(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AA
 	}
 
 	auto int_inputs = mb.read_input_registers(address, 0, 2);
-	mqtt.publish(maintopic + "/temperature", S + (int16_t)int_inputs[0], persistent, if_changed, qos);
-	mqtt.publish(maintopic + "/humidity", S + int_inputs[1], persistent, if_changed, qos);
+	double temp = (double)(int16_t)int_inputs[0] / 10.0;
+	double humid = (double)int_inputs[1] / 10.0;
+	mqtt.publish(maintopic + "/temperature", S + d_to_s(temp, 1), persistent, if_changed, qos);
+	mqtt.publish(maintopic + "/humidity", S + d_to_s(humid, 1), persistent, if_changed, qos);
 
 	auto rxbuf = mqtt.get_rxbuf();
 }
@@ -1233,7 +1235,7 @@ main(int argc, char *argv[]) {
 	devfunctions["Bernd Walter Computer Technology"]["Ethernet-MB RS485 / twin power relay / 4ch input / LDR / DS18B20"] = eth_tpr_ldr;
 	devfunctions["Bernd Walter Computer Technology"]["MB 3x jalousie actor / 8ch input"] = rs485_jalousie;
 	devfunctions["Bernd Walter Computer Technology"]["MB 6x power relay / 8ch input"] = rs485_relais6;
-	devfunctions["Bernd Walter Computer Technology"]["RS485-SHTC3"] = rs485_shct3;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-SHTC3"] = rs485_shtc3;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-Laserdistance-Weight"] = rs485_laserdistance;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-IO88"] = rs485_io88;
 	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88"] = eth_io88;
