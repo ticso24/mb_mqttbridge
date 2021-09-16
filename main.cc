@@ -1007,6 +1007,12 @@ ModbusLoop(void * arg)
 	String threadname = String() + "mb[" + host + "]@" + port;
 	pthread_setname_np(pthread_self(), threadname.c_str());
 	Modbus mb(host, port);
+	if (bus_cfg.exists("ignore_sequence")) {
+		bool ignore_sequence;
+		ignore_sequence = bus_cfg["ignore_sequence"];
+		mb.set_ignore_sequence(ignore_sequence);
+	}
+
 	Array<MQTT> dev_mqtts;
 	Array<struct timespec> lasttime;
 
