@@ -1125,10 +1125,10 @@ ModbusLoop(void * arg)
 					if (devdata[dev].exists("vendor")) {
 						mqtt.publish(maintopic + "/vendor", devdata[dev]["vendor"], persistent, if_changed, qos);
 					}
-					if (!devdata[dev].exists("product")) {
+					if (devdata[dev].exists("product")) {
 						mqtt.publish(maintopic + "/product", devdata[dev]["product"], persistent, if_changed, qos);
 					}
-					if (!devdata[dev].exists("version")) {
+					if (devdata[dev].exists("version")) {
 						mqtt.publish(maintopic + "/version", devdata[dev]["version"], persistent, if_changed, qos);
 					}
 					if (!product.empty() && !vendor.empty()) {
