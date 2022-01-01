@@ -245,28 +245,46 @@ eastron_sdm630(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic,
 
 	{
 		{
-			auto int_inputs = mb.read_input_registers(address, 0x0000, 2 * 54);
+			auto int_inputs = mb.read_input_registers(address, 0x0000, 2 * 3);
 			mqtt.publish(maintopic + "/A phase voltage", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
 			mqtt.publish(maintopic + "/B phase voltage", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
 			mqtt.publish(maintopic + "/C phase voltage", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/A phase current", (double)reg_to_f(int_inputs[7], int_inputs[6]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/B phase current", (double)reg_to_f(int_inputs[9], int_inputs[8]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/C phase current", (double)reg_to_f(int_inputs[11], int_inputs[10]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/A phase active power", (double)reg_to_f(int_inputs[13], int_inputs[12]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/B phase active power", (double)reg_to_f(int_inputs[15], int_inputs[14]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/C phase active power", (double)reg_to_f(int_inputs[17], int_inputs[16]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/A phase apparent power", (double)reg_to_f(int_inputs[19], int_inputs[18]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/B phase apparent power", (double)reg_to_f(int_inputs[21], int_inputs[20]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/C phase apparent power", (double)reg_to_f(int_inputs[23], int_inputs[22]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/A phase reactive power", (double)reg_to_f(int_inputs[25], int_inputs[24]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/B phase reactive power", (double)reg_to_f(int_inputs[27], int_inputs[26]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/C phase reactive power", (double)reg_to_f(int_inputs[29], int_inputs[28]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/A phase power factor", (double)reg_to_f(int_inputs[31], int_inputs[30]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/B phase power factor", (double)reg_to_f(int_inputs[33], int_inputs[32]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/C phase power factor", (double)reg_to_f(int_inputs[35], int_inputs[34]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/A phase angle", (double)reg_to_f(int_inputs[37], int_inputs[36]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/B phase angle", (double)reg_to_f(int_inputs[39], int_inputs[38]), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/C phase angle", (double)reg_to_f(int_inputs[41], int_inputs[40]), persistent, if_changed, qos);
+		}
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x0006, 2 * 3);
+			mqtt.publish(maintopic + "/A phase current", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase current", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase current", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
+		}
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x000c, 2 * 3);
+			mqtt.publish(maintopic + "/A phase active power", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase active power", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase active power", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
+		}
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x0012, 2 * 3);
+			mqtt.publish(maintopic + "/A phase apparent power", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase apparent power", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase apparent power", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
+		}
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x0018, 2 * 3);
+			mqtt.publish(maintopic + "/A phase reactive power", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase reactive power", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase reactive power", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
+		}
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x001e, 2 * 3);
+			mqtt.publish(maintopic + "/A phase power factor", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase power factor", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase power factor", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
+		}
+		{
+			auto int_inputs = mb.read_input_registers(address, 0x0024, 2 * 3);
+			mqtt.publish(maintopic + "/A phase angle", (double)reg_to_f(int_inputs[1], int_inputs[0]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/B phase angle", (double)reg_to_f(int_inputs[3], int_inputs[2]), persistent, if_changed, qos);
+			mqtt.publish(maintopic + "/C phase angle", (double)reg_to_f(int_inputs[5], int_inputs[4]), persistent, if_changed, qos);
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x003c, 2 * 3);
