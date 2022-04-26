@@ -93,7 +93,6 @@ MQTT::publish(const String& topic, const String& message, bool retain, bool if_c
 	if (if_changed) {
 		rxdata_mtx.lock();
 		if (rxdata[topic] == message) {
-			rxdata[topic] = message;
 			send = false;
 		}
 		rxdata_mtx.unlock();
