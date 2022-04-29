@@ -38,4 +38,7 @@ void usage(void);
 void siginit(void);
 void sighandler(int sig);
 
+float reg_to_f (uint16_t d0, uint16_t d1);
+String d_to_s(double val, int digits = 3);
+
 #endif /* MAIN */

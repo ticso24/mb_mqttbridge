@@ -72,7 +72,7 @@ sighandler(int sig)
 	}
 }
 
-static float
+float
 reg_to_f (uint16_t d0, uint16_t d1) {
 	union {
 		float f;
@@ -84,7 +84,7 @@ reg_to_f (uint16_t d0, uint16_t d1) {
 }
 
 String
-d_to_s(double val, int digits = 3)
+d_to_s(double val, int digits)
 {
 	String ret;
 	ret.printf("%.*lf", digits, val);
