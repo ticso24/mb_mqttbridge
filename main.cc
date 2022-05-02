@@ -433,7 +433,7 @@ eth_tpr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address,
 		inputs[1] = bin_inputs[1];
 		inputs[2] = bin_inputs[2];
 		inputs[3] = bin_inputs[3];
-		mqtt_data["inputs"] = inputs;
+		mqtt_data["input"] = inputs;
 	}
 	{
 		auto bin_coils = mb.read_coils(address, 0, 2);
@@ -483,7 +483,7 @@ eth_tpr_ldr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 		inputs[1] = bin_inputs[1];
 		inputs[2] = bin_inputs[2];
 		inputs[3] = bin_inputs[3];
-		mqtt_data["inputs"] = inputs;
+		mqtt_data["input"] = inputs;
 	}
 	{
 		auto bin_coils = mb.read_coils(address, 0, 2);
@@ -559,9 +559,11 @@ rs485_jalousie(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t a
 	{
 		auto bin_inputs = mb.read_discrete_inputs(address, 0, 8);
 
+		Array<JSON> inputs;
 		for (int64_t i = 0; i < 8; i++) {
-			mqtt_data[S + "input" + i] = bin_inputs[i];
+			inputs[i] = bin_inputs[i];
 		}
+		mqtt_data["input"] = inputs;
 	}
 
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
@@ -598,10 +600,13 @@ rs485_relais6(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 	{
 		auto bin_inputs = mb.read_discrete_inputs(address, 0, 8);
 
+		Array<JSON> inputs;
 		for (int64_t i = 0; i < 8; i++) {
-			mqtt_data[S + "input" + i] = bin_inputs[i];
+			inputs[i] = bin_inputs[i];
 		}
+		mqtt_data["input"] = inputs;
 	}
+
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
 		for (int64_t n = 0; n < 6; n++) {
 			if (rxbuf[i].topic == maintopic + "/relais" + n) {
@@ -618,8 +623,12 @@ rs485_shtc3(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 	auto int_inputs = mb.read_input_registers(address, 0, 2);
 	double temp = (double)(int16_t)int_inputs[0] / 10.0;
 	double humid = (double)int_inputs[1] / 10.0;
-	mqtt_data["temperature"].set_number(S + temp);
-	mqtt_data["humidity"].set_number(S + humid);
+	Array<JSON> shtc;
+	AArray<JSON> sensor;
+	sensor["temperature"].set_number(S + temp);
+	sensor["humidity"].set_number(S + humid);
+	shtc[0] = sensor;
+	mqtt_data["SHTC3"] = shtc;
 }
 
 void
@@ -627,10 +636,16 @@ rs485_laserdistance(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint
 {
 	auto int_inputs = mb.read_input_registers(address, 0, 3);
 	{
+		Array<JSON> weights;
 		int32_t tmp = (uint32_t)int_inputs[0] | (uint32_t)int_inputs[1] << 16;
-		mqtt_data["weight"].set_number(S + tmp);
+		weights[0].set_number(S + tmp);
+		mqtt_data["weight"] = weights;
 	}
-	mqtt_data["distance"].set_number(S + int_inputs[2]);
+	{
+		Array<JSON> distances;
+		distances[0].set_number(S + int_inputs[2]);
+		mqtt_data["distance"] = distances;
+	}
 }
 
 void
@@ -639,9 +654,11 @@ eth_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address
 	{
 		auto bin_inputs = mb.read_discrete_inputs(address, 0, 8);
 
+		Array<JSON> inputs;
 		for (int i = 0; i < 8; i++) {
-			mqtt_data[S + "input" + i] = bin_inputs[i];
+			inputs[i] = bin_inputs[i];
 		}
+		mqtt_data["input"] = inputs;
 	}
 
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
@@ -660,9 +677,11 @@ rs485_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addre
 	{
 		auto bin_inputs = mb.read_discrete_inputs(address, 0, 8);
 
+		Array<JSON> inputs;
 		for (int i = 0; i < 8; i++) {
-			mqtt_data[S + "input" + i] = bin_inputs[i];
+			inputs[i] = bin_inputs[i];
 		}
+		mqtt_data["input"] = inputs;
 	}
 
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
@@ -686,10 +705,12 @@ rs485_adc_dac(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 {
 	{
 		auto int_inputs = mb.read_input_registers(address, 0, 10);
-		mqtt_data["adc0"].set_number(S + int_inputs[0]);
-		mqtt_data["adc1"].set_number(S + int_inputs[1]);
-		mqtt_data["adc2"].set_number(S + int_inputs[2]);
-		mqtt_data["adc3"].set_number(S + int_inputs[3]);
+		Array<JSON> adc;
+		adc[0].set_number(S + int_inputs[0]);
+		adc[1].set_number(S + int_inputs[1]);
+		adc[2].set_number(S + int_inputs[2]);
+		adc[3].set_number(S + int_inputs[3]);
+		mqtt_data["adc"] = adc;
 		mqtt_data["ref"].set_number(S + int_inputs[9]);
 	}
 
@@ -781,10 +802,14 @@ rs485_chamberpump(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_
 {
 	{
 		auto int_inputs = mb.read_input_registers(address, 0, 9);
-		mqtt_data["adc0"].set_number(S + int_inputs[0]);
-		mqtt_data["adc1"].set_number(S + int_inputs[1]);
-		mqtt_data["adc2"].set_number(S + int_inputs[2]);
-		mqtt_data["adc3"].set_number(S + int_inputs[3]);
+		{
+			Array<JSON> adc;
+			adc[0].set_number(S + int_inputs[0]);
+			adc[1].set_number(S + int_inputs[1]);
+			adc[2].set_number(S + int_inputs[2]);
+			adc[3].set_number(S + int_inputs[3]);
+			mqtt_data["adc"] = adc;
+		}
 		{
 			String state;
 			switch(int_inputs[4]) {
