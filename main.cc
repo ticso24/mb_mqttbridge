@@ -427,17 +427,21 @@ eth_tpr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address,
 
 	{
 		auto bin_inputs = mb.read_discrete_inputs(address, 0, 4);
+		Array<JSON> inputs;
 
-		mqtt_data["input0"] = bin_inputs[0];
-		mqtt_data["input1"] = bin_inputs[1];
-		mqtt_data["input2"] = bin_inputs[2];
-		mqtt_data["input3"] = bin_inputs[3];
+		inputs[0] = bin_inputs[0];
+		inputs[1] = bin_inputs[1];
+		inputs[2] = bin_inputs[2];
+		inputs[3] = bin_inputs[3];
+		mqtt_data["inputs"] = inputs;
 	}
 	{
 		auto bin_coils = mb.read_coils(address, 0, 2);
 
-		mqtt_data["relais0"] = bin_coils[0];
-		mqtt_data["relais1"] = bin_coils[1];
+		Array<JSON> relais;
+		relais[0] = bin_coils[0];
+		relais[1] = bin_coils[1];
+		mqtt_data["relais"] = relais;
 	}
 }
 
@@ -473,58 +477,80 @@ eth_tpr_ldr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 
 	{
 		auto bin_inputs = mb.read_discrete_inputs(address, 0, 4);
+		Array<JSON> inputs;
 
-		mqtt_data["input0"] = bin_inputs[0];
-		mqtt_data["input1"] = bin_inputs[1];
-		mqtt_data["input2"] = bin_inputs[2];
-		mqtt_data["input3"] = bin_inputs[3];
+		inputs[0] = bin_inputs[0];
+		inputs[1] = bin_inputs[1];
+		inputs[2] = bin_inputs[2];
+		inputs[3] = bin_inputs[3];
+		mqtt_data["inputs"] = inputs;
 	}
+	{
+		auto bin_coils = mb.read_coils(address, 0, 2);
 
+		Array<JSON> relais;
+		relais[0] = bin_coils[0];
+		relais[1] = bin_coils[1];
+		mqtt_data["relais"] = relais;
+	}
 	{
 		auto int_inputs = mb.read_input_registers(address, 0, 14);
 
-		// 16bit counter - should verify for rollover and restart
-		mqtt_data["counter0"].set_number(S + int_inputs[0]);
-		mqtt_data["counter1"].set_number(S + int_inputs[1]);
-		mqtt_data["counter2"].set_number(S + int_inputs[2]);
-		mqtt_data["counter3"].set_number(S + int_inputs[3]);
+		{
+			// 16bit counter - should verify for rollover and restart
+			Array<JSON> counters;
+			counters[0].set_number(S + int_inputs[0]);
+			counters[1].set_number(S + int_inputs[1]);
+			counters[2].set_number(S + int_inputs[2]);
+			counters[3].set_number(S + int_inputs[3]);
 
-		mqtt_data["ldr0"].set_number(S + int_inputs[4]);
-		// XXX check firmware version for functional LDR1 input
-		mqtt_data["ldr1"].set_number(S + int_inputs[5]);
+			// 32 bit counter - should verify for restart if autoreset is not enabled
+			{
+				uint32_t tmp = (uint32_t)int_inputs[6] | (uint32_t)int_inputs[7] << 16;
+				counters[4].set_number(S + tmp);
+			}
+			{
+				uint32_t tmp = (uint32_t)int_inputs[8] | (uint32_t)int_inputs[9] << 16;
+				counters[5].set_number(S + tmp);
+			}
+			{
+				uint32_t tmp = (uint32_t)int_inputs[10] | (uint32_t)int_inputs[11] << 16;
+				counters[6].set_number(S + tmp);
+			}
+			{
+				uint32_t tmp = (uint32_t)int_inputs[12] | (uint32_t)int_inputs[13] << 16;
+				counters[7].set_number(S + tmp);
+			}
 
-		// 32 bit counter - should verify for restart if autoreset is not enabled
-		{
-			uint32_t tmp = (uint32_t)int_inputs[6] | (uint32_t)int_inputs[7] << 16;
-			mqtt_data["counter4"].set_number(S + tmp);
+			mqtt_data["counters"] = counters;
 		}
+
 		{
-			uint32_t tmp = (uint32_t)int_inputs[8] | (uint32_t)int_inputs[9] << 16;
-			mqtt_data["counter5"].set_number(S + tmp);
+			Array<JSON> ldrs;
+			ldrs[0].set_number(S + int_inputs[4]);
+			// XXX check firmware version for functional LDR1 input
+			ldrs[1].set_number(S + int_inputs[5]);
+			mqtt_data["ldrs"] = ldrs;
 		}
-		{
-			uint32_t tmp = (uint32_t)int_inputs[10] | (uint32_t)int_inputs[11] << 16;
-			mqtt_data["counter6"].set_number(S + tmp);
-		}
-		{
-			uint32_t tmp = (uint32_t)int_inputs[12] | (uint32_t)int_inputs[13] << 16;
-			mqtt_data["counter7"].set_number(S + tmp);
-		}
+
 	}
 
 	if (dev_cfg.exists("DS18B20")) {
+		Array<JSON> ds18b20;
 		int64_t max_sensor = dev_cfg["DS18B20"].get_array().max;
 		for (int64_t i = 0; i <= max_sensor; i++) {
 			int16_t sensor_register = dev_cfg["DS18B20"][i]["register"].get_numstr().getll();
 			try {
 				uint16_t value = mb.read_input_register(address, sensor_register);
 				double temp = (double)value / 16;
-				mqtt_data[S + "temperature" + i].set_number(S + temp);
+				AArray<JSON> sensor;
+				sensor["temperature"].set_number(S + temp);
+				ds18b20[i] = sensor;
 			} catch (...) {
 			}
 		}
+		mqtt_data["ds18b20"] = ds18b20;
 	}
-
 }
 
 void
@@ -734,19 +760,19 @@ rs485_thermocouple(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8
 {
 	{
 		auto bin_inputs = mb.read_discrete_inputs(address, 0, 24);
-		for (int i = 0; i < 8; i++) {
-			mqtt_data[S + "open_error" + i] = bin_inputs[i * 3];
-			mqtt_data[S + "gnd_short" + i] = bin_inputs[i * 3 + 1];
-			mqtt_data[S + "vcc_short" + i] = bin_inputs[i * 3 + 2];
-		}
-	}
-
-	{
 		auto int_inputs = mb.read_input_registers(address, 0, 16);
+		Array<JSON> sensors;
 		for (int i = 0; i < 8; i++) {
-			mqtt_data["S + temperature" + i].set_number(S + (int16_t)int_inputs[i * 2];
-			mqtt_data["S + cold_temperature" + i].set_number(S + (int16_t)int_inputs[ i * 2 + 1];
+			AArray<JSON> sensor;
+
+			sensor["open_error"] = bin_inputs[i * 3];
+			sensor["gnd_short"] = bin_inputs[i * 3 + 1];
+			sensor["vcc_short"] = bin_inputs[i * 3 + 2];
+			sensor["temperature"].set_number(S + (int16_t)int_inputs[i * 2]);
+			sensor["cold_temperature"].set_number(S + (int16_t)int_inputs[ i * 2 + 1]);
+			sensors[i] = sensor;
 		}
+		mqtt_data["thermocouple"] = sensors;
 	}
 }
 
@@ -755,10 +781,10 @@ rs485_chamberpump(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_
 {
 	{
 		auto int_inputs = mb.read_input_registers(address, 0, 9);
-		mqtt_data["adc0", S + int_inputs[0], persistent, if_changed, qos);
-		mqtt_data["adc1", S + int_inputs[1], persistent, if_changed, qos);
-		mqtt_data["adc2", S + int_inputs[2], persistent, if_changed, qos);
-		mqtt_data["adc3", S + int_inputs[3], persistent, if_changed, qos);
+		mqtt_data["adc0"].set_number(S + int_inputs[0]);
+		mqtt_data["adc1"].set_number(S + int_inputs[1]);
+		mqtt_data["adc2"].set_number(S + int_inputs[2]);
+		mqtt_data["adc3"].set_number(S + int_inputs[3]);
 		{
 			String state;
 			switch(int_inputs[4]) {
@@ -780,15 +806,15 @@ rs485_chamberpump(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_
 			case 5:
 				state = "unknown";
 			}
-			mqtt_data["state", "empty", persistent, if_changed, qos);
+			mqtt_data["state"] = state;
 		}
 		{
 			uint32_t tmp = (uint32_t)int_inputs[5] | (uint32_t)int_inputs[6] << 16;
-			mqtt_data["cyclecounter", S + tmp, persistent, if_changed, qos);
+			mqtt_data["cyclecounter"].set_number(S + tmp);
 		}
 		{
 			uint32_t tmp = (uint32_t)int_inputs[7] | (uint32_t)int_inputs[8] << 16;
-			mqtt_data["cycletime", S + tmp, persistent, if_changed, qos);
+			mqtt_data["cycletime"].set_number(S + tmp);
 		}
 	}
 
@@ -940,12 +966,12 @@ ModbusLoop(void * arg)
 						auto rxbuf = mqtt.get_rxbuf();
 						(*devfunctions[vendor][product])(mb, rxbuf, mqtt_data, address, maintopic, devdata[dev], dev_cfg);
 					}
-					mqtt_data["/data", mqtt_data.generate(), false, false, qos);
-					mqtt_data["/status", "online", false, false, qos);
+					mqtt.publish(maintopic + "/data", mqtt_data.generate(), false, false, qos);
+					mqtt.publish(maintopic + "/status", "online", false, false, qos);
 					lasttime[dev] = now;
 				}
 			} catch(...) {
-				mqtt_data["/status", "offline", false, false, qos);
+				mqtt.publish(maintopic + "/status", "offline", false, false, qos);
 				sleep(1);
 			}
 		}
