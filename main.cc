@@ -34,7 +34,7 @@
 #include "mqtt.h"
 
 static a_refptr<JSON> config;
-static AArray<AArray<void (*)(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)>> devfunctions;
+static AArray<AArray<void (*)(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)>> devfunctions;
 static MQTT main_mqtt;
 
 #ifndef timespecsub
@@ -93,7 +93,7 @@ d_to_s(double val, int digits)
 }
 
 void
-Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+Epever_Triron(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	bool persistent = true;
 	bool if_changed = true;
@@ -111,33 +111,33 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 	{
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3000, 9);
-			mqtt.publish(maintopic + "/PV array rated voltage", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/PV array rated current", d_to_s((double)int_inputs[1] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/PV array rated power", d_to_s((double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/rated voltage to battery", d_to_s((double)int_inputs[4] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/rated current to battery", d_to_s((double)int_inputs[5] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/rated power to battery", d_to_s((double)((uint32_t)int_inputs[7] << 16 | int_inputs[6]) / 100, 2), persistent, if_changed, qos);
+			mqtt_data["PV array rated voltage"].set_number((double)int_inputs[0] / 100);
+			mqtt_data["PV array rated current"].set_number((double)int_inputs[1] / 100);
+			mqtt_data["PV array rated power"].set_number((double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100);
+			mqtt_data["rated voltage to battery"].set_number((double)int_inputs[4] / 100);
+			mqtt_data["rated current to battery"].set_number((double)int_inputs[5] / 100);
+			mqtt_data["rated power to battery"].set_number((double)((uint32_t)int_inputs[7] << 16 | int_inputs[6]) / 100);
 			switch(int_inputs[8]) {
 			case 0x0000:
-				mqtt.publish(maintopic + "/charging mode", S + "connect/disconnect", persistent, if_changed, qos);
+				mqtt_data["charging mode"] =  "connect/disconnect";
 				break;
 			case 0x0001:
-				mqtt.publish(maintopic + "/charging mode", S + "PWM", persistent, if_changed, qos);
+				mqtt_data["charging mode"] = "PWM";
 				break;
 			case 0x0002:
-				mqtt.publish(maintopic + "/charging mode", S + "MPPT", persistent, if_changed, qos);
+				mqtt_data["charging mode"] = "MPPT";
 				break;
 			}
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x300e, 1);
-			mqtt.publish(maintopic + "/rated current of load", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed, qos);
+			mqtt_data["rated current of load"].set_number((double)int_inputs[0] / 100);
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3100, 4);
-			mqtt.publish(maintopic + "/PV voltage", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/PV current", d_to_s((double)int_inputs[1] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/PV power", d_to_s((double)((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2), persistent, if_changed, qos);
+			mqtt_data["PV voltage"].set_number((double)int_inputs[0] / 100);
+			mqtt_data["PV current"].set_number((double)int_inputs[1] / 100);
+			mqtt_data["PV power"].set_number((double)((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100);
 		}
 		if (0) {
 			// value makes no sense, identic to PV power
@@ -223,8 +223,6 @@ Epever_Triron(Modbus& mb, MQTT& mqtt, uint8_t address, const String& maintopic, 
 			mqtt.publish(maintopic + "/generated energy", d_to_s((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2), persistent, if_changed, qos);
 		}
 	}
-
-	auto rxbuf = mqtt.get_rxbuf();
 }
 
 void
@@ -1044,15 +1042,8 @@ ModbusLoop(void * arg)
 
 		for (int64_t dev = 0; dev <= bus_cfg["devices"].get_array().max; dev++) {
 			JSON& dev_cfg = bus_cfg["devices"][dev];
-			bool persistent = true;
-			bool if_changed = true;
-			int qos = 1;
-			if (dev_cfg.exists("persistent")) {
-				persistent = dev_cfg["persistent"];
-			}
-			if (dev_cfg.exists("unchanged")) {
-				if_changed = !dev_cfg["unchanged"];
-			}
+			JSON mqtt_data;
+			int qos = 0;
 			if (dev_cfg.exists("qos")) {
 				qos = dev_cfg["qos"].get_numstr().getll();
 			}
@@ -1124,7 +1115,7 @@ ModbusLoop(void * arg)
 					String product = devdata[dev]["product"];
 					if (!product.empty()) {
 						// only suscribe, if we have a handler function
-						mqtt.subscribe(maintopic + "/+");
+						mqtt.subscribe(maintopic + "/cmd");
 					}
 				}
 				bool poll = true;
@@ -1141,22 +1132,24 @@ ModbusLoop(void * arg)
 				}
 				if (poll) {
 					if (devdata[dev].exists("vendor")) {
-						mqtt.publish(maintopic + "/vendor", devdata[dev]["vendor"], persistent, if_changed, qos);
+						mqtt_data["vendor"] = devdata[dev]["vendor"];
 					}
 					if (devdata[dev].exists("product")) {
-						mqtt.publish(maintopic + "/product", devdata[dev]["product"], persistent, if_changed, qos);
+						mqtt_data["product"] = devdata[dev]["product"];
 					}
 					if (devdata[dev].exists("version")) {
-						mqtt.publish(maintopic + "/version", devdata[dev]["version"], persistent, if_changed, qos);
+						mqtt_data["version"] = devdata[dev]["version"];
 					}
 					if (!product.empty() && !vendor.empty()) {
-						(*devfunctions[vendor][product])(mb, mqtt, address, maintopic, devdata[dev], dev_cfg);
+						auto rxbuf = mqtt.get_rxbuf();
+						(*devfunctions[vendor][product])(mb, rxbuf, mqtt_data, address, maintopic, devdata[dev], dev_cfg);
 					}
-					mqtt.publish(maintopic + "/status", "online", persistent, if_changed, qos);
+					mqtt.publish(maintopic + "/data", mqtt_data.generate(), false, false, qos);
+					mqtt.publish(maintopic + "/status", "online", false, false, qos);
 					lasttime[dev] = now;
 				}
 			} catch(...) {
-				mqtt.publish(maintopic + "/status", "offline", persistent, if_changed, qos);
+				mqtt.publish(maintopic + "/status", "offline", false, false, qos);
 				sleep(1);
 			}
 		}
@@ -1242,8 +1235,10 @@ main(int argc, char *argv[]) {
 		main_mqtt.connect();
 		String willtopic = maintopic + "/status";
 		main_mqtt.publish(willtopic, "online", true);
-		main_mqtt.publish(maintopic + "/product", "mb_mqttbridge", true);
-		main_mqtt.publish(maintopic + "/version", "0.7", true);
+		JSON mqtt_data;
+		mqtt_data["product"] = String("mb_mqttbridge");
+		mqtt_data["version"] = String("0.9");
+		main_mqtt.publish(maintopic + "/data", mqtt_data.generate(), true);
 	} else {
 		printf("no mqtt setup in config\n");
 		exit(1);
@@ -1255,24 +1250,24 @@ main(int argc, char *argv[]) {
 	}
 
 	// register devicefunctions
-	devfunctions["Bernd Walter Computer Technology"]["Ethernet-MB twin power relay / 4ch input"] = eth_tpr;
-	devfunctions["Bernd Walter Computer Technology"]["Ethernet-MB RS485 / twin power relay / 4ch input / LDR / DS18B20"] = eth_tpr_ldr;
-	devfunctions["Bernd Walter Computer Technology"]["MB 3x jalousie actor / 8ch input"] = rs485_jalousie;
-	devfunctions["Bernd Walter Computer Technology"]["MB 6x power relay / 8ch input"] = rs485_relais6;
-	devfunctions["Bernd Walter Computer Technology"]["RS485-SHTC3"] = rs485_shtc3;
-	devfunctions["Bernd Walter Computer Technology"]["RS485-Laserdistance-Weight"] = rs485_laserdistance;
-	devfunctions["Bernd Walter Computer Technology"]["RS485-IO88"] = rs485_io88;
-	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88"] = eth_io88;
-	devfunctions["Bernd Walter Computer Technology"]["MB ADC DAC"] = rs485_adc_dac;
-	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Display"] = rs485_rfid125_disp;
-	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Writer-Beta"] = rs485_rfid125;
-	devfunctions["Bernd Walter Computer Technology"]["RS485-THERMOCOUPLE"] = rs485_thermocouple;
-	devfunctions["Bernd Walter Computer Technology"]["RS485-Chamberpump"] = rs485_chamberpump;
-	devfunctions["Epever"]["Triron"] = Epever_Triron;
-	devfunctions["Epever"]["Tracer"] = Epever_Triron;
-	devfunctions["Shanghai Chujin Electric"]["Panel Powermeter"] = ZGEJ_powermeter;
-	devfunctions["Eastron"]["SDM220"] = eastron_sdm220;
-	devfunctions["Eastron"]["SDM630"] = eastron_sdm630;
+	//devfunctions["Bernd Walter Computer Technology"]["Ethernet-MB twin power relay / 4ch input"] = eth_tpr;
+	//devfunctions["Bernd Walter Computer Technology"]["Ethernet-MB RS485 / twin power relay / 4ch input / LDR / DS18B20"] = eth_tpr_ldr;
+	//devfunctions["Bernd Walter Computer Technology"]["MB 3x jalousie actor / 8ch input"] = rs485_jalousie;
+	//devfunctions["Bernd Walter Computer Technology"]["MB 6x power relay / 8ch input"] = rs485_relais6;
+	//devfunctions["Bernd Walter Computer Technology"]["RS485-SHTC3"] = rs485_shtc3;
+	//devfunctions["Bernd Walter Computer Technology"]["RS485-Laserdistance-Weight"] = rs485_laserdistance;
+	//devfunctions["Bernd Walter Computer Technology"]["RS485-IO88"] = rs485_io88;
+	//devfunctions["Bernd Walter Computer Technology"]["ETH-IO88"] = eth_io88;
+	//devfunctions["Bernd Walter Computer Technology"]["MB ADC DAC"] = rs485_adc_dac;
+	//devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Display"] = rs485_rfid125_disp;
+	//devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Writer-Beta"] = rs485_rfid125;
+	//devfunctions["Bernd Walter Computer Technology"]["RS485-THERMOCOUPLE"] = rs485_thermocouple;
+	//devfunctions["Bernd Walter Computer Technology"]["RS485-Chamberpump"] = rs485_chamberpump;
+	//devfunctions["Epever"]["Triron"] = Epever_Triron;
+	//devfunctions["Epever"]["Tracer"] = Epever_Triron;
+	//devfunctions["Shanghai Chujin Electric"]["Panel Powermeter"] = ZGEJ_powermeter;
+	//devfunctions["Eastron"]["SDM220"] = eastron_sdm220;
+	//devfunctions["Eastron"]["SDM630"] = eastron_sdm630;
 
 	// start poll loops
 	JSON& modbuses = cfg["modbuses"];
