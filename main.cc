@@ -413,13 +413,14 @@ eth_tpr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address,
 			Array<String> keys = json.get_object().getkeys();
 			for (int64_t j = 0; j <= keys.max; j++) {
 				String key = keys[j];
-				if (key == "relais0") {
-					bool val = json[key];
-					mb.write_coil(address, 0, val);
-				}
-				if (key == "relais1") {
-					bool val = json[key];
-					mb.write_coil(address, 1, val);
+				if (key == "relay") {
+					Array<JSON>& relay = json[key].get_array();
+					for (int64_t x = 0; x <= relay.max && x < 2; x++) {
+						if (relay[x].is_boolean()) {
+							bool val = relay[x];
+							mb.write_coil(address, x, val);
+						}
+					}
 				}
 			}
 		}
@@ -438,10 +439,10 @@ eth_tpr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address,
 	{
 		auto bin_coils = mb.read_coils(address, 0, 2);
 
-		Array<JSON> relais;
-		relais[0] = bin_coils[0];
-		relais[1] = bin_coils[1];
-		mqtt_data["relais"] = relais;
+		Array<JSON> relay;
+		relay[0] = bin_coils[0];
+		relay[1] = bin_coils[1];
+		mqtt_data["relay"] = relay;
 	}
 }
 
@@ -449,32 +450,24 @@ void
 eth_tpr_ldr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
-		if (rxbuf[i].topic == maintopic + "/relais0") {
-			bool val = (rxbuf[i].message == "0") ? 0 : 1;
-			mb.write_coil(address, 0, val);
-		}
-		if (rxbuf[i].topic == maintopic + "/relais1") {
-			bool val = (rxbuf[i].message == "0") ? 0 : 1;
-			mb.write_coil(address, 1, val);
-		}
-		if (rxbuf[i].topic == maintopic + "/counter_autoreset4") {
-			bool val = (rxbuf[i].message == "0") ? 0 : 1;
-			mb.write_coil(address, 2, val);
-		}
-		if (rxbuf[i].topic == maintopic + "/counter_autoreset5") {
-			bool val = (rxbuf[i].message == "0") ? 0 : 1;
-			mb.write_coil(address, 3, val);
-		}
-		if (rxbuf[i].topic == maintopic + "/counter_autoreset6") {
-			bool val = (rxbuf[i].message == "0") ? 0 : 1;
-			mb.write_coil(address, 4, val);
-		}
-		if (rxbuf[i].topic == maintopic + "/counter_autoreset7") {
-			bool val = (rxbuf[i].message == "0") ? 0 : 1;
-			mb.write_coil(address, 5, val);
+		if (rxbuf[i].topic == maintopic + "/cmd") {
+			JSON json;
+			json.parse(rxbuf[i].message);
+			Array<String> keys = json.get_object().getkeys();
+			for (int64_t j = 0; j <= keys.max; j++) {
+				String key = keys[j];
+				if (key == "relay") {
+					Array<JSON>& relay = json[key].get_array();
+					for (int64_t x = 0; x <= relay.max && x < 2; x++) {
+						if (relay[x].is_boolean()) {
+							bool val = relay[x];
+							mb.write_coil(address, x, val);
+						}
+					}
+				}
+			}
 		}
 	}
-
 	{
 		auto bin_inputs = mb.read_discrete_inputs(address, 0, 4);
 		Array<JSON> inputs;
@@ -488,10 +481,10 @@ eth_tpr_ldr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 	{
 		auto bin_coils = mb.read_coils(address, 0, 2);
 
-		Array<JSON> relais;
-		relais[0] = bin_coils[0];
-		relais[1] = bin_coils[1];
-		mqtt_data["relais"] = relais;
+		Array<JSON> relay;
+		relay[0] = bin_coils[0];
+		relay[1] = bin_coils[1];
+		mqtt_data["relay"] = relay;
 	}
 	{
 		auto int_inputs = mb.read_input_registers(address, 0, 14);
@@ -504,7 +497,7 @@ eth_tpr_ldr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 			counters[2].set_number(S + int_inputs[2]);
 			counters[3].set_number(S + int_inputs[3]);
 
-			// 32 bit counter - should verify for restart if autoreset is not enabled
+			// 32 bit counter - should verify for rollover and restart
 			{
 				uint32_t tmp = (uint32_t)int_inputs[6] | (uint32_t)int_inputs[7] << 16;
 				counters[4].set_number(S + tmp);
@@ -556,6 +549,36 @@ eth_tpr_ldr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 void
 rs485_jalousie(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/cmd") {
+			JSON json;
+			json.parse(rxbuf[i].message);
+			Array<String> keys = json.get_object().getkeys();
+			for (int64_t j = 0; j <= keys.max; j++) {
+				String key = keys[j];
+				if (key == "relay") {
+					Array<JSON>& relay = json[key].get_array();
+					for (int64_t x = 0; x <= relay.max && x < 6; x++) {
+						if (relay[x].is_boolean()) {
+							bool val = relay[x];
+							mb.write_coil(address, x, val);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	{
+		auto bin_inputs = mb.read_discrete_inputs(address, 0, 4);
+		Array<JSON> inputs;
+
+		inputs[0] = bin_inputs[0];
+		inputs[1] = bin_inputs[1];
+		inputs[2] = bin_inputs[2];
+		inputs[3] = bin_inputs[3];
+		mqtt_data["input"] = inputs;
+	}
 	{
 		auto bin_inputs = mb.read_discrete_inputs(address, 0, 8);
 
@@ -566,36 +589,40 @@ rs485_jalousie(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t a
 		mqtt_data["input"] = inputs;
 	}
 
-	for (int64_t i = 0; i <= rxbuf.max; i++) {
-		for (int64_t n = 0; n < 3; n++) {
-			if (rxbuf[i].topic == maintopic + "/blind" + n) {
-				if (rxbuf[i].message == "stop") {
-					mb.write_coil(address, n * 2, 0);
-					usleep(100000);
-					mb.write_coil(address, n * 2 + 1, 0);
-				} else if (rxbuf[i].message == "up") {
-					mb.write_coil(address, n * 2, 0);
-					usleep(100000);
-					mb.write_coil(address, n * 2 + 1, 0);
-					usleep(100000);
-					mb.write_coil(address, n * 2, 1);
-				} else if (rxbuf[i].message == "down") {
-					mb.write_coil(address, n * 2, 0);
-					usleep(100000);
-					mb.write_coil(address, n * 2 + 1, 1);
-					usleep(100000);
-					mb.write_coil(address, n * 2, 1);
-				}
-				bool val = (rxbuf[i].message == "0") ? 0 : 1;
-				mb.write_coil(address, n, val);
-			}
+	{
+		auto bin_coils = mb.read_coils(address, 0, 6);
+
+		Array<JSON> relay;
+		for (int64_t i = 0; i < 6; i++) {
+			relay[i] = bin_coils[i];
 		}
+		mqtt_data["relay"] = relay;
 	}
 }
 
 void
 rs485_relais6(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/cmd") {
+			JSON json;
+			json.parse(rxbuf[i].message);
+			Array<String> keys = json.get_object().getkeys();
+			for (int64_t j = 0; j <= keys.max; j++) {
+				String key = keys[j];
+				if (key == "relay") {
+					Array<JSON>& relay = json[key].get_array();
+					for (int64_t x = 0; x <= relay.max && x < 6; x++) {
+						if (relay[x].is_boolean()) {
+							bool val = relay[x];
+							mb.write_coil(address, x, val);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	// XXX no counter support yet
 	{
 		auto bin_inputs = mb.read_discrete_inputs(address, 0, 8);
@@ -607,13 +634,14 @@ rs485_relais6(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 		mqtt_data["input"] = inputs;
 	}
 
-	for (int64_t i = 0; i <= rxbuf.max; i++) {
-		for (int64_t n = 0; n < 6; n++) {
-			if (rxbuf[i].topic == maintopic + "/relais" + n) {
-				bool val = (rxbuf[i].message == "0") ? 0 : 1;
-				mb.write_coil(address, n, val);
-			}
+	{
+		auto bin_coils = mb.read_coils(address, 0, 6);
+
+		Array<JSON> relay;
+		for (int64_t i = 0; i < 6; i++) {
+			relay[i] = bin_coils[i];
 		}
+		mqtt_data["relay"] = relay;
 	}
 }
 
@@ -651,6 +679,26 @@ rs485_laserdistance(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint
 void
 eth_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/cmd") {
+			JSON json;
+			json.parse(rxbuf[i].message);
+			Array<String> keys = json.get_object().getkeys();
+			for (int64_t j = 0; j <= keys.max; j++) {
+				String key = keys[j];
+				if (key == "output") {
+					Array<JSON>& output = json[key].get_array();
+					for (int64_t x = 0; x <= output.max && x < 8; x++) {
+						if (output[x].is_boolean()) {
+							bool val = output[x];
+							mb.write_coil(address, x, val);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	{
 		auto bin_inputs = mb.read_discrete_inputs(address, 0, 8);
 
@@ -661,19 +709,48 @@ eth_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address
 		mqtt_data["input"] = inputs;
 	}
 
-	for (int64_t i = 0; i <= rxbuf.max; i++) {
-		for (int r = 0; r < 8; r++) {
-			if (rxbuf[i].topic == maintopic + "/output" + r) {
-				bool val = (rxbuf[i].message == "0") ? 0 : 1;
-				mb.write_coil(address, r, val);
-			}
+	{
+		auto bin_coils = mb.read_coils(address, 0, 8);
+
+		Array<JSON> outputs;
+		for (int i = 0; i < 8; i++) {
+			outputs[i] = bin_coils[i];
 		}
+		mqtt_data["output"] = outputs;
 	}
 }
 
 void
 rs485_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/cmd") {
+			JSON json;
+			json.parse(rxbuf[i].message);
+			Array<String> keys = json.get_object().getkeys();
+			for (int64_t j = 0; j <= keys.max; j++) {
+				String key = keys[j];
+				if (key == "output") {
+					Array<JSON>& output = json[key].get_array();
+					for (int64_t x = 0; x <= output.max && x < 8; x++) {
+						if (output[x].is_boolean()) {
+							bool val = output[x];
+							mb.write_coil(address, x, val);
+						}
+					}
+				} else if (key == "pwm") {
+					Array<JSON>& pwm = json[key].get_array();
+					for (int64_t x = 0; x <= pwm.max; x++) {
+						if (pwm[x].is_number()) {
+							uint16_t val = pwm[x].get_numstr().getll();
+							mb.write_register(address, x, val);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	{
 		auto bin_inputs = mb.read_discrete_inputs(address, 0, 8);
 
@@ -684,25 +761,40 @@ rs485_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addre
 		mqtt_data["input"] = inputs;
 	}
 
-	for (int64_t i = 0; i <= rxbuf.max; i++) {
-		for (int r = 0; r < 8; r++) {
-			if (rxbuf[i].topic == maintopic + "/output" + r) {
-				bool val = (rxbuf[i].message == "0") ? 0 : 1;
-				mb.write_coil(address, r, val);
-			}
+	{
+		auto bin_coils = mb.read_coils(address, 0, 8);
+
+		Array<JSON> outputs;
+		for (int i = 0; i < 8; i++) {
+			outputs[i] = bin_coils[i];
 		}
-		for (int r = 0; r < 8; r++) {
-			if (rxbuf[i].topic == maintopic + "/pwm" + r) {
-				int16_t val = rxbuf[i].message.getll();
-				mb.write_register(address, r, val);
-			}
-		}
+		mqtt_data["output"] = outputs;
 	}
 }
 
 void
 rs485_adc_dac(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/cmd") {
+			JSON json;
+			json.parse(rxbuf[i].message);
+			Array<String> keys = json.get_object().getkeys();
+			for (int64_t j = 0; j <= keys.max; j++) {
+				String key = keys[j];
+				if (key == "dac") {
+					Array<JSON>& dac = json[key].get_array();
+					for (int64_t x = 0; x <= dac.max && x < 2; x++) {
+						if (dac[x].is_number()) {
+							uint16_t val = dac[x].get_numstr().getll();
+							mb.write_register(address, x, val);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	{
 		auto int_inputs = mb.read_input_registers(address, 0, 10);
 		Array<JSON> adc;
@@ -714,15 +806,12 @@ rs485_adc_dac(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 		mqtt_data["ref"].set_number(S + int_inputs[9]);
 	}
 
-	for (int64_t i = 0; i <= rxbuf.max; i++) {
-		if (rxbuf[i].topic == maintopic + "/dac0") {
-			int16_t val = rxbuf[i].message.getll();
-			mb.write_register(address, 0, val);
-		}
-		if (rxbuf[i].topic == maintopic + "/dac1") {
-			int16_t val = rxbuf[i].message.getll();
-			mb.write_register(address, 1, val);
-		}
+	{
+		auto int_outputs = mb.read_holding_registers(address, 0, 2);
+		Array<JSON> dac;
+		dac[0].set_number(S + int_outputs[0]);
+		dac[1].set_number(S + int_outputs[1]);
+		mqtt_data["dac"] = dac;
 	}
 }
 
@@ -800,6 +889,25 @@ rs485_thermocouple(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8
 void
 rs485_chamberpump(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/cmd") {
+			JSON json;
+			json.parse(rxbuf[i].message);
+			Array<String> keys = json.get_object().getkeys();
+			for (int64_t j = 0; j <= keys.max; j++) {
+				String key = keys[j];
+				if (key == "triggerlevel_top") {
+					uint16_t val = json[key].get_numstr().getll();
+					mb.write_register(address, 0, val);
+				}
+				if (key == "triggerlevel_bottom") {
+					uint16_t val = json[key].get_numstr().getll();
+					mb.write_register(address, 1, val);
+				}
+			}
+		}
+	}
+
 	{
 		auto int_inputs = mb.read_input_registers(address, 0, 9);
 		{
@@ -840,17 +948,6 @@ rs485_chamberpump(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_
 		{
 			uint32_t tmp = (uint32_t)int_inputs[7] | (uint32_t)int_inputs[8] << 16;
 			mqtt_data["cycletime"].set_number(S + tmp);
-		}
-	}
-
-	for (int64_t i = 0; i <= rxbuf.max; i++) {
-		if (rxbuf[i].topic == maintopic + "/triggerlevel_top") {
-			uint16_t val = rxbuf[i].message.getll();
-			mb.write_register(address, 0, val);
-		}
-		if (rxbuf[i].topic == maintopic + "/triggerlevel_bottom") {
-			uint16_t val = rxbuf[i].message.getll();
-			mb.write_register(address, 1, val);
 		}
 	}
 }
