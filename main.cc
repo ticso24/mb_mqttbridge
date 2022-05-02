@@ -142,22 +142,22 @@ Epever_Triron(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 		if (0) {
 			// value makes no sense, identic to PV power
 			auto int_inputs = mb.read_input_registers(address, 0x3106, 2);
-			mqtt.publish(maintopic + "/battery charging power", d_to_s((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2), persistent, if_changed, qos);
+			mqtt_data["battery charging power"].set_number((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100);
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x310c, 4);
-			mqtt.publish(maintopic + "/load voltage", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/load current", d_to_s((double)int_inputs[1] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/load power", d_to_s((double)((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2), persistent, if_changed, qos);
+			mqtt_data["load voltage"].set_number((double)int_inputs[0] / 100);
+			mqtt_data["load current"].set_number((double)int_inputs[1] / 100);
+			mqtt_data["load power"].set_number((double)((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100);
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3110, 2);
-			mqtt.publish(maintopic + "/battery temperature", d_to_s((double)(int16_t)int_inputs[0] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/case temperature", d_to_s((double)(int16_t)int_inputs[1] / 100, 2), persistent, if_changed, qos);
+			mqtt_data["battery temperature"].set_number((double)(int16_t)int_inputs[0] / 100);
+			mqtt_data["case temperature"].set_number((double)(int16_t)int_inputs[1] / 100);
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x311a, 1);
-			mqtt.publish(maintopic + "/battery charged capacity", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed, qos);
+			mqtt_data["battery charged capacity"].set_number((double)int_inputs[0] / 100);
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3201, 2);
@@ -165,62 +165,62 @@ Epever_Triron(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 			state = (int_inputs[0] >> 2) & 0x3;
 			switch(state) {
 			case 0x0:
-				mqtt.publish(maintopic + "/charging status", S + "no charging", persistent, if_changed, qos);
+				mqtt_data["charging status"] =  "no charging";
 				break;
 			case 0x1:
-				mqtt.publish(maintopic + "/charging status", S + "float", persistent, if_changed, qos);
+				mqtt_data["charging status"] = "float";
 				break;
 			case 0x2:
-				mqtt.publish(maintopic + "/charging status", S + "boost", persistent, if_changed, qos);
+				mqtt_data["charging status"] = "boost";
 				break;
 			case 0x3:
-				mqtt.publish(maintopic + "/charging status", S + "equalization", persistent, if_changed, qos);
+				mqtt_data["charging status"] = "equalization";
 				break;
 			}
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x331a, 3);
-			mqtt.publish(maintopic + "/battery voltage", d_to_s((double)int_inputs[0] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/battery current", d_to_s((double)((int32_t)int_inputs[2] << 16 | int_inputs[1]) / 100, 2), persistent, if_changed, qos);
+			mqtt_data["battery voltage"].set_number((double)int_inputs[0] / 100);
+			mqtt_data["battery current"].set_number((double)((int32_t)int_inputs[2] << 16 | int_inputs[1]) / 100);
 		}
 		{
 			auto int_inputs = mb.read_holding_registers(address, 0x9000, 15);
 			switch(int_inputs[0]) {
 			case 0x0000:
-				mqtt.publish(maintopic + "/battery type", S + "user defined", persistent, if_changed, qos);
+				mqtt_data["battery type"] = "user defined";
 				break;
 			case 0x0001:
-				mqtt.publish(maintopic + "/battery type", S + "sealed", persistent, if_changed, qos);
+				mqtt_data["battery type"] = "sealed";
 				break;
 			case 0x0002:
-				mqtt.publish(maintopic + "/battery type", S + "GEL", persistent, if_changed, qos);
+				mqtt_data["battery type"] = "GEL";
 				break;
 			case 0x0003:
-				mqtt.publish(maintopic + "/battery type", S + "flooded", persistent, if_changed, qos);
+				mqtt_data["battery type"] = "flooded";
 				break;
 			}
-			mqtt.publish(maintopic + "/battery capacity", S + int_inputs[1], persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/temperature compensation coefficient", d_to_s((double)int_inputs[2] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/high voltage disconnect", d_to_s((double)int_inputs[3] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/charging limit voltage", d_to_s((double)int_inputs[4] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/over voltage reconnect", d_to_s((double)int_inputs[5] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/equalization voltage", d_to_s((double)int_inputs[6] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/boost voltage", d_to_s((double)int_inputs[7] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/float voltage", d_to_s((double)int_inputs[8] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/boost reconnect voltage", d_to_s((double)int_inputs[9] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/low voltage reconnect", d_to_s((double)int_inputs[10] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/under voltage recover", d_to_s((double)int_inputs[11] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/under voltage warning", d_to_s((double)int_inputs[12] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/low voltage disconnect", d_to_s((double)int_inputs[13] / 100, 2), persistent, if_changed, qos);
-			mqtt.publish(maintopic + "/discharging limit voltage", d_to_s((double)int_inputs[14] / 100, 2), persistent, if_changed, qos);
+			mqtt_data["battery capacity"].set_number(S + int_inputs[1]);
+			mqtt_data["temperature compensation coefficient"].set_number((double)int_inputs[2] / 100);
+			mqtt_data["high voltage disconnect"].set_number((double)int_inputs[3] / 100);
+			mqtt_data["charging limit voltage"].set_number((double)int_inputs[4] / 100);
+			mqtt_data["over voltage reconnect"].set_number((double)int_inputs[5] / 100);
+			mqtt_data["equalization voltage"].set_number((double)int_inputs[6] / 100);
+			mqtt_data["boost voltage"].set_number((double)int_inputs[7] / 100);
+			mqtt_data["float voltage"].set_number((double)int_inputs[8] / 100);
+			mqtt_data["boost reconnect voltage"].set_number((double)int_inputs[9] / 100);
+			mqtt_data["low voltage reconnect"].set_number((double)int_inputs[10] / 100);
+			mqtt_data["under voltage recover"].set_number((double)int_inputs[11] / 100);
+			mqtt_data["under voltage warning"].set_number((double)int_inputs[12] / 100);
+			mqtt_data["low voltage disconnect"].set_number((double)int_inputs[13] / 100);
+			mqtt_data["discharging limit voltage"].set_number((double)int_inputs[14] / 100);
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x330a, 2);
-			mqtt.publish(maintopic + "/consumed energy", d_to_s((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2), persistent, if_changed, qos);
+			mqtt_data["consumed energy"].set_number((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100);
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3312, 2);
-			mqtt.publish(maintopic + "/generated energy", d_to_s((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2), persistent, if_changed, qos);
+			mqtt_data["generated energy"].set_number((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100);
 		}
 	}
 }
@@ -1263,8 +1263,8 @@ main(int argc, char *argv[]) {
 	//devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Writer-Beta"] = rs485_rfid125;
 	//devfunctions["Bernd Walter Computer Technology"]["RS485-THERMOCOUPLE"] = rs485_thermocouple;
 	//devfunctions["Bernd Walter Computer Technology"]["RS485-Chamberpump"] = rs485_chamberpump;
-	//devfunctions["Epever"]["Triron"] = Epever_Triron;
-	//devfunctions["Epever"]["Tracer"] = Epever_Triron;
+	devfunctions["Epever"]["Triron"] = Epever_Triron;
+	devfunctions["Epever"]["Tracer"] = Epever_Triron;
 	//devfunctions["Shanghai Chujin Electric"]["Panel Powermeter"] = ZGEJ_powermeter;
 	//devfunctions["Eastron"]["SDM220"] = eastron_sdm220;
 	//devfunctions["Eastron"]["SDM630"] = eastron_sdm630;
