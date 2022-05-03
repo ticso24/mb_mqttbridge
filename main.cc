@@ -987,6 +987,10 @@ ModbusLoop(void * arg)
 		for (int64_t dev = 0; dev <= bus_cfg["devices"].get_array().max; dev++) {
 			JSON& dev_cfg = bus_cfg["devices"][dev];
 			JSON mqtt_data;
+			{
+				AArray<JSON> tmp;
+				mqtt_data = tmp;
+			}
 			int qos = 0;
 			if (dev_cfg.exists("qos")) {
 				qos = dev_cfg["qos"].get_numstr().getll();
@@ -1180,6 +1184,10 @@ main(int argc, char *argv[]) {
 		String willtopic = maintopic + "/status";
 		main_mqtt.publish(willtopic, "online", true);
 		JSON mqtt_data;
+		{
+			AArray<JSON> tmp;
+			mqtt_data = tmp;
+		}
 		mqtt_data["product"] = String("mb_mqttbridge");
 		mqtt_data["version"] = String("0.9");
 		main_mqtt.publish(maintopic + "/data", mqtt_data.generate(), true);
