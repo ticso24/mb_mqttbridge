@@ -346,16 +346,6 @@ eastron_sdm220(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t a
 			mqtt_data["forward reactive energy"].set_number((double)reg_to_f(int_inputs[7], int_inputs[6]));
 			mqtt_data["reverse reactive energy"].set_number((double)reg_to_f(int_inputs[9], int_inputs[8]));
 		}
-		{
-			auto int_inputs = mb.read_input_registers(address, 0x00c8, 2 * 3);
-			mqtt_data["AB line voltage"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["BC line voltage"].set_number((double)reg_to_f(int_inputs[3], int_inputs[2]));
-			mqtt_data["CA line voltage"].set_number((double)reg_to_f(int_inputs[5], int_inputs[4]));
-		}
-		{
-			auto int_inputs = mb.read_input_registers(address, 0x00c8, 2 * 3);
-			mqtt_data["AB line voltage"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-		}
 	}
 }
 
