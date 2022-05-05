@@ -1082,6 +1082,22 @@ ModbusLoop(void * arg)
 						auto rxbuf = mqtt.get_rxbuf();
 						(*devfunctions[vendor][product])(mb, rxbuf, mqtt_data, address, maintopic, devdata[dev], dev_cfg);
 					}
+					{
+						struct timespec tp;
+						clock_gettime(CLOCK_REALTIME_FAST, &tp);
+						time_t uts_time = tp.tv_sec;
+						String date_str;
+						{
+							a_ptr<char> buf;
+							buf = new char[256];
+
+							struct tm stm;
+							localtime_r(&uts_time, &stm);
+							strftime(buf.get(), 256 - 1, "%Y-%m-%dT%H:%M:%S%z", &stm);
+							date_str = buf.get();
+						}
+						mqtt_data["time"] = date_str;
+					}
 					mqtt.publish(maintopic + "/data", mqtt_data.generate(), false, false, qos);
 					mqtt.publish(maintopic + "/status", "online", false, false, qos);
 					lasttime[dev] = now;
