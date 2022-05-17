@@ -643,8 +643,8 @@ rs485_shtc3(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 	double humid = (double)int_inputs[1] / 10.0;
 	Array<JSON> shtc;
 	AArray<JSON> sensor;
-	sensor["temperature"].set_number(S + temp);
-	sensor["humidity"].set_number(S + humid);
+	sensor["temperature"].set_number(d_to_s(temp, 3));
+	sensor["humidity"].set_number(d_to_s(humid, 3));
 	shtc[0] = sensor;
 	mqtt_data["SHTC3"] = shtc;
 }
