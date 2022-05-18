@@ -98,12 +98,12 @@ Epever_Triron(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 	{
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3000, 9);
-			mqtt_data["PV array rated voltage"].set_number(d_to_s(int_inputs[0] / 100, 2));
-			mqtt_data["PV array rated current"].set_number(d_to_s(int_inputs[1] / 100, 2));
-			mqtt_data["PV array rated power"].set_number(d_to_s(((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
-			mqtt_data["rated voltage to battery"].set_number(d_to_s(int_inputs[4] / 100, 2));
-			mqtt_data["rated current to battery"].set_number(d_to_s(int_inputs[5] / 100, 2));
-			mqtt_data["rated power to battery"].set_number(d_to_s(((uint32_t)int_inputs[7] << 16 | int_inputs[6]) / 100, 2));
+			mqtt_data["PV array rated voltage"].set_number(d_to_s((double)int_inputs[0] / 100, 2));
+			mqtt_data["PV array rated current"].set_number(d_to_s((double)int_inputs[1] / 100, 2));
+			mqtt_data["PV array rated power"].set_number(d_to_s((double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
+			mqtt_data["rated voltage to battery"].set_number(d_to_s((double)int_inputs[4] / 100, 2));
+			mqtt_data["rated current to battery"].set_number(d_to_s((double)int_inputs[5] / 100, 2));
+			mqtt_data["rated power to battery"].set_number(d_to_s((double)((uint32_t)int_inputs[7] << 16 | int_inputs[6]) / 100, 2));
 			switch(int_inputs[8]) {
 			case 0x0000:
 				mqtt_data["charging mode"] =  "connect/disconnect";
@@ -118,33 +118,33 @@ Epever_Triron(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x300e, 1);
-			mqtt_data["rated current of load"].set_number(d_to_s(int_inputs[0] / 100, 2));
+			mqtt_data["rated current of load"].set_number(d_to_s((double)int_inputs[0] / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3100, 4);
-			mqtt_data["PV voltage"].set_number(d_to_s(int_inputs[0] / 100, 2));
-			mqtt_data["PV current"].set_number(d_to_s(int_inputs[1] / 100, 2));
-			mqtt_data["PV power"].set_number(d_to_s(((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
+			mqtt_data["PV voltage"].set_number(d_to_s((double)int_inputs[0] / 100, 2));
+			mqtt_data["PV current"].set_number(d_to_s((double)int_inputs[1] / 100, 2));
+			mqtt_data["PV power"].set_number(d_to_s((double)((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
 		}
 		if (0) {
 			// value makes no sense, identic to PV power
 			auto int_inputs = mb.read_input_registers(address, 0x3106, 2);
-			mqtt_data["battery charging power"].set_number(d_to_s(((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2));
+			mqtt_data["battery charging power"].set_number(d_to_s((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x310c, 4);
-			mqtt_data["load voltage"].set_number(d_to_s(int_inputs[0] / 100, 2));
-			mqtt_data["load current"].set_number(d_to_s(int_inputs[1] / 100, 2));
-			mqtt_data["load power"].set_number(d_to_s(((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
+			mqtt_data["load voltage"].set_number(d_to_s((double)int_inputs[0] / 100, 2));
+			mqtt_data["load current"].set_number(d_to_s((double)int_inputs[1] / 100, 2));
+			mqtt_data["load power"].set_number(d_to_s((double)((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3110, 2);
-			mqtt_data["battery temperature"].set_number(d_to_s((int16_t)int_inputs[0] / 100, 2));
-			mqtt_data["case temperature"].set_number(d_to_s((int16_t)int_inputs[1] / 100, 2));
+			mqtt_data["battery temperature"].set_number(d_to_s((double)(int16_t)int_inputs[0] / 100, 2));
+			mqtt_data["case temperature"].set_number(d_to_s((double)(int16_t)int_inputs[1] / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x311a, 1);
-			mqtt_data["battery charged capacity"].set_number(d_to_s(int_inputs[0] / 100, 2));
+			mqtt_data["battery charged capacity"].set_number(d_to_s((double)int_inputs[0] / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3201, 2);
@@ -167,8 +167,8 @@ Epever_Triron(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x331a, 3);
-			mqtt_data["battery voltage"].set_number(d_to_s(int_inputs[0] / 100, 2));
-			mqtt_data["battery current"].set_number(d_to_s(((int32_t)int_inputs[2] << 16 | int_inputs[1]) / 100, 2));
+			mqtt_data["battery voltage"].set_number(d_to_s((double)int_inputs[0] / 100, 2));
+			mqtt_data["battery current"].set_number(d_to_s((double)((int32_t)int_inputs[2] << 16 | int_inputs[1]) / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_holding_registers(address, 0x9000, 15);
@@ -187,27 +187,27 @@ Epever_Triron(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 				break;
 			}
 			mqtt_data["battery capacity"].set_number(S + int_inputs[1]);
-			mqtt_data["temperature compensation coefficient"].set_number(d_to_s(int_inputs[2] / 100, 2));
-			mqtt_data["high voltage disconnect"].set_number(d_to_s(int_inputs[3] / 100, 2));
-			mqtt_data["charging limit voltage"].set_number(d_to_s(int_inputs[4] / 100, 2));
-			mqtt_data["over voltage reconnect"].set_number(d_to_s(int_inputs[5] / 100, 2));
-			mqtt_data["equalization voltage"].set_number(d_to_s(int_inputs[6] / 100, 2));
-			mqtt_data["boost voltage"].set_number(d_to_s(int_inputs[7] / 100, 2));
-			mqtt_data["float voltage"].set_number(d_to_s(int_inputs[8] / 100, 2));
-			mqtt_data["boost reconnect voltage"].set_number(d_to_s(int_inputs[9] / 100, 2));
-			mqtt_data["low voltage reconnect"].set_number(d_to_s(int_inputs[10] / 100, 2));
-			mqtt_data["under voltage recover"].set_number(d_to_s(int_inputs[11] / 100, 2));
-			mqtt_data["under voltage warning"].set_number(d_to_s(int_inputs[12] / 100, 2));
-			mqtt_data["low voltage disconnect"].set_number(d_to_s(int_inputs[13] / 100, 2));
-			mqtt_data["discharging limit voltage"].set_number(d_to_s(int_inputs[14] / 100, 2));
+			mqtt_data["temperature compensation coefficient"].set_number(d_to_s((double)int_inputs[2] / 100, 2));
+			mqtt_data["high voltage disconnect"].set_number(d_to_s((double)int_inputs[3] / 100, 2));
+			mqtt_data["charging limit voltage"].set_number(d_to_s((double)int_inputs[4] / 100, 2));
+			mqtt_data["over voltage reconnect"].set_number(d_to_s((double)int_inputs[5] / 100, 2));
+			mqtt_data["equalization voltage"].set_number(d_to_s((double)int_inputs[6] / 100, 2));
+			mqtt_data["boost voltage"].set_number(d_to_s((double)int_inputs[7] / 100, 2));
+			mqtt_data["float voltage"].set_number(d_to_s((double)int_inputs[8] / 100, 2));
+			mqtt_data["boost reconnect voltage"].set_number(d_to_s((double)int_inputs[9] / 100, 2));
+			mqtt_data["low voltage reconnect"].set_number(d_to_s((double)int_inputs[10] / 100, 2));
+			mqtt_data["under voltage recover"].set_number(d_to_s((double)int_inputs[11] / 100, 2));
+			mqtt_data["under voltage warning"].set_number(d_to_s((double)int_inputs[12] / 100, 2));
+			mqtt_data["low voltage disconnect"].set_number(d_to_s((double)int_inputs[13] / 100, 2));
+			mqtt_data["discharging limit voltage"].set_number(d_to_s((double)int_inputs[14] / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x330a, 2);
-			mqtt_data["consumed energy"].set_number(d_to_s(((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2));
+			mqtt_data["consumed energy"].set_number(d_to_s((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3312, 2);
-			mqtt_data["generated energy"].set_number(d_to_s(((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2));
+			mqtt_data["generated energy"].set_number(d_to_s((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2));
 		}
 	}
 }
