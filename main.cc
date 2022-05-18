@@ -98,12 +98,12 @@ Epever_Triron(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 	{
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3000, 9);
-			mqtt_data["PV array rated voltage"].set_number((double)int_inputs[0] / 100);
-			mqtt_data["PV array rated current"].set_number((double)int_inputs[1] / 100);
-			mqtt_data["PV array rated power"].set_number((double)((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100);
-			mqtt_data["rated voltage to battery"].set_number((double)int_inputs[4] / 100);
-			mqtt_data["rated current to battery"].set_number((double)int_inputs[5] / 100);
-			mqtt_data["rated power to battery"].set_number((double)((uint32_t)int_inputs[7] << 16 | int_inputs[6]) / 100);
+			mqtt_data["PV array rated voltage"].set_number(d_to_s(int_inputs[0] / 100, 2));
+			mqtt_data["PV array rated current"].set_number(d_to_s(int_inputs[1] / 100, 2));
+			mqtt_data["PV array rated power"].set_number(d_to_s(((uint32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
+			mqtt_data["rated voltage to battery"].set_number(d_to_s(int_inputs[4] / 100, 2));
+			mqtt_data["rated current to battery"].set_number(d_to_s(int_inputs[5] / 100, 2));
+			mqtt_data["rated power to battery"].set_number(d_to_s(((uint32_t)int_inputs[7] << 16 | int_inputs[6]) / 100, 2));
 			switch(int_inputs[8]) {
 			case 0x0000:
 				mqtt_data["charging mode"] =  "connect/disconnect";
@@ -118,33 +118,33 @@ Epever_Triron(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x300e, 1);
-			mqtt_data["rated current of load"].set_number((double)int_inputs[0] / 100);
+			mqtt_data["rated current of load"].set_number(d_to_s(int_inputs[0] / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3100, 4);
-			mqtt_data["PV voltage"].set_number((double)int_inputs[0] / 100);
-			mqtt_data["PV current"].set_number((double)int_inputs[1] / 100);
-			mqtt_data["PV power"].set_number((double)((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100);
+			mqtt_data["PV voltage"].set_number(d_to_s(int_inputs[0] / 100, 2));
+			mqtt_data["PV current"].set_number(d_to_s(int_inputs[1] / 100, 2));
+			mqtt_data["PV power"].set_number(d_to_s(((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
 		}
 		if (0) {
 			// value makes no sense, identic to PV power
 			auto int_inputs = mb.read_input_registers(address, 0x3106, 2);
-			mqtt_data["battery charging power"].set_number((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100);
+			mqtt_data["battery charging power"].set_number(d_to_s(((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x310c, 4);
-			mqtt_data["load voltage"].set_number((double)int_inputs[0] / 100);
-			mqtt_data["load current"].set_number((double)int_inputs[1] / 100);
-			mqtt_data["load power"].set_number((double)((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100);
+			mqtt_data["load voltage"].set_number(d_to_s(int_inputs[0] / 100, 2));
+			mqtt_data["load current"].set_number(d_to_s(int_inputs[1] / 100, 2));
+			mqtt_data["load power"].set_number(d_to_s(((int32_t)int_inputs[3] << 16 | int_inputs[2]) / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3110, 2);
-			mqtt_data["battery temperature"].set_number((double)(int16_t)int_inputs[0] / 100);
-			mqtt_data["case temperature"].set_number((double)(int16_t)int_inputs[1] / 100);
+			mqtt_data["battery temperature"].set_number(d_to_s((int16_t)int_inputs[0] / 100, 2));
+			mqtt_data["case temperature"].set_number(d_to_s((int16_t)int_inputs[1] / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x311a, 1);
-			mqtt_data["battery charged capacity"].set_number((double)int_inputs[0] / 100);
+			mqtt_data["battery charged capacity"].set_number(d_to_s(int_inputs[0] / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3201, 2);
@@ -167,8 +167,8 @@ Epever_Triron(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x331a, 3);
-			mqtt_data["battery voltage"].set_number((double)int_inputs[0] / 100);
-			mqtt_data["battery current"].set_number((double)((int32_t)int_inputs[2] << 16 | int_inputs[1]) / 100);
+			mqtt_data["battery voltage"].set_number(d_to_s(int_inputs[0] / 100, 2));
+			mqtt_data["battery current"].set_number(d_to_s(((int32_t)int_inputs[2] << 16 | int_inputs[1]) / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_holding_registers(address, 0x9000, 15);
@@ -187,27 +187,27 @@ Epever_Triron(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 				break;
 			}
 			mqtt_data["battery capacity"].set_number(S + int_inputs[1]);
-			mqtt_data["temperature compensation coefficient"].set_number((double)int_inputs[2] / 100);
-			mqtt_data["high voltage disconnect"].set_number((double)int_inputs[3] / 100);
-			mqtt_data["charging limit voltage"].set_number((double)int_inputs[4] / 100);
-			mqtt_data["over voltage reconnect"].set_number((double)int_inputs[5] / 100);
-			mqtt_data["equalization voltage"].set_number((double)int_inputs[6] / 100);
-			mqtt_data["boost voltage"].set_number((double)int_inputs[7] / 100);
-			mqtt_data["float voltage"].set_number((double)int_inputs[8] / 100);
-			mqtt_data["boost reconnect voltage"].set_number((double)int_inputs[9] / 100);
-			mqtt_data["low voltage reconnect"].set_number((double)int_inputs[10] / 100);
-			mqtt_data["under voltage recover"].set_number((double)int_inputs[11] / 100);
-			mqtt_data["under voltage warning"].set_number((double)int_inputs[12] / 100);
-			mqtt_data["low voltage disconnect"].set_number((double)int_inputs[13] / 100);
-			mqtt_data["discharging limit voltage"].set_number((double)int_inputs[14] / 100);
+			mqtt_data["temperature compensation coefficient"].set_number(d_to_s(int_inputs[2] / 100, 2));
+			mqtt_data["high voltage disconnect"].set_number(d_to_s(int_inputs[3] / 100, 2));
+			mqtt_data["charging limit voltage"].set_number(d_to_s(int_inputs[4] / 100, 2));
+			mqtt_data["over voltage reconnect"].set_number(d_to_s(int_inputs[5] / 100, 2));
+			mqtt_data["equalization voltage"].set_number(d_to_s(int_inputs[6] / 100, 2));
+			mqtt_data["boost voltage"].set_number(d_to_s(int_inputs[7] / 100, 2));
+			mqtt_data["float voltage"].set_number(d_to_s(int_inputs[8] / 100, 2));
+			mqtt_data["boost reconnect voltage"].set_number(d_to_s(int_inputs[9] / 100, 2));
+			mqtt_data["low voltage reconnect"].set_number(d_to_s(int_inputs[10] / 100, 2));
+			mqtt_data["under voltage recover"].set_number(d_to_s(int_inputs[11] / 100, 2));
+			mqtt_data["under voltage warning"].set_number(d_to_s(int_inputs[12] / 100, 2));
+			mqtt_data["low voltage disconnect"].set_number(d_to_s(int_inputs[13] / 100, 2));
+			mqtt_data["discharging limit voltage"].set_number(d_to_s(int_inputs[14] / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x330a, 2);
-			mqtt_data["consumed energy"].set_number((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100);
+			mqtt_data["consumed energy"].set_number(d_to_s(((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x3312, 2);
-			mqtt_data["generated energy"].set_number((double)((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100);
+			mqtt_data["generated energy"].set_number(d_to_s(((int32_t)int_inputs[1] << 16 | int_inputs[0]) / 100, 2));
 		}
 	}
 }
@@ -218,85 +218,85 @@ eastron_sdm630(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t a
 	{
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0000, 2 * 3);
-			mqtt_data["A phase voltage"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["B phase voltage"].set_number((double)reg_to_f(int_inputs[3], int_inputs[2]));
-			mqtt_data["C phase voltage"].set_number((double)reg_to_f(int_inputs[5], int_inputs[4]));
+			mqtt_data["A phase voltage"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["B phase voltage"].set_number(d_to_s(reg_to_f(int_inputs[3], int_inputs[2]), 3));
+			mqtt_data["C phase voltage"].set_number(d_to_s(reg_to_f(int_inputs[5], int_inputs[4]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0006, 2 * 3);
-			mqtt_data["A phase current"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["B phase current"].set_number((double)reg_to_f(int_inputs[3], int_inputs[2]));
-			mqtt_data["C phase current"].set_number((double)reg_to_f(int_inputs[5], int_inputs[4]));
+			mqtt_data["A phase current"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["B phase current"].set_number(d_to_s(reg_to_f(int_inputs[3], int_inputs[2]), 3));
+			mqtt_data["C phase current"].set_number(d_to_s(reg_to_f(int_inputs[5], int_inputs[4]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x000c, 2 * 3);
-			mqtt_data["A phase active power"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["B phase active power"].set_number((double)reg_to_f(int_inputs[3], int_inputs[2]));
-			mqtt_data["C phase active power"].set_number((double)reg_to_f(int_inputs[5], int_inputs[4]));
+			mqtt_data["A phase active power"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["B phase active power"].set_number(d_to_s(reg_to_f(int_inputs[3], int_inputs[2]), 3));
+			mqtt_data["C phase active power"].set_number(d_to_s(reg_to_f(int_inputs[5], int_inputs[4]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0012, 2 * 3);
-			mqtt_data["A phase apparent power"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["B phase apparent power"].set_number((double)reg_to_f(int_inputs[3], int_inputs[2]));
-			mqtt_data["C phase apparent power"].set_number((double)reg_to_f(int_inputs[5], int_inputs[4]));
+			mqtt_data["A phase apparent power"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["B phase apparent power"].set_number(d_to_s(reg_to_f(int_inputs[3], int_inputs[2]), 3));
+			mqtt_data["C phase apparent power"].set_number(d_to_s(reg_to_f(int_inputs[5], int_inputs[4]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0018, 2 * 3);
-			mqtt_data["A phase reactive power"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["B phase reactive power"].set_number((double)reg_to_f(int_inputs[3], int_inputs[2]));
-			mqtt_data["C phase reactive power"].set_number((double)reg_to_f(int_inputs[5], int_inputs[4]));
+			mqtt_data["A phase reactive power"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["B phase reactive power"].set_number(d_to_s(reg_to_f(int_inputs[3], int_inputs[2]), 3));
+			mqtt_data["C phase reactive power"].set_number(d_to_s(reg_to_f(int_inputs[5], int_inputs[4]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x001e, 2 * 3);
-			mqtt_data["A phase power factor"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["B phase power factor"].set_number((double)reg_to_f(int_inputs[3], int_inputs[2]));
-			mqtt_data["C phase power factor"].set_number((double)reg_to_f(int_inputs[5], int_inputs[4]));
+			mqtt_data["A phase power factor"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["B phase power factor"].set_number(d_to_s(reg_to_f(int_inputs[3], int_inputs[2]), 3));
+			mqtt_data["C phase power factor"].set_number(d_to_s(reg_to_f(int_inputs[5], int_inputs[4]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0024, 2 * 3);
-			mqtt_data["A phase angle"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["B phase angle"].set_number((double)reg_to_f(int_inputs[3], int_inputs[2]));
-			mqtt_data["C phase angle"].set_number((double)reg_to_f(int_inputs[5], int_inputs[4]));
+			mqtt_data["A phase angle"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["B phase angle"].set_number(d_to_s(reg_to_f(int_inputs[3], int_inputs[2]), 3));
+			mqtt_data["C phase angle"].set_number(d_to_s(reg_to_f(int_inputs[5], int_inputs[4]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x003c, 2 * 3);
-			mqtt_data["total reactive power"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["total power factor"].set_number((double)reg_to_f(int_inputs[7], int_inputs[6]));
-			mqtt_data["total angle"].set_number((double)reg_to_f(int_inputs[9], int_inputs[8]));
+			mqtt_data["total reactive power"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["total power factor"].set_number(d_to_s(reg_to_f(int_inputs[7], int_inputs[6]), 3));
+			mqtt_data["total angle"].set_number(d_to_s(reg_to_f(int_inputs[9], int_inputs[8]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0046, 2 * 5);
-			mqtt_data["frequency"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["forward active energy"].set_number((double)reg_to_f(int_inputs[3], int_inputs[2]));
-			mqtt_data["reverse active energy"].set_number((double)reg_to_f(int_inputs[5], int_inputs[4]));
-			mqtt_data["forward reactive energy"].set_number((double)reg_to_f(int_inputs[7], int_inputs[6]));
-			mqtt_data["reverse reactive energy"].set_number((double)reg_to_f(int_inputs[9], int_inputs[8]));
+			mqtt_data["frequency"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["forward active energy"].set_number(d_to_s(reg_to_f(int_inputs[3], int_inputs[2]), 3));
+			mqtt_data["reverse active energy"].set_number(d_to_s(reg_to_f(int_inputs[5], int_inputs[4]), 3));
+			mqtt_data["forward reactive energy"].set_number(d_to_s(reg_to_f(int_inputs[7], int_inputs[6]), 3));
+			mqtt_data["reverse reactive energy"].set_number(d_to_s(reg_to_f(int_inputs[9], int_inputs[8]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0054, 2 * 1);
-			mqtt_data["total active power"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
+			mqtt_data["total active power"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0064, 2 * 1);
-			mqtt_data["total apparent power"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
+			mqtt_data["total apparent power"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x015a, 2 * 6);
-			mqtt_data["A phase forward active energy"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["B phase forward active energy"].set_number((double)reg_to_f(int_inputs[3], int_inputs[2]));
-			mqtt_data["C phase forward active energy"].set_number((double)reg_to_f(int_inputs[5], int_inputs[4]));
-			mqtt_data["A phase reverse active energy"].set_number((double)reg_to_f(int_inputs[7], int_inputs[6]));
-			mqtt_data["B phase reverse active energy"].set_number((double)reg_to_f(int_inputs[9], int_inputs[8]));
-			mqtt_data["C phase reverse active energy"].set_number((double)reg_to_f(int_inputs[11], int_inputs[10]));
+			mqtt_data["A phase forward active energy"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["B phase forward active energy"].set_number(d_to_s(reg_to_f(int_inputs[3], int_inputs[2]), 3));
+			mqtt_data["C phase forward active energy"].set_number(d_to_s(reg_to_f(int_inputs[5], int_inputs[4]), 3));
+			mqtt_data["A phase reverse active energy"].set_number(d_to_s(reg_to_f(int_inputs[7], int_inputs[6]), 3));
+			mqtt_data["B phase reverse active energy"].set_number(d_to_s(reg_to_f(int_inputs[9], int_inputs[8]), 3));
+			mqtt_data["C phase reverse active energy"].set_number(d_to_s(reg_to_f(int_inputs[11], int_inputs[10]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x016c, 2 * 6);
-			mqtt_data["A phase forward reactive energy"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["B phase forward reactive energy"].set_number((double)reg_to_f(int_inputs[3], int_inputs[2]));
-			mqtt_data["C phase forward reactive energy"].set_number((double)reg_to_f(int_inputs[5], int_inputs[4]));
-			mqtt_data["A phase reverse reactive energy"].set_number((double)reg_to_f(int_inputs[7], int_inputs[6]));
-			mqtt_data["B phase reverse reactive energy"].set_number((double)reg_to_f(int_inputs[9], int_inputs[8]));
-			mqtt_data["C phase reverse reactive energy"].set_number((double)reg_to_f(int_inputs[11], int_inputs[10]));
+			mqtt_data["A phase forward reactive energy"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["B phase forward reactive energy"].set_number(d_to_s(reg_to_f(int_inputs[3], int_inputs[2]), 3));
+			mqtt_data["C phase forward reactive energy"].set_number(d_to_s(reg_to_f(int_inputs[5], int_inputs[4]), 3));
+			mqtt_data["A phase reverse reactive energy"].set_number(d_to_s(reg_to_f(int_inputs[7], int_inputs[6]), 3));
+			mqtt_data["B phase reverse reactive energy"].set_number(d_to_s(reg_to_f(int_inputs[9], int_inputs[8]), 3));
+			mqtt_data["C phase reverse reactive energy"].set_number(d_to_s(reg_to_f(int_inputs[11], int_inputs[10]), 3));
 		}
 	}
 }
@@ -307,44 +307,44 @@ eastron_sdm220(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t a
 	{
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0000, 2 * 1);
-			mqtt_data["A phase voltage"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
+			mqtt_data["A phase voltage"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0006, 2 * 1);
-			mqtt_data["A phase current"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
+			mqtt_data["A phase current"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x000c, 2 * 1);
-			mqtt_data["A phase active power"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["total active power"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
+			mqtt_data["A phase active power"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["total active power"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0012, 2 * 1);
-			mqtt_data["A phase apparent power"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["total apparent power"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
+			mqtt_data["A phase apparent power"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["total apparent power"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0018, 2 * 1);
-			mqtt_data["A phase reactive power"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["total reactive power"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
+			mqtt_data["A phase reactive power"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["total reactive power"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x001e, 2 * 1);
-			mqtt_data["A phase power factor"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["total power factor"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
+			mqtt_data["A phase power factor"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["total power factor"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0024, 2 * 1);
-			mqtt_data["A phase angle"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["total angle"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
+			mqtt_data["A phase angle"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["total angle"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
 		}
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0046, 2 * 5);
-			mqtt_data["frequency"].set_number((double)reg_to_f(int_inputs[1], int_inputs[0]));
-			mqtt_data["forward active energy"].set_number((double)reg_to_f(int_inputs[3], int_inputs[2]));
-			mqtt_data["reverse active energy"].set_number((double)reg_to_f(int_inputs[5], int_inputs[4]));
-			mqtt_data["forward reactive energy"].set_number((double)reg_to_f(int_inputs[7], int_inputs[6]));
-			mqtt_data["reverse reactive energy"].set_number((double)reg_to_f(int_inputs[9], int_inputs[8]));
+			mqtt_data["frequency"].set_number(d_to_s(reg_to_f(int_inputs[1], int_inputs[0]), 3));
+			mqtt_data["forward active energy"].set_number(d_to_s(reg_to_f(int_inputs[3], int_inputs[2]), 3));
+			mqtt_data["reverse active energy"].set_number(d_to_s(reg_to_f(int_inputs[5], int_inputs[4]), 3));
+			mqtt_data["forward reactive energy"].set_number(d_to_s(reg_to_f(int_inputs[7], int_inputs[6]), 3));
+			mqtt_data["reverse reactive energy"].set_number(d_to_s(reg_to_f(int_inputs[9], int_inputs[8]), 3));
 		}
 	}
 }
@@ -355,40 +355,40 @@ ZGEJ_powermeter(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t 
 	{
 		{
 			auto int_inputs = mb.read_input_registers(address, 0x0018, 2 * 34);
-			mqtt_data["A phase voltage"].set_number((double)reg_to_f(int_inputs[0], int_inputs[1]));
-			mqtt_data["B phase voltage"].set_number((double)reg_to_f(int_inputs[2], int_inputs[3]));
-			mqtt_data["C phase voltage"].set_number((double)reg_to_f(int_inputs[4], int_inputs[5]));
-			mqtt_data["AB line voltage"].set_number((double)reg_to_f(int_inputs[6], int_inputs[7]));
-			mqtt_data["BC line voltage"].set_number((double)reg_to_f(int_inputs[8], int_inputs[9]));
-			mqtt_data["CA line voltage"].set_number((double)reg_to_f(int_inputs[10], int_inputs[11]));
-			mqtt_data["A phase current"].set_number((double)reg_to_f(int_inputs[12], int_inputs[13]));
-			mqtt_data["B phase current"].set_number((double)reg_to_f(int_inputs[14], int_inputs[15]));
-			mqtt_data["C phase current"].set_number((double)reg_to_f(int_inputs[16], int_inputs[17]));
-			mqtt_data["A phase active power"].set_number((double)reg_to_f(int_inputs[18], int_inputs[19]));
-			mqtt_data["B phase active power"].set_number((double)reg_to_f(int_inputs[20], int_inputs[21]));
-			mqtt_data["C phase active power"].set_number((double)reg_to_f(int_inputs[22], int_inputs[23]));
-			mqtt_data["total active power"].set_number((double)reg_to_f(int_inputs[24], int_inputs[25]));
-			mqtt_data["A phase reactive power"].set_number((double)reg_to_f(int_inputs[26], int_inputs[27]));
-			mqtt_data["B phase reactive power"].set_number((double)reg_to_f(int_inputs[28], int_inputs[29]));
-			mqtt_data["C phase reactive power"].set_number((double)reg_to_f(int_inputs[30], int_inputs[31]));
-			mqtt_data["total reactive power"].set_number((double)reg_to_f(int_inputs[32], int_inputs[33]));
-			mqtt_data["A phase apparent power"].set_number((double)reg_to_f(int_inputs[34], int_inputs[35]));
-			mqtt_data["B phase apparent power"].set_number((double)reg_to_f(int_inputs[36], int_inputs[37]));
-			mqtt_data["C phase apparent power"].set_number((double)reg_to_f(int_inputs[38], int_inputs[39]));
-			mqtt_data["total apparent power"].set_number((double)reg_to_f(int_inputs[40], int_inputs[41]));
-			mqtt_data["A phase power factor"].set_number((double)reg_to_f(int_inputs[42], int_inputs[43]));
-			mqtt_data["B phase power factor"].set_number((double)reg_to_f(int_inputs[44], int_inputs[45]));
-			mqtt_data["C phase power factor"].set_number((double)reg_to_f(int_inputs[46], int_inputs[47]));
-			mqtt_data["total power factor"].set_number((double)reg_to_f(int_inputs[48], int_inputs[49]));
-			mqtt_data["frequency"].set_number((double)reg_to_f(int_inputs[50], int_inputs[51]));
-			mqtt_data["forward active energy 2"].set_number((double)reg_to_f(int_inputs[52], int_inputs[53]));
-			mqtt_data["reverse active energy 2"].set_number((double)reg_to_f(int_inputs[54], int_inputs[55]));
-			mqtt_data["forward reactive energy 2"].set_number((double)reg_to_f(int_inputs[56], int_inputs[57]));
-			mqtt_data["reverse reactive energy 2"].set_number((double)reg_to_f(int_inputs[58], int_inputs[59]));
-			mqtt_data["forward active energy"].set_number((double)reg_to_f(int_inputs[60], int_inputs[61]));
-			mqtt_data["reverse active energy"].set_number((double)reg_to_f(int_inputs[62], int_inputs[63]));
-			mqtt_data["forward reactive energy"].set_number((double)reg_to_f(int_inputs[64], int_inputs[65]));
-			mqtt_data["reverse reactive energy"].set_number((double)reg_to_f(int_inputs[66], int_inputs[67]));
+			mqtt_data["A phase voltage"].set_number(d_to_s(reg_to_f(int_inputs[0], int_inputs[1]), 3));
+			mqtt_data["B phase voltage"].set_number(d_to_s(reg_to_f(int_inputs[2], int_inputs[3]), 3));
+			mqtt_data["C phase voltage"].set_number(d_to_s(reg_to_f(int_inputs[4], int_inputs[5]), 3));
+			mqtt_data["AB line voltage"].set_number(d_to_s(reg_to_f(int_inputs[6], int_inputs[7]), 3));
+			mqtt_data["BC line voltage"].set_number(d_to_s(reg_to_f(int_inputs[8], int_inputs[9]), 3));
+			mqtt_data["CA line voltage"].set_number(d_to_s(reg_to_f(int_inputs[10], int_inputs[11]), 3));
+			mqtt_data["A phase current"].set_number(d_to_s(reg_to_f(int_inputs[12], int_inputs[13]), 3));
+			mqtt_data["B phase current"].set_number(d_to_s(reg_to_f(int_inputs[14], int_inputs[15]), 3));
+			mqtt_data["C phase current"].set_number(d_to_s(reg_to_f(int_inputs[16], int_inputs[17]), 3));
+			mqtt_data["A phase active power"].set_number(d_to_s(reg_to_f(int_inputs[18], int_inputs[19]), 3));
+			mqtt_data["B phase active power"].set_number(d_to_s(reg_to_f(int_inputs[20], int_inputs[21]), 3));
+			mqtt_data["C phase active power"].set_number(d_to_s(reg_to_f(int_inputs[22], int_inputs[23]), 3));
+			mqtt_data["total active power"].set_number(d_to_s(reg_to_f(int_inputs[24], int_inputs[25]), 3));
+			mqtt_data["A phase reactive power"].set_number(d_to_s(reg_to_f(int_inputs[26], int_inputs[27]), 3));
+			mqtt_data["B phase reactive power"].set_number(d_to_s(reg_to_f(int_inputs[28], int_inputs[29]), 3));
+			mqtt_data["C phase reactive power"].set_number(d_to_s(reg_to_f(int_inputs[30], int_inputs[31]), 3));
+			mqtt_data["total reactive power"].set_number(d_to_s(reg_to_f(int_inputs[32], int_inputs[33]), 3));
+			mqtt_data["A phase apparent power"].set_number(d_to_s(reg_to_f(int_inputs[34], int_inputs[35]), 3));
+			mqtt_data["B phase apparent power"].set_number(d_to_s(reg_to_f(int_inputs[36], int_inputs[37]), 3));
+			mqtt_data["C phase apparent power"].set_number(d_to_s(reg_to_f(int_inputs[38], int_inputs[39]), 3));
+			mqtt_data["total apparent power"].set_number(d_to_s(reg_to_f(int_inputs[40], int_inputs[41]), 3));
+			mqtt_data["A phase power factor"].set_number(d_to_s(reg_to_f(int_inputs[42], int_inputs[43]), 3));
+			mqtt_data["B phase power factor"].set_number(d_to_s(reg_to_f(int_inputs[44], int_inputs[45]), 3));
+			mqtt_data["C phase power factor"].set_number(d_to_s(reg_to_f(int_inputs[46], int_inputs[47]), 3));
+			mqtt_data["total power factor"].set_number(d_to_s(reg_to_f(int_inputs[48], int_inputs[49]), 3));
+			mqtt_data["frequency"].set_number(d_to_s(reg_to_f(int_inputs[50], int_inputs[51]), 3));
+			mqtt_data["forward active energy 2"].set_number(d_to_s(reg_to_f(int_inputs[52], int_inputs[53]), 3));
+			mqtt_data["reverse active energy 2"].set_number(d_to_s(reg_to_f(int_inputs[54], int_inputs[55]), 3));
+			mqtt_data["forward reactive energy 2"].set_number(d_to_s(reg_to_f(int_inputs[56], int_inputs[57]), 3));
+			mqtt_data["reverse reactive energy 2"].set_number(d_to_s(reg_to_f(int_inputs[58], int_inputs[59]), 3));
+			mqtt_data["forward active energy"].set_number(d_to_s(reg_to_f(int_inputs[60], int_inputs[61]), 3));
+			mqtt_data["reverse active energy"].set_number(d_to_s(reg_to_f(int_inputs[62], int_inputs[63]), 3));
+			mqtt_data["forward reactive energy"].set_number(d_to_s(reg_to_f(int_inputs[64], int_inputs[65]), 3));
+			mqtt_data["reverse reactive energy"].set_number(d_to_s(reg_to_f(int_inputs[66], int_inputs[67]), 3));
 		}
 	}
 }
@@ -527,7 +527,7 @@ eth_tpr_ldr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 				uint16_t value = mb.read_input_register(address, sensor_register);
 				double temp = (double)value / 16;
 				AArray<JSON> sensor;
-				sensor["temperature"].set_number(S + temp);
+				sensor["temperature"].set_number(d_to_s(temp, 4));
 				ds18b20[i] = sensor;
 			} catch (...) {
 			}
@@ -643,8 +643,8 @@ rs485_shtc3(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 	double humid = (double)int_inputs[1] / 10.0;
 	Array<JSON> shtc;
 	AArray<JSON> sensor;
-	sensor["temperature"].set_number(d_to_s(temp, 3));
-	sensor["humidity"].set_number(d_to_s(humid, 3));
+	sensor["temperature"].set_number(d_to_s(temp, 1));
+	sensor["humidity"].set_number(d_to_s(humid, 1));
 	shtc[0] = sensor;
 	mqtt_data["SHTC3"] = shtc;
 }
