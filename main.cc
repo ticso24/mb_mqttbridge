@@ -1226,6 +1226,7 @@ main(int argc, char *argv[]) {
 	devfunctions["Shanghai Chujin Electric"]["Panel Powermeter"] = ZGEJ_powermeter;
 	devfunctions["Eastron"]["SDM220"] = eastron_sdm220;
 	devfunctions["Eastron"]["SDM630"] = eastron_sdm630;
+	devfunctions["Eastron"]["SDM72"] = eastron_sdm630;
 
 	// start poll loops
 	JSON& modbuses = cfg["modbuses"];
