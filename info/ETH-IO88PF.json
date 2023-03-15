@@ -1,0 +1,146 @@
+{
+	"vendor": "Bernd Walter Computer Technology",
+	"device": "ETH-IO88PF",
+	"io": {
+		"input": [
+			{
+				"IO-type": "I-bool"
+			},
+			{
+				"IO-type": "I-bool"
+			},
+			{
+				"IO-type": "I-bool"
+			},
+			{
+				"IO-type": "I-bool"
+			},
+			{
+				"IO-type": "I-bool"
+			},
+			{
+				"IO-type": "I-bool"
+			},
+			{
+				"IO-type": "I-bool"
+			},
+			{
+				"IO-type": "I-bool"
+			}
+		],
+		"output": [
+			{
+				"IO-type": "IO-bool"
+			},
+			{
+				"IO-type": "IO-bool"
+			},
+			{
+				"IO-type": "IO-bool"
+			},
+			{
+				"IO-type": "IO-bool"
+			},
+			{
+				"IO-type": "IO-bool"
+			},
+			{
+				"IO-type": "IO-bool"
+			},
+			{
+				"IO-type": "IO-bool"
+			},
+			{
+				"IO-type": "IO-bool"
+			}
+		],
+		"counter": [
+			{
+				"IO-type": "I-numeric",
+			},
+			{
+				"IO-type": "I-numeric",
+			},
+			{
+				"IO-type": "I-numeric",
+			},
+			{
+				"IO-type": "I-numeric",
+			},
+			{
+				"IO-type": "I-numeric",
+			},
+			{
+				"IO-type": "I-numeric",
+			},
+			{
+				"IO-type": "I-numeric",
+			},
+			{
+				"IO-type": "I-numeric",
+			}
+		],
+		"DS18B20": [
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				}
+			}
+		]
+	}
+}

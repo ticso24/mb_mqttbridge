@@ -1,0 +1,84 @@
+{
+	"vendor": "Bernd Walter Computer Technology",
+	"device": "ETH-IO88F",
+	"io": {
+		"input": [
+			{
+				"IO-type": "I-bool"
+			},
+			{
+				"IO-type": "I-bool"
+			},
+			{
+				"IO-type": "I-bool"
+			},
+			{
+				"IO-type": "I-bool"
+			},
+			{
+				"IO-type": "I-bool"
+			},
+			{
+				"IO-type": "I-bool"
+			},
+			{
+				"IO-type": "I-bool"
+			},
+			{
+				"IO-type": "I-bool"
+			}
+		],
+		"output": [
+			{
+				"IO-type": "IO-bool"
+			},
+			{
+				"IO-type": "IO-bool"
+			},
+			{
+				"IO-type": "IO-bool"
+			},
+			{
+				"IO-type": "IO-bool"
+			},
+			{
+				"IO-type": "IO-bool"
+			},
+			{
+				"IO-type": "IO-bool"
+			},
+			{
+				"IO-type": "IO-bool"
+			},
+			{
+				"IO-type": "IO-bool"
+			}
+		],
+		"counter": [
+			{
+				"IO-type": "I-numeric",
+			},
+			{
+				"IO-type": "I-numeric",
+			},
+			{
+				"IO-type": "I-numeric",
+			},
+			{
+				"IO-type": "I-numeric",
+			},
+			{
+				"IO-type": "I-numeric",
+			},
+			{
+				"IO-type": "I-numeric",
+			},
+			{
+				"IO-type": "I-numeric",
+			},
+			{
+				"IO-type": "I-numeric",
+			}
+		]
+	}
+}

@@ -1,0 +1,160 @@
+{
+	"vendor": "Bernd Walter Computer Technology",
+	"device": "RS485-THERMOCOUPLE",
+	"io": {
+		"thermocouple": [
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"cold_temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"open_error": {
+					"IO-type": "I-bool"
+				},
+				"gnd_short": {
+					"IO-type": "I-bool"
+				},
+				"vcc_short": {
+					"IO-type": "I-bool"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"cold_temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"open_error": {
+					"IO-type": "I-bool"
+				},
+				"gnd_short": {
+					"IO-type": "I-bool"
+				},
+				"vcc_short": {
+					"IO-type": "I-bool"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"cold_temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"open_error": {
+					"IO-type": "I-bool"
+				},
+				"gnd_short": {
+					"IO-type": "I-bool"
+				},
+				"vcc_short": {
+					"IO-type": "I-bool"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"cold_temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"open_error": {
+					"IO-type": "I-bool"
+				},
+				"gnd_short": {
+					"IO-type": "I-bool"
+				},
+				"vcc_short": {
+					"IO-type": "I-bool"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"cold_temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"open_error": {
+					"IO-type": "I-bool"
+				},
+				"gnd_short": {
+					"IO-type": "I-bool"
+				},
+				"vcc_short": {
+					"IO-type": "I-bool"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"cold_temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"open_error": {
+					"IO-type": "I-bool"
+				},
+				"gnd_short": {
+					"IO-type": "I-bool"
+				},
+				"vcc_short": {
+					"IO-type": "I-bool"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"cold_temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"open_error": {
+					"IO-type": "I-bool"
+				},
+				"gnd_short": {
+					"IO-type": "I-bool"
+				},
+				"vcc_short": {
+					"IO-type": "I-bool"
+				}
+			},
+			{
+				"temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"cold_temperature": {
+					"IO-type": "I-numeric",
+					"Unit": "°C"
+				},
+				"open_error": {
+					"IO-type": "I-bool"
+				},
+				"gnd_short": {
+					"IO-type": "I-bool"
+				},
+				"vcc_short": {
+					"IO-type": "I-bool"
+				}
+			}
+		]
+	}
+}

@@ -1,0 +1,174 @@
+{
+	"vendor": "Bernd Walter Computer Technology",
+	"device": "SDM72",
+	"io": {
+		"A phase voltage": {
+			"IO-type": "I-numeric",
+			"Unit": "V"
+		},
+		"B phase voltage": {
+			"IO-type": "I-numeric",
+			"Unit": "V"
+		},
+		"C phase voltage": {
+			"IO-type": "I-numeric",
+			"Unit": "V"
+		},
+		"A phase current": {
+			"IO-type": "I-numeric",
+			"Unit": "A"
+		},
+		"B phase current": {
+			"IO-type": "I-numeric",
+			"Unit": "A"
+		},
+		"C phase current": {
+			"IO-type": "I-numeric",
+			"Unit": "A"
+		},
+		"A phase active power": {
+			"IO-type": "I-numeric",
+			"Unit": "W"
+		},
+		"B phase active power": {
+			"IO-type": "I-numeric",
+			"Unit": "W"
+		},
+		"C phase active power": {
+			"IO-type": "I-numeric",
+			"Unit": "W"
+		},
+		"A phase apparent power": {
+			"IO-type": "I-numeric",
+			"Unit": "VA"
+		},
+		"B phase apparent power": {
+			"IO-type": "I-numeric",
+			"Unit": "VA"
+		},
+		"C phase apparent power": {
+			"IO-type": "I-numeric",
+			"Unit": "VA"
+		},
+		"A phase reactive power": {
+			"IO-type": "I-numeric",
+			"Unit": "VAr"
+		},
+		"B phase reactive power": {
+			"IO-type": "I-numeric",
+			"Unit": "VAr"
+		},
+		"C phase reactive power": {
+			"IO-type": "I-numeric",
+			"Unit": "VAr"
+		},
+		"A phase power factor": {
+			"IO-type": "I-numeric"
+		},
+		"B phase power factor": {
+			"IO-type": "I-numeric"
+		},
+		"C phase power factor": {
+			"IO-type": "I-numeric"
+		},
+		"A phase angle": {
+			"IO-type": "I-numeric",
+			"Unit": "°"
+		},
+		"B phase angle": {
+			"IO-type": "I-numeric",
+			"Unit": "°"
+		},
+		"C phase angle": {
+			"IO-type": "I-numeric",
+			"Unit": "°"
+		},
+		"total reactive power": {
+			"IO-type": "I-numeric",
+			"Unit": "VAr"
+		},
+		"total power factor": {
+			"IO-type": "I-numeric"
+		},
+		"total angle": {
+			"IO-type": "I-numeric",
+			"Unit": "°"
+		},
+		"frequency": {
+			"IO-type": "I-numeric",
+			"Unit": "Hz"
+		},
+		"forward active energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kWh"
+		},
+		"reverse active energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kWh"
+		},
+		"forward reactive energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kVArh"
+		},
+		"reverse reactive energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kVArh"
+		},
+		"total active power": {
+			"IO-type": "I-numeric",
+			"Unit": "W"
+		},
+		"total apparent power": {
+			"IO-type": "I-numeric",
+			"Unit": "VA"
+		},
+		"A phase forward active energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kWh"
+		},
+		"B phase forward active energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kWh"
+		},
+		"C phase forward active energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kWh"
+		},
+		"A phase reverse active energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kWh"
+		},
+		"B phase reverse active energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kWh"
+		},
+		"C phase reverse active energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kWh"
+		},
+		"A phase forward reactive energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kVArh"
+		},
+		"B phase forward reactive energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kVArh"
+		},
+		"C phase forward reactive energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kVArh"
+		},
+		"A phase reverse reactive energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kVArh"
+		},
+		"B phase reverse reactive energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kVArh"
+		},
+		"C phase reverse reactive energy": {
+			"IO-type": "I-numeric",
+			"Unit": "kVArh"
+		}
+	}
+}

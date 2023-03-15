@@ -1,0 +1,28 @@
+{
+	"vendor": "Bernd Walter Computer Technology",
+	"device": "MB ADC DAC-30",
+	"io": {
+		"adc": [
+			{
+				"IO-type": "I-numeric"
+			},
+			{
+				"IO-type": "I-numeric"
+			},
+			{
+				"IO-type": "I-numeric"
+			},
+			{
+				"IO-type": "I-numeric"
+			}
+		],
+		"dac": [
+			{
+				"IO-type": "IO-numeric"
+			},
+			{
+				"IO-type": "IO-numeric"
+			}
+		]
+	}
+}

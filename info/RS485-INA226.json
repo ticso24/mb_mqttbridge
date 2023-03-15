@@ -1,0 +1,16 @@
+{
+	"vendor": "Bernd Walter Computer Technology",
+	"device": "RS485-INA226",
+	"io": {
+		"shunts": [
+			{
+				"voltage": {
+					"IO-type": "I-numeric
+				},
+				"shunt_voltage": {
+					"IO-type": "I-numeric"
+				}
+			}
+		]
+	}
+}
