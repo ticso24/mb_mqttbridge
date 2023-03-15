@@ -669,6 +669,11 @@ rs485_laserdistance(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint
 void
 eth_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
+	double version = -1;
+	if (devdata.exists("version")) {
+		version = devdata["version"].getd();
+	}
+
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
 		if (rxbuf[i].topic == maintopic + "/cmd") {
 			JSON json;
@@ -707,6 +712,43 @@ eth_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address
 			outputs[i] = bin_coils[i];
 		}
 		mqtt_data["output"] = outputs;
+	}
+
+	if (version >= 0.7) {
+		auto bin_counter = mb.read_input_registers(address, 0, 4 * 8);
+
+		Array<JSON> counters;
+		for (int i = 0; i < 8; i++) {
+			uint64_t tmp = 0;
+			for (int j = 0; j < 4; j++) {
+				tmp |= bin_counter[i * 4 + j] << (j * 16);
+			}
+			counters[i].set_number(S + tmp);
+		}
+		mqtt_data["counter"] = counters;
+	}
+}
+
+void
+eth_io88p(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	eth_io88(mb, rxbuf, mqtt_data, address, maintopic, devdata, dev_cfg);
+
+	if (dev_cfg.exists("DS18B20")) {
+		Array<JSON> ds18b20;
+		int64_t max_sensor = dev_cfg["DS18B20"].get_array().max;
+		for (int64_t i = 0; i <= max_sensor; i++) {
+			int16_t sensor_register = dev_cfg["DS18B20"][i]["register"].get_numstr().getll();
+			try {
+				uint16_t value = mb.read_input_register(address, sensor_register);
+				double temp = (double)value / 16;
+				AArray<JSON> sensor;
+				sensor["temperature"].set_number(d_to_s(temp, 4));
+				ds18b20[i] = sensor;
+			} catch (...) {
+			}
+		}
+		mqtt_data["ds18b20"] = ds18b20;
 	}
 }
 
@@ -877,6 +919,27 @@ rs485_thermocouple(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8
 }
 
 void
+rs485_ina226(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	{
+		auto int_inputs = mb.read_input_registers(address, 0, 4);
+		Array<JSON> sensors;
+
+		{
+			AArray<JSON> sensor;
+
+			int32_t tmp;
+			tmp = int_inputs[0] | (int_inputs[1] << 16);
+			sensor["voltage"].set_number(S + tmp);
+			tmp = int_inputs[2] | (int_inputs[3] << 16);
+			sensor["shunt_voltage"].set_number(S + tmp);
+			sensors[0] = sensor;
+		}
+		mqtt_data["shunts"] = sensors;
+	}
+}
+
+void
 rs485_chamberpump(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
@@ -939,6 +1002,52 @@ rs485_chamberpump(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_
 			uint32_t tmp = (uint32_t)int_inputs[7] | (uint32_t)int_inputs[8] << 16;
 			mqtt_data["cycletime"].set_number(S + tmp);
 		}
+	}
+}
+
+void
+rs485_conductive_level(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/cmd") {
+			JSON json;
+			json.parse(rxbuf[i].message);
+			Array<String> keys = json.get_object().getkeys();
+			for (int64_t j = 0; j <= keys.max; j++) {
+				String key = keys[j];
+				if (key == "output") {
+					Array<JSON>& output = json[key].get_array();
+					for (int64_t x = 0; x <= output.max && x < 4; x++) {
+						if (output[x].is_boolean()) {
+							bool val = output[x];
+							mb.write_coil(address, x, val);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	{
+		auto int_inputs = mb.read_input_registers(address, 0, 9);
+		{
+			Array<JSON> adc;
+			adc[0].set_number(S + int_inputs[0]);
+			adc[1].set_number(S + int_inputs[1]);
+			adc[2].set_number(S + int_inputs[2]);
+			adc[3].set_number(S + int_inputs[3]);
+			mqtt_data["adc"] = adc;
+		}
+	}
+
+	{
+		auto bin_coils = mb.read_coils(address, 0, 4);
+
+		Array<JSON> outputs;
+		for (int i = 0; i < 4; i++) {
+			outputs[i] = bin_coils[i];
+		}
+		mqtt_data["output"] = outputs;
 	}
 }
 
@@ -1216,11 +1325,17 @@ main(int argc, char *argv[]) {
 	devfunctions["Bernd Walter Computer Technology"]["RS485-Laserdistance-Weight"] = rs485_laserdistance;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-IO88"] = rs485_io88;
 	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88"] = eth_io88;
+	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88F"] = eth_io88;
+	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88P"] = eth_io88p;
+	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88PP"] = eth_io88p;
 	devfunctions["Bernd Walter Computer Technology"]["MB ADC DAC"] = rs485_adc_dac;
+	devfunctions["Bernd Walter Computer Technology"]["MB ADC DAC-30"] = rs485_adc_dac;
 	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Display"] = rs485_rfid125_disp;
 	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Writer-Beta"] = rs485_rfid125;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-THERMOCOUPLE"] = rs485_thermocouple;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-Chamberpump"] = rs485_chamberpump;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-conductive-level"] = rs485_conductive_level;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-INA226"] = rs485_ina226;
 	devfunctions["Epever"]["Triron"] = Epever_Triron;
 	devfunctions["Epever"]["Tracer"] = Epever_Triron;
 	devfunctions["Shanghai Chujin Electric"]["Panel Powermeter"] = ZGEJ_powermeter;
