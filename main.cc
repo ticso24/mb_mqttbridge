@@ -818,7 +818,10 @@ rs485_adc_dac(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 					Array<JSON>& dac = json[key].get_array();
 					for (int64_t x = 0; x <= dac.max && x < 2; x++) {
 						if (dac[x].is_number()) {
-							uint16_t val = dac[x].get_numstr().getll();
+							double tmp = dac[x].get_numstr().getd();
+							tmp = tmp / 11.0 * 1.0; // normalize for output resistors
+							tmp = tmp * (1 << 12) / 2.048; // normalize for DAC value range
+							uint16_t val = tmp;
 							mb.write_register(address, x, val);
 						}
 					}
@@ -830,10 +833,12 @@ rs485_adc_dac(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 	{
 		auto int_inputs = mb.read_input_registers(address, 0, 10);
 		Array<JSON> adc;
-		adc[0].set_number(S + int_inputs[0]);
-		adc[1].set_number(S + int_inputs[1]);
-		adc[2].set_number(S + int_inputs[2]);
-		adc[3].set_number(S + int_inputs[3]);
+		for (int i = 0; i < 4; i++) {
+			double tmp = int_inputs[i];
+			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
+			tmp = tmp * 11.0 / 1.0; // normalize for input resistors
+			adc[i].set_number(d_to_s(tmp, 3));
+		}
 		mqtt_data["adc"] = adc;
 		mqtt_data["ref"].set_number(S + int_inputs[9]);
 	}
@@ -841,8 +846,64 @@ rs485_adc_dac(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 	{
 		auto int_outputs = mb.read_holding_registers(address, 0, 2);
 		Array<JSON> dac;
-		dac[0].set_number(S + int_outputs[0]);
-		dac[1].set_number(S + int_outputs[1]);
+		for (int i = 0; i < 2; i++) {
+			double tmp = int_outputs[i];
+			tmp = tmp / (1 << 12) * 2.048; // normalize for DAC value range
+			tmp = tmp * 11.0 / 1.0; // normalize for output resistors
+			dac[i].set_number(d_to_s(tmp, 3));
+		}
+		mqtt_data["dac"] = dac;
+	}
+}
+
+void
+rs485_adc_dac_30(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/cmd") {
+			JSON json;
+			json.parse(rxbuf[i].message);
+			Array<String> keys = json.get_object().getkeys();
+			for (int64_t j = 0; j <= keys.max; j++) {
+				String key = keys[j];
+				if (key == "dac") {
+					Array<JSON>& dac = json[key].get_array();
+					for (int64_t x = 0; x <= dac.max && x < 2; x++) {
+						if (dac[x].is_number()) {
+							double tmp = dac[x].get_numstr().getd();
+							tmp = tmp / 11.0 * 1.0; // normalize for output resistors
+							tmp = tmp * (1 << 12) / 2.048; // normalize for DAC value range
+							uint16_t val = tmp;
+							mb.write_register(address, x, val);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	{
+		auto int_inputs = mb.read_input_registers(address, 0, 10);
+		Array<JSON> adc;
+		for (int i = 0; i < 4; i++) {
+			double tmp = int_inputs[i];
+			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
+			tmp = tmp * (10000 + 560) / 560; // normalize for input resistors
+			adc[i].set_number(d_to_s(tmp, 3));
+		}
+		mqtt_data["adc"] = adc;
+		mqtt_data["ref"].set_number(S + int_inputs[9]);
+	}
+
+	{
+		auto int_outputs = mb.read_holding_registers(address, 0, 2);
+		Array<JSON> dac;
+		for (int i = 0; i < 2; i++) {
+			double tmp = int_outputs[i];
+			tmp = tmp / (1 << 12) * 2.048; // normalize for DAC value range
+			tmp = tmp * 11.0 / 1.0; // normalize for output resistors
+			dac[i].set_number(d_to_s(tmp, 3));
+		}
 		mqtt_data["dac"] = dac;
 	}
 }
@@ -1334,7 +1395,7 @@ main(int argc, char *argv[]) {
 	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88P"] = eth_io88p;
 	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88PP"] = eth_io88p;
 	devfunctions["Bernd Walter Computer Technology"]["MB ADC DAC"] = rs485_adc_dac;
-	devfunctions["Bernd Walter Computer Technology"]["MB ADC DAC-30"] = rs485_adc_dac;
+	devfunctions["Bernd Walter Computer Technology"]["MB ADC DAC-30"] = rs485_adc_dac_30;
 	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Display"] = rs485_rfid125_disp;
 	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Writer-Beta"] = rs485_rfid125;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-THERMOCOUPLE"] = rs485_thermocouple;
