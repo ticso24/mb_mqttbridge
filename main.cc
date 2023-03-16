@@ -928,11 +928,16 @@ rs485_ina226(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t add
 		{
 			AArray<JSON> sensor;
 
+			double tmpd;
 			int32_t tmp;
+
 			tmp = int_inputs[0] | (int_inputs[1] << 16);
-			sensor["voltage"].set_number(S + tmp);
+			tmpd = (double)tmp * 1.25 * 1000;
+			sensor["voltage"].set_number(d_to_s(tmpd, 6));
+
 			tmp = int_inputs[2] | (int_inputs[3] << 16);
-			sensor["shunt_voltage"].set_number(S + tmp);
+			tmpd = (double)tmp / 2.5 / 1000.0 / 1000.0;
+			sensor["shunt_voltage"].set_number(d_to_s(tmp, 6));
 			sensors[0] = sensor;
 		}
 		mqtt_data["shunts"] = sensors;
