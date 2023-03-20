@@ -4,80 +4,80 @@
 	"io": {
 		"input": [
 			{
-				"IO-type": "I-bool"
+				"IO-type": "RO-bool"
 			},
 			{
-				"IO-type": "I-bool"
+				"IO-type": "RO-bool"
 			},
 			{
-				"IO-type": "I-bool"
+				"IO-type": "RO-bool"
 			},
 			{
-				"IO-type": "I-bool"
+				"IO-type": "RO-bool"
 			},
 			{
-				"IO-type": "I-bool"
+				"IO-type": "RO-bool"
 			},
 			{
-				"IO-type": "I-bool"
+				"IO-type": "RO-bool"
 			},
 			{
-				"IO-type": "I-bool"
+				"IO-type": "RO-bool"
 			},
 			{
-				"IO-type": "I-bool"
+				"IO-type": "RO-bool"
 			}
 		],
 		"output": [
 			{
-				"IO-type": "IO-bool"
+				"IO-type": "RW-bool"
 			},
 			{
-				"IO-type": "IO-bool"
+				"IO-type": "RW-bool"
 			},
 			{
-				"IO-type": "IO-bool"
+				"IO-type": "RW-bool"
 			},
 			{
-				"IO-type": "IO-bool"
+				"IO-type": "RW-bool"
 			},
 			{
-				"IO-type": "IO-bool"
+				"IO-type": "RW-bool"
 			},
 			{
-				"IO-type": "IO-bool"
+				"IO-type": "RW-bool"
 			},
 			{
-				"IO-type": "IO-bool"
+				"IO-type": "RW-bool"
 			},
 			{
-				"IO-type": "IO-bool"
+				"IO-type": "RW-bool"
 			}
 		],
 		"counter": [
 			{
-				"IO-type": "I-numeric",
+				"IO-type": "RO-numeric",
 			},
 			{
-				"IO-type": "I-numeric",
+				"IO-type": "RO-numeric",
 			},
 			{
-				"IO-type": "I-numeric",
+				"IO-type": "RO-numeric",
 			},
 			{
-				"IO-type": "I-numeric",
+				"IO-type": "RO-numeric",
 			},
 			{
-				"IO-type": "I-numeric",
+				"IO-type": "RO-numeric",
 			},
 			{
-				"IO-type": "I-numeric",
+				"IO-type": "RO-numeric",
 			},
 			{
-				"IO-type": "I-numeric",
+				"IO-type": "RO-numeric",
 			},
 			{
-				"IO-type": "I-numeric",
+				"IO-type": "RO-numeric",
 			}
 		]
 	}

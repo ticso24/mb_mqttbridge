@@ -5,154 +5,154 @@
 		"thermocouple": [
 			{
 				"temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"cold_temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"open_error": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"gnd_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"vcc_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				}
 			},
 			{
 				"temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"cold_temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"open_error": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"gnd_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"vcc_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				}
 			},
 			{
 				"temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"cold_temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"open_error": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"gnd_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"vcc_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				}
 			},
 			{
 				"temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"cold_temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"open_error": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"gnd_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"vcc_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				}
 			},
 			{
 				"temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"cold_temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"open_error": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"gnd_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"vcc_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				}
 			},
 			{
 				"temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"cold_temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"open_error": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"gnd_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"vcc_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				}
 			},
 			{
 				"temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"cold_temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"open_error": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"gnd_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"vcc_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				}
 			},
 			{
 				"temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"cold_temperature": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "°C"
 				},
 				"open_error": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"gnd_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				},
 				"vcc_short": {
-					"IO-type": "I-bool"
+					"IO-type": "RO-bool"
 				}
 			}
 		]

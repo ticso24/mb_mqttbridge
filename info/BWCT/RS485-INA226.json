@@ -5,11 +5,11 @@
 		"shunts": [
 			{
 				"voltage": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "V"
 				},
 				"shunt_voltage": {
-					"IO-type": "I-numeric",
+					"IO-type": "RO-numeric",
 					"Unit": "V"
 				}
 			}

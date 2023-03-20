@@ -4,29 +4,29 @@
 	"io": {
 		"adc": [
 			{
-				"IO-type": "I-numeric",
+				"IO-type": "RO-numeric",
 				"Unit": "V"
 			},
 			{
-				"IO-type": "I-numeric",
+				"IO-type": "RO-numeric",
 				"Unit": "V"
 			},
 			{
-				"IO-type": "I-numeric",
+				"IO-type": "RO-numeric",
 				"Unit": "V"
 			},
 			{
-				"IO-type": "I-numeric",
+				"IO-type": "RO-numeric",
 				"Unit": "V"
 			}
 		],
 		"dac": [
 			{
-				"IO-type": "IO-numeric",
+				"IO-type": "RW-numeric",
 				"Unit": "V"
 			},
 			{
-				"IO-type": "IO-numeric",
+				"IO-type": "RW-numeric",
 				"Unit": "V"
 			}
 		]
