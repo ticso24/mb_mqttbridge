@@ -3,171 +3,171 @@
 	"device": "SDM72",
 	"io": {
 		"A phase voltage": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "V"
 		},
 		"B phase voltage": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "V"
 		},
 		"C phase voltage": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "V"
 		},
 		"A phase current": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "A"
 		},
 		"B phase current": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "A"
 		},
 		"C phase current": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "A"
 		},
 		"A phase active power": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "W"
 		},
 		"B phase active power": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "W"
 		},
 		"C phase active power": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "W"
 		},
 		"A phase apparent power": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "VA"
 		},
 		"B phase apparent power": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "VA"
 		},
 		"C phase apparent power": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "VA"
 		},
 		"A phase reactive power": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "VAr"
 		},
 		"B phase reactive power": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "VAr"
 		},
 		"C phase reactive power": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "VAr"
 		},
 		"A phase power factor": {
-			"IO-type": "I-numeric"
+			"IO-type": "RO-numeric"
 		},
 		"B phase power factor": {
-			"IO-type": "I-numeric"
+			"IO-type": "RO-numeric"
 		},
 		"C phase power factor": {
-			"IO-type": "I-numeric"
+			"IO-type": "RO-numeric"
 		},
 		"A phase angle": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "°"
 		},
 		"B phase angle": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "°"
 		},
 		"C phase angle": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "°"
 		},
 		"total reactive power": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "VAr"
 		},
 		"total power factor": {
-			"IO-type": "I-numeric"
+			"IO-type": "RO-numeric"
 		},
 		"total angle": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "°"
 		},
 		"frequency": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "Hz"
 		},
 		"forward active energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kWh"
 		},
 		"reverse active energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kWh"
 		},
 		"forward reactive energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kVArh"
 		},
 		"reverse reactive energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kVArh"
 		},
 		"total active power": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "W"
 		},
 		"total apparent power": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "VA"
 		},
 		"A phase forward active energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kWh"
 		},
 		"B phase forward active energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kWh"
 		},
 		"C phase forward active energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kWh"
 		},
 		"A phase reverse active energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kWh"
 		},
 		"B phase reverse active energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kWh"
 		},
 		"C phase reverse active energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kWh"
 		},
 		"A phase forward reactive energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kVArh"
 		},
 		"B phase forward reactive energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kVArh"
 		},
 		"C phase forward reactive energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kVArh"
 		},
 		"A phase reverse reactive energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kVArh"
 		},
 		"B phase reverse reactive energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kVArh"
 		},
 		"C phase reverse reactive energy": {
-			"IO-type": "I-numeric",
+			"IO-type": "RO-numeric",
 			"Unit": "kVArh"
 		}
 	}
