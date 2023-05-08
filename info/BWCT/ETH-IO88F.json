@@ -56,28 +56,28 @@
 		],
 		"counter": [
 			{
-				"IO-type": "RO-numeric",
+				"IO-type": "RO-numeric"
 			},
 			{
-				"IO-type": "RO-numeric",
+				"IO-type": "RO-numeric"
 			},
 			{
-				"IO-type": "RO-numeric",
+				"IO-type": "RO-numeric"
 			},
 			{
-				"IO-type": "RO-numeric",
+				"IO-type": "RO-numeric"
 			},
 			{
-				"IO-type": "RO-numeric",
+				"IO-type": "RO-numeric"
 			},
 			{
-				"IO-type": "RO-numeric",
+				"IO-type": "RO-numeric"
 			},
 			{
-				"IO-type": "RO-numeric",
+				"IO-type": "RO-numeric"
 			},
 			{
-				"IO-type": "RO-numeric",
+				"IO-type": "RO-numeric"
 			}
 		]
 	}
