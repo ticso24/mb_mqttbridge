@@ -1393,7 +1393,7 @@ main(int argc, char *argv[]) {
 	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88"] = eth_io88;
 	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88F"] = eth_io88;
 	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88P"] = eth_io88p;
-	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88PP"] = eth_io88p;
+	devfunctions["Bernd Walter Computer Technology"]["ETH-IO88FP"] = eth_io88p;
 	devfunctions["Bernd Walter Computer Technology"]["MB ADC DAC"] = rs485_adc_dac;
 	devfunctions["Bernd Walter Computer Technology"]["MB ADC DAC-30"] = rs485_adc_dac_30;
 	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Display"] = rs485_rfid125_disp;
