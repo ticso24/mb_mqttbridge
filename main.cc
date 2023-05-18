@@ -1006,6 +1006,47 @@ rs485_ina226(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t add
 }
 
 void
+rs485_valve(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/cmd") {
+			JSON json;
+			json.parse(rxbuf[i].message);
+			Array<String> keys = json.get_object().getkeys();
+			for (int64_t j = 0; j <= keys.max; j++) {
+				String key = keys[j];
+				if (key == "speed") {
+					uint16_t val = json[key].get_numstr().getll();
+					mb.write_register(address, 0, val);
+				}
+				if (key == "position") {
+					double val = json[key].get_numstr().getd();
+					mb.write_register(address, 1, (int16_t)(val * 100.0));
+				}
+			}
+		}
+	}
+
+	{
+		auto val = mb.read_holding_registers(address, 0, 2);
+
+		mqtt_data["speed"].set_number((uint64_t)val[0]);
+
+		double tmpd;
+		tmpd = ((double)(int16_t)val[1]) * 100.0;
+		mqtt_data["position"].set_number(d_to_s(tmpd, 2));
+	}
+
+	{
+		auto val = mb.read_input_registers(address, 0, 1);
+
+		double tmpd;
+		tmpd = ((double)(int16_t)val[0]) * 100.0;
+		mqtt_data["sensor_position"].set_number(d_to_s(tmpd, 2));
+	}
+}
+
+void
 rs485_chamberpump(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
@@ -1402,6 +1443,7 @@ main(int argc, char *argv[]) {
 	devfunctions["Bernd Walter Computer Technology"]["RS485-Chamberpump"] = rs485_chamberpump;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-conductive-level"] = rs485_conductive_level;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-INA226"] = rs485_ina226;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-Valve"] = rs485_valve;
 	devfunctions["Epever"]["Triron"] = Epever_Triron;
 	devfunctions["Epever"]["Tracer"] = Epever_Triron;
 	devfunctions["Shanghai Chujin Electric"]["Panel Powermeter"] = ZGEJ_powermeter;

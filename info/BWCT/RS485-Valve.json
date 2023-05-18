@@ -1,0 +1,17 @@
+{
+	"vendor": "Bernd Walter Computer Technology",
+	"device": "RS485-INA226",
+	"io": {
+		"speed": {
+			"IO-type": "RW-numeric"
+		},
+		"position": {
+			"IO-type": "RW-numeric",
+			"Unit": "°"
+		},
+		"sensor_position": {
+			"IO-type": "RO-numeric",
+			"Unit": "°"
+		}
+	}
+}
