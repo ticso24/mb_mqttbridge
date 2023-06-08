@@ -54,6 +54,84 @@
 				"IO-type": "RW-bool"
 			}
 		],
+		"pwm_enable": [
+			{
+				"IO-type": "RW-bool"
+			},
+			{
+				"IO-type": "RW-bool"
+			},
+			{
+				"IO-type": "RW-bool"
+			},
+			{
+				"IO-type": "RW-bool"
+			},
+			{
+				"IO-type": "RW-bool"
+			},
+			{
+				"IO-type": "RW-bool"
+			},
+			{
+				"IO-type": "RW-bool"
+			},
+			{
+				"IO-type": "RW-bool"
+			}
+		],
+		"pwm_value": [
+			{
+				"IO-type": "RW-numeric"
+			},
+			{
+				"IO-type": "RW-numeric"
+			},
+			{
+				"IO-type": "RW-numeric"
+			},
+			{
+				"IO-type": "RW-numeric"
+			},
+			{
+				"IO-type": "RW-numeric"
+			},
+			{
+				"IO-type": "RW-numeric"
+			},
+			{
+				"IO-type": "RW-numeric"
+			},
+			{
+				"IO-type": "RW-numeric"
+			}
+		],
+		"pwm_max": [
+			{
+				"IO-type": "RW-numeric"
+			},
+			{
+				"IO-type": "RW-numeric"
+			},
+			{
+				"IO-type": "RW-numeric"
+			},
+			{
+				"IO-type": "RW-numeric"
+			},
+			{
+				"IO-type": "RW-numeric"
+			},
+			{
+				"IO-type": "RW-numeric"
+			},
+			{
+				"IO-type": "RW-numeric"
+			},
+			{
+				"IO-type": "RW-numeric"
+			}
+		],
 		"counter": [
 			{
 				"IO-type": "RO-numeric"
