@@ -689,6 +689,30 @@ eth_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address
 							mb.write_coil(address, x, val);
 						}
 					}
+				} else if (key == "pwm_enable") {
+					Array<JSON>& tmp = json[key].get_array();
+					for (int64_t x = 0; x <= tmp.max && x < 8; x++) {
+						if (tmp[x].is_boolean()) {
+							bool val = tmp[x];
+							mb.write_coil(address, x + 8, val);
+						}
+					}
+				} else if (key == "pwm_value") {
+					Array<JSON>& tmp = json[key].get_array();
+					for (int64_t x = 0; x <= tmp.max && x < 8; x++) {
+						if (tmp[x].is_number()) {
+							uint16_t val = tmp[x].get_numstr().getll();
+							mb.write_coil(address, x, val);
+						}
+					}
+				} else if (key == "pwm_max") {
+					Array<JSON>& tmp = json[key].get_array();
+					for (int64_t x = 0; x <= tmp.max && x < 8; x++) {
+						if (tmp[x].is_number()) {
+							uint16_t val = tmp[x].get_numstr().getll();
+							mb.write_coil(address, x + 8, val);
+						}
+					}
 				}
 			}
 		}
@@ -705,13 +729,35 @@ eth_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address
 	}
 
 	{
-		auto bin_coils = mb.read_coils(address, 0, 8);
+		auto data = mb.read_coils(address, 0, 16);
 
 		Array<JSON> outputs;
 		for (int i = 0; i < 8; i++) {
-			outputs[i] = bin_coils[i];
+			outputs[i] = data[i];
 		}
 		mqtt_data["output"] = outputs;
+
+		Array<JSON> pwm_enables;
+		for (int i = 0; i < 8; i++) {
+			pwm_enables[i] = data[i + 8];
+		}
+		mqtt_data["pwm_enable"] = pwm_enables;
+	}
+
+	{
+		auto data = mb.read_holding_registers(address, 0, 16);
+
+		Array<JSON> pwm_values;
+		for (int i = 0; i < 8; i++) {
+			pwm_values[i] = (int64_t)data[i];
+		}
+		mqtt_data["pwm_value"] = pwm_values;
+
+		Array<JSON> pwm_max;
+		for (int i = 0; i < 8; i++) {
+			pwm_max[i] = (int64_t)data[i + 8];
+		}
+		mqtt_data["pwm_max"] = pwm_max;
 	}
 
 	if (version >= 0.7) {
