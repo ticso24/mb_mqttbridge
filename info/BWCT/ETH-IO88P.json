@@ -219,6 +219,40 @@
 					"Unit": "°C"
 				}
 			}
+		],
+		"counttime": [
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			}
 		]
 	}
 }

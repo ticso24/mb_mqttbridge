@@ -157,6 +157,40 @@
 			{
 				"IO-type": "RO-numeric"
 			}
+		],
+		"counttime": [
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "s"
+			}
 		]
 	}
 }
