@@ -764,14 +764,49 @@ eth_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address
 		auto bin_counter = mb.read_input_registers(address, 0, 4 * 8);
 
 		Array<JSON> counters;
+		uint64_t vals[8];
 		for (int i = 0; i < 8; i++) {
 			uint64_t tmp = 0;
 			for (int j = 0; j < 4; j++) {
 				tmp |= bin_counter[i * 4 + j] << (j * 16);
 			}
 			counters[i].set_number(S + tmp);
+			vals[i] = tmp;
 		}
 		mqtt_data["counter"] = counters;
+
+		if (version == 0.7) {
+			// emulate firmware version 0.8 timediff feature
+
+			struct timespec now;
+			clock_gettime(CLOCK_MONOTONIC, &now);
+
+			Array<JSON> times;
+			for (int i = 0; i < 8; i++) {
+				static uint64_t lastvals[8];
+				static bool first_run[8] = {true, true, true, true, true, true, true, true};
+				static struct timespec lasttime[8];
+				double timediffs[8];
+
+				if (vals[i] != lastvals[i]) {
+					if (first_run[i]) {
+						first_run[i] = false;
+					} else {
+						uint64_t diff = vals[i] - lastvals[i];
+
+						struct timespec timespecdiff;
+						timespecsub(&now, &lasttime[i], &timespecdiff);
+						double timediff = (double)(timespecdiff.tv_sec) + (double)(timespecdiff.tv_nsec) / 1000000000;
+						timediffs[i] = timediff / (double)diff;
+					}
+					lasttime[i] = now;
+				}
+				times[i].set_number(d_to_s((((double)timediffs[i])), 2));
+
+				lastvals[i] = vals[i];
+			}
+		}
+
 	}
 
 	if (version >= 0.8) {
