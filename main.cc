@@ -773,6 +773,20 @@ eth_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address
 		}
 		mqtt_data["counter"] = counters;
 	}
+
+	if (version >= 0.8) {
+		auto bin_times = mb.read_input_registers(address, 0, 2 * 8);
+
+		Array<JSON> times;
+		for (int i = 0; i < 8; i++) {
+			uint64_t tmp = 0;
+			for (int j = 0; j < 2; j++) {
+				tmp |= bin_times[i * 4 + j] << (j * 16);
+			}
+			times[i].set_number(S + tmp);
+		}
+		mqtt_data["counttime"] = times;
+	}
 }
 
 void
