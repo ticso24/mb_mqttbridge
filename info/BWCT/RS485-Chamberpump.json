@@ -1,0 +1,34 @@
+{
+	"vendor": "Bernd Walter Computer Technology",
+	"device": "MB ADC DAC",
+	"io": {
+		"adc": [
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "V"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "V"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "V"
+			},
+			{
+				"IO-type": "RO-numeric",
+				"Unit": "V"
+			}
+		],
+		"dac": [
+			{
+				"IO-type": "RW-numeric",
+				"Unit": "V"
+			},
+			{
+				"IO-type": "RW-numeric",
+				"Unit": "V"
+			}
+		]
+	}
+}

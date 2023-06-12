@@ -1195,6 +1195,7 @@ rs485_chamberpump(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_
 				state = "unknown";
 			}
 			mqtt_data["state"] = state;
+			mqtt_data["statenum"].set_number(S + int_inputs[4]);
 		}
 		{
 			uint32_t tmp = (uint32_t)int_inputs[5] | (uint32_t)int_inputs[6] << 16;
