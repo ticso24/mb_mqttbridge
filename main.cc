@@ -1128,7 +1128,7 @@ rs485_valve(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 		mqtt_data["speed"].set_number((uint64_t)val[0]);
 
 		double tmpd;
-		tmpd = ((double)(int16_t)val[1]) * 100.0;
+		tmpd = ((double)(int16_t)val[1]) / 100.0;
 		mqtt_data["position"].set_number(d_to_s(tmpd, 2));
 	}
 
@@ -1136,7 +1136,7 @@ rs485_valve(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 		auto val = mb.read_input_registers(address, 0, 1);
 
 		double tmpd;
-		tmpd = ((double)(int16_t)val[0]) * 100.0;
+		tmpd = ((double)(int16_t)val[0]) / 100.0;
 		mqtt_data["sensor_position"].set_number(d_to_s(tmpd, 2));
 	}
 }
