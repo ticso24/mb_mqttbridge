@@ -1,0 +1,34 @@
+{
+	"vendor": "Bernd Walter Computer Technology",
+	"device": "RS485-conductive-level",
+	"io": {
+		"adc": [
+			{
+				"IO-type": "RO-numeric"
+			},
+			{
+				"IO-type": "RO-numeric"
+			},
+			{
+				"IO-type": "RO-numeric"
+			},
+			{
+				"IO-type": "RO-numeric"
+			}
+		],
+		"output": [
+			{
+				"IO-type": "RW-bool"
+			},
+			{
+				"IO-type": "RW-bool"
+			},
+			{
+				"IO-type": "RW-bool"
+			},
+			{
+				"IO-type": "RW-bool"
+			}
+		]
+	}
+}

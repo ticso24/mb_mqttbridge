@@ -1,34 +1,45 @@
 {
 	"vendor": "Bernd Walter Computer Technology",
-	"device": "MB ADC DAC",
+	"device": "RS485-Chamberpump",
 	"io": {
+		"state": {
+				"IO-type": "RO-string"
+		},
+		"statenum": {
+				"IO-type": "RO-numeric"
+		},
+		"cyclecounter": {
+				"IO-type": "RO-numeric"
+		},
+		"cycletime": {
+				"IO-type": "RO-numeric",
+				"Unit": "ns"
+		},
 		"adc": [
 			{
-				"IO-type": "RO-numeric",
-				"Unit": "V"
+				"IO-type": "RO-numeric"
 			},
 			{
-				"IO-type": "RO-numeric",
-				"Unit": "V"
+				"IO-type": "RO-numeric"
 			},
 			{
-				"IO-type": "RO-numeric",
-				"Unit": "V"
+				"IO-type": "RO-numeric"
 			},
 			{
-				"IO-type": "RO-numeric",
-				"Unit": "V"
+				"IO-type": "RO-numeric"
 			}
 		],
-		"dac": [
-			{
-				"IO-type": "RW-numeric",
-				"Unit": "V"
-			},
-			{
-				"IO-type": "RW-numeric",
-				"Unit": "V"
-			}
-		]
+		"triggerlevel_top": {
+				"IO-type": "WO-numeric"
+		},
+		"triggerlevel_bottom": {
+				"IO-type": "WO-numeric"
+		},
+		"start_trigger": {
+				"IO-type": "WO-bool"
+		},
+		"auto_start": {
+				"IO-type": "WO-bool"
+		}
 	}
 }

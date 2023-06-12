@@ -1159,6 +1159,14 @@ rs485_chamberpump(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_
 					uint16_t val = json[key].get_numstr().getll();
 					mb.write_register(address, 1, val);
 				}
+				if (key == "start_trigger") {
+					bool val = json[key];
+					mb.write_coil(address, 1, val);
+				}
+				if (key == "auto_start") {
+					bool val = json[key];
+					mb.write_coil(address, 0, val);
+				}
 			}
 		}
 	}

@@ -1,0 +1,12 @@
+{
+	"vendor": "Bernd Walter Computer Technology",
+	"device": "RS485-Laserdistance-Weight",
+	"io": {
+		"weight": {
+				"IO-type": "RO-numeric"
+		},
+		"distance": {
+				"IO-type": "RO-numeric"
+		}
+	}
+}
