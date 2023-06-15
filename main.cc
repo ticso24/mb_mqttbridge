@@ -1066,8 +1066,8 @@ rs485_thermocouple(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8
 			sensor["open_error"] = bin_inputs[i * 3];
 			sensor["gnd_short"] = bin_inputs[i * 3 + 1];
 			sensor["vcc_short"] = bin_inputs[i * 3 + 2];
-			sensor["temperature"].set_number(S + (int16_t)int_inputs[i * 2]);
-			sensor["cold_temperature"].set_number(S + (int16_t)int_inputs[ i * 2 + 1]);
+			sensor["temperature"].set_number(d_to_s(((double)(int16_t)int_inputs[i * 2]) / 4.0, 2));
+			sensor["cold_temperature"].set_number(d_to_s(((double)(int16_t)int_inputs[ i * 2 + 1]) / 16.0, 2));
 			sensors[i] = sensor;
 		}
 		mqtt_data["thermocouple"] = sensors;
