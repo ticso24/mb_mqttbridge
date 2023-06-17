@@ -1004,6 +1004,75 @@ rs485_adc_dac_30(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t
 }
 
 void
+rs485_adc_dac_2(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/cmd") {
+			JSON json;
+			json.parse(rxbuf[i].message);
+			Array<String> keys = json.get_object().getkeys();
+			for (int64_t j = 0; j <= keys.max; j++) {
+				String key = keys[j];
+				if (key == "dac") {
+					Array<JSON>& dac = json[key].get_array();
+					for (int64_t x = 0; x <= dac.max && x < 2; x++) {
+						if (dac[x].is_number()) {
+							double tmp = dac[x].get_numstr().getd();
+							tmp = tmp / 11.0 * 1.0; // normalize for output resistors
+							tmp = tmp * (1 << 12) / 2.048; // normalize for DAC value range
+							uint16_t val = tmp;
+							mb.write_register(address, x, val);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	{
+		auto int_inputs = mb.read_input_registers(address, 0, 4);
+		Array<JSON> adc;
+		for (int i = 0; i < 4; i++) {
+			double tmp = int_inputs[i];
+			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
+			tmp = tmp * 11.0 / 1.0; // normalize for input resistors
+			adc[i].set_number(d_to_s(tmp, 3));
+		}
+		mqtt_data["adc"] = adc;
+	}
+
+	{
+		auto int_outputs = mb.read_holding_registers(address, 0, 4);
+		Array<JSON> dac;
+		for (int i = 0; i < 2; i++) {
+			double tmp = int_outputs[i];
+			tmp = tmp / (1 << 12) * 2.048; // normalize for DAC value range
+			tmp = tmp * 11.0 / 1.0; // normalize for output resistors
+			dac[i].set_number(d_to_s(tmp, 3));
+		}
+		mqtt_data["dac"] = dac;
+	}
+}
+
+void
+rs485_adcp_dac_2(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	rs485_adc_dac_2(mb, rxbuf, mqtt_data, address, maintopic, devdata, dev_cfg);
+
+	{
+		auto int_inputs = mb.read_input_registers(address, 5, 8);
+		Array<JSON> adc;
+		for (int i = 0; i < 4; i++) {
+			double tmp = int_inputs[i * 2] | (int_inputs[i * 2 + 1] << 16);
+			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
+			tmp = tmp * 11.0 / 1.0; // normalize for input resistors
+			adc[i].set_number(d_to_s(tmp, 3));
+		}
+		mqtt_data["adc2"] = adc;
+	}
+}
+
+void
 rs485_rfid125_disp(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	{
@@ -1548,6 +1617,8 @@ main(int argc, char *argv[]) {
 	devfunctions["Bernd Walter Computer Technology"]["RS485-conductive-level"] = rs485_conductive_level;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-INA226"] = rs485_ina226;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-Valve"] = rs485_valve;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-ADC-DAC-2"] = rs485_adc_dac_2;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-ADCP-DAC-2"] = rs485_adcp_dac_2;
 	devfunctions["Epever"]["Triron"] = Epever_Triron;
 	devfunctions["Epever"]["Tracer"] = Epever_Triron;
 	devfunctions["Shanghai Chujin Electric"]["Panel Powermeter"] = ZGEJ_powermeter;
