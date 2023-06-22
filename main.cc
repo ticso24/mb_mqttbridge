@@ -1202,11 +1202,15 @@ rs485_valve(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 	}
 
 	{
-		auto val = mb.read_input_registers(address, 0, 1);
+		auto val = mb.read_input_registers(address, 0, 6);
 
 		double tmpd;
 		tmpd = ((double)(int16_t)val[0]) / 100.0;
 		mqtt_data["sensor_position"].set_number(d_to_s(tmpd, 2));
+
+		tmpd = ((double)(int16_t)val[0]) * 3.3 / 32768;
+		tmpd = 27.0 - (tmpd - 0.706) / 0.001721;;
+		mqtt_data["temperature"].set_number(d_to_s(tmpd, 2));
 	}
 }
 
