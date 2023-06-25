@@ -1735,7 +1735,7 @@ main(int argc, char *argv[]) {
 	devfunctions["Bernd Walter Computer Technology"]["MB ADC DAC-30"] = rs485_adc_dac_30;
 	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Display"] = rs485_rfid125_disp;
 	devfunctions["Bernd Walter Computer Technology"]["125kHz RFID Reader / Writer-Beta"] = rs485_rfid125;
-	devfunctions["Bernd Walter Computer Technology"]["RS485-THERMOCOUPLE"] = rs485_thermocouple;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-TCK"] = rs485_thermocouple;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-Chamberpump"] = rs485_chamberpump;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-conductive-level"] = rs485_conductive_level;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-INA226"] = rs485_ina226;
