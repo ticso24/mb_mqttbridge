@@ -1046,7 +1046,8 @@ rs485_adc_dac(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 		auto int_inputs = mb.read_input_registers(address, 0, 10);
 		Array<JSON> adc;
 		for (int i = 0; i < 4; i++) {
-			double tmp = int_inputs[i];
+			const int reg_values[] = {2, 1, 8, 7};
+			double tmp = int_inputs[reg_values[i]];
 			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
 			tmp = tmp * 11.0 / 1.0; // normalize for input resistors
 			adc[i].set_number(d_to_s(tmp, 3));
@@ -1098,7 +1099,8 @@ rs485_adc_dac_30(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t
 		auto int_inputs = mb.read_input_registers(address, 0, 10);
 		Array<JSON> adc;
 		for (int i = 0; i < 4; i++) {
-			double tmp = int_inputs[i];
+			const int reg_values[] = {2, 1, 8, 7};
+			double tmp = int_inputs[reg_values[i]];
 			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
 			tmp = tmp * (10000 + 560) / 560; // normalize for input resistors
 			adc[i].set_number(d_to_s(tmp, 3));
