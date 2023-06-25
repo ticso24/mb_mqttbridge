@@ -1,0 +1,371 @@
+{
+	"vendor": "Bernd Walter Computer Technology",
+	"device": "RS485-THERMOCOUPLE",
+	"io": {
+		"status": {
+			"Power-On": {
+				"IO-type": "RO-bool"
+			},
+			"System-Alarm": {
+				"IO-type": "RO-bool"
+			},
+			"Luftspülung": {
+				"IO-type": "RO-bool"
+			},
+			"Messung (Vorbereitung der Messung, nicht am messen!)": {
+				"IO-type": "RO-bool"
+			},
+			"Derzeitige Messstelle": {
+				"IO-type": "RO-numeric"
+			},
+			"Ein Sensor wird gerade gespült": {
+				"IO-type": "RO-bool"
+			},
+			"Ein Sensor ist gerade weggeschaltet": {
+				"IO-type": "RO-bool"
+			},
+			"Gasmessung im Gehäuse": {
+				"IO-type": "RO-bool"
+			},
+			"Stand-By": {
+				"IO-type": "RO-bool"
+			},
+			"Auto-Kalibration": {
+				"IO-type": "RO-bool"
+			},
+			"Service fällig": {
+				"IO-type": "RO-bool"
+			},
+			"Warnung: Summe der gemessenen Gase ist > 100%": {
+				"IO-type": "RO-bool"
+			},
+			"Steuerwort der Externen Steuerung": {
+				"IO-type": "RO-numeric"
+			},
+			"Mainboard offline": {
+				"IO-type": "RO-bool"
+			},
+			"Mainboard ist im Bootloader Modus": {
+				"IO-type": "RO-bool"
+			},
+			"CH4 Umgebung > threshold value": {
+				"IO-type": "RO-bool"
+			},
+			"Kondensat": {
+				"IO-type": "RO-bool"
+			},
+			"Gasdurchfluss < 20 l/h": {
+				"IO-type": "RO-bool"
+			},
+			"Lüfterdrehzahl < 900 min-1": {
+				"IO-type": "RO-bool"
+			},
+			"T-Gaskühler zu hoch": {
+				"IO-type": "RO-bool"
+			},
+			"T-Gaskühler zu niedrig": {
+				"IO-type": "RO-bool"
+			},
+			"T-Sensor > 55°C": {
+				"IO-type": "RO-bool"
+			},
+			"T-Sensor < 5°C": {
+				"IO-type": "RO-bool"
+			},
+			"Gaskühler-Modul Offline": {
+				"IO-type": "RO-bool"
+			},
+			"T-Vor-Gaskühler zu hoch": {
+				"IO-type": "RO-bool"
+			},
+			"T-Vor-Gaskühler zu niedrig": {
+				"IO-type": "RO-bool"
+			},
+			"Seriennummer": {
+				"IO-type": "RO-numeric"
+			},
+			"Analysatortyp": {
+				"IO-type": "RO-numeric"
+			},
+			"Firmware Version": {
+				"IO-type": "RO-numeric"
+			},
+			"Verstrichene Sekunden seit dem Einschalten": {
+				"IO-type": "RO-numeric"
+			},
+			"Fehlerzähler Modbus-Pakete": {
+				"IO-type": "RO-numeric"
+			},
+			"CH4 umgebung [%] voltage": {
+				"IO-type": "RO-numeric"
+			},
+			"CH4 umgebung [% LEL]": {
+				"IO-type": "RO-numeric"
+			},
+			"T-sensor [°C/°F]": {
+				"IO-type": "RO-numeric"
+			},
+			"Gasdurchfluss [l/h]": {
+				"IO-type": "RO-numeric"
+			},
+			"T-Gaskühler [°C/°F]": {
+				"IO-type": "RO-numeric"
+			},
+			"Lüfterdrehzahl [U/min]": {
+				"IO-type": "RO-numeric"
+			},
+			"Messpumpendrehzahl [U/min]": {
+				"IO-type": "RO-numeric"
+			},
+			"P-barometrisch [hPa]": {
+				"IO-type": "RO-numeric"
+			},
+			"P-barometrisch [inchHG]": {
+				"IO-type": "RO-numeric"
+			},
+			"T-Vor-Gaskühler [°C/°F]": {
+				"IO-type": "RO-numeric"
+			}
+		},
+		"measurements": [
+			{
+				"Power-On": {
+					"IO-type": "RO-bool"
+				},
+				"System-Alarm": {
+					"IO-type": "RO-bool"
+				},
+				"Luftspülung": {
+					"IO-type": "RO-bool"
+				},
+				"Messung (Vorbereitung der Messung, nicht am messen!)": {
+					"IO-type": "RO-bool"
+				},
+				"Derzeitige Messstelle": {
+					"IO-type": "RO-numeric"
+				},
+				"Ein Sensor wird gerade gespült": {
+					"IO-type": "RO-bool"
+				},
+				"Ein Sensor ist gerade weggeschaltet": {
+					"IO-type": "RO-bool"
+				},
+				"Gasmessung im Gehäuse": {
+					"IO-type": "RO-bool"
+				},
+				"Stand-By": {
+					"IO-type": "RO-bool"
+				},
+				"Auto-Kalibration": {
+					"IO-type": "RO-bool"
+				},
+				"Service fällig": {
+					"IO-type": "RO-bool"
+				},
+				"Warnung: Summe der gemessenen Gase ist > 100%": {
+					"IO-type": "RO-bool"
+				},
+				"Steuerwort der Externen Steuerung": {
+					"IO-type": "RO-numeric"
+				},
+				"Mainboard offline": {
+					"IO-type": "RO-bool"
+				},
+				"Mainboard ist im Bootloader Modus": {
+					"IO-type": "RO-bool"
+				},
+				"CH4 Umgebung > threshold value": {
+					"IO-type": "RO-bool"
+				},
+				"Kondensat": {
+					"IO-type": "RO-bool"
+				},
+				"Gasdurchfluss < 20 l/h": {
+					"IO-type": "RO-bool"
+				},
+				"Lüfterdrehzahl < 900 min-1": {
+					"IO-type": "RO-bool"
+				},
+				"T-Gaskühler zu hoch": {
+					"IO-type": "RO-bool"
+				},
+				"T-Gaskühler zu niedrig": {
+					"IO-type": "RO-bool"
+				},
+				"T-Sensor > 55°C": {
+					"IO-type": "RO-bool"
+				},
+				"T-Sensor < 5°C": {
+					"IO-type": "RO-bool"
+				},
+				"Gaskühler-Modul Offline": {
+					"IO-type": "RO-bool"
+				},
+				"T-Vor-Gaskühler zu hoch": {
+					"IO-type": "RO-bool"
+				},
+				"T-Vor-Gaskühler zu niedrig": {
+					"IO-type": "RO-bool"
+				},
+				"O2 [%]": {
+					"IO-type": "RO-bool"
+				},
+				"CO2 [%]": {
+					"IO-type": "RO-bool"
+				},
+				"CH4 [%]": {
+					"IO-type": "RO-bool"
+				},
+				"H2S [ppm]": {
+					"IO-type": "RO-bool"
+				},
+				"H2 [ppm]": {
+					"IO-type": "RO-bool"
+				},
+				"Heizwert [MJ/kg]": {
+					"IO-type": "RO-bool"
+				},
+				"Brennwert [MJ/kg]": {
+					"IO-type": "RO-bool"
+				},
+				"Heizwert [MJ/m³]": {
+					"IO-type": "RO-bool"
+				},
+				"Brennwert [MJ/m³]": {
+					"IO-type": "RO-bool"
+				},
+				"CO [ppm]": {
+					"IO-type": "RO-bool"
+				},
+				"CH4 [ppm]": {
+					"IO-type": "RO-bool"
+				},
+				"CO2 [ppm]": {
+					"IO-type": "RO-bool"
+				},
+				"N2 [%]": {
+					"IO-type": "RO-bool"
+				}
+			},
+			{
+				"Power-On": {
+					"IO-type": "RO-bool"
+				},
+				"System-Alarm": {
+					"IO-type": "RO-bool"
+				},
+				"Luftspülung": {
+					"IO-type": "RO-bool"
+				},
+				"Messung (Vorbereitung der Messung, nicht am messen!)": {
+					"IO-type": "RO-bool"
+				},
+				"Derzeitige Messstelle": {
+					"IO-type": "RO-numeric"
+				},
+				"Ein Sensor wird gerade gespült": {
+					"IO-type": "RO-bool"
+				},
+				"Ein Sensor ist gerade weggeschaltet": {
+					"IO-type": "RO-bool"
+				},
+				"Gasmessung im Gehäuse": {
+					"IO-type": "RO-bool"
+				},
+				"Stand-By": {
+					"IO-type": "RO-bool"
+				},
+				"Auto-Kalibration": {
+					"IO-type": "RO-bool"
+				},
+				"Service fällig": {
+					"IO-type": "RO-bool"
+				},
+				"Warnung: Summe der gemessenen Gase ist > 100%": {
+					"IO-type": "RO-bool"
+				},
+				"Steuerwort der Externen Steuerung": {
+					"IO-type": "RO-numeric"
+				},
+				"Mainboard offline": {
+					"IO-type": "RO-bool"
+				},
+				"Mainboard ist im Bootloader Modus": {
+					"IO-type": "RO-bool"
+				},
+				"CH4 Umgebung > threshold value": {
+					"IO-type": "RO-bool"
+				},
+				"Kondensat": {
+					"IO-type": "RO-bool"
+				},
+				"Gasdurchfluss < 20 l/h": {
+					"IO-type": "RO-bool"
+				},
+				"Lüfterdrehzahl < 900 min-1": {
+					"IO-type": "RO-bool"
+				},
+				"T-Gaskühler zu hoch": {
+					"IO-type": "RO-bool"
+				},
+				"T-Gaskühler zu niedrig": {
+					"IO-type": "RO-bool"
+				},
+				"T-Sensor > 55°C": {
+					"IO-type": "RO-bool"
+				},
+				"T-Sensor < 5°C": {
+					"IO-type": "RO-bool"
+				},
+				"Gaskühler-Modul Offline": {
+					"IO-type": "RO-bool"
+				},
+				"T-Vor-Gaskühler zu hoch": {
+					"IO-type": "RO-bool"
+				},
+				"T-Vor-Gaskühler zu niedrig": {
+					"IO-type": "RO-bool"
+				},
+				"O2 [%]": {
+					"IO-type": "RO-bool"
+				},
+				"CO2 [%]": {
+					"IO-type": "RO-bool"
+				},
+				"CH4 [%]": {
+					"IO-type": "RO-bool"
+				},
+				"H2S [ppm]": {
+					"IO-type": "RO-bool"
+				},
+				"H2 [ppm]": {
+					"IO-type": "RO-bool"
+				},
+				"Heizwert [MJ/kg]": {
+					"IO-type": "RO-bool"
+				},
+				"Brennwert [MJ/kg]": {
+					"IO-type": "RO-bool"
+				},
+				"Heizwert [MJ/m³]": {
+					"IO-type": "RO-bool"
+				},
+				"Brennwert [MJ/m³]": {
+					"IO-type": "RO-bool"
+				},
+				"CO [ppm]": {
+					"IO-type": "RO-bool"
+				},
+				"CH4 [ppm]": {
+					"IO-type": "RO-bool"
+				},
+				"CO2 [ppm]": {
+					"IO-type": "RO-bool"
+				},
+				"N2 [%]": {
+					"IO-type": "RO-bool"
+				}
+			}
+		]
+	}
+}
