@@ -208,43 +208,43 @@
 					"IO-type": "RO-bool"
 				},
 				"O2 [%]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"CO2 [%]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"CH4 [%]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"H2S [ppm]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"H2 [ppm]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"Heizwert [MJ/kg]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"Brennwert [MJ/kg]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"Heizwert [MJ/m³]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"Brennwert [MJ/m³]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"CO [ppm]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"CH4 [ppm]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"CO2 [ppm]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"N2 [%]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				}
 			},
 			{
@@ -327,43 +327,43 @@
 					"IO-type": "RO-bool"
 				},
 				"O2 [%]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"CO2 [%]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"CH4 [%]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"H2S [ppm]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"H2 [ppm]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"Heizwert [MJ/kg]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"Brennwert [MJ/kg]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"Heizwert [MJ/m³]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"Brennwert [MJ/m³]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"CO [ppm]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"CH4 [ppm]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"CO2 [ppm]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				},
 				"N2 [%]": {
-					"IO-type": "RO-bool"
+					"IO-type": "RO-numeric"
 				}
 			}
 		]
