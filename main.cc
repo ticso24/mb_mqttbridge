@@ -1432,7 +1432,7 @@ rs485_conductive_level(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, u
 	}
 
 	{
-		auto int_inputs = mb.read_input_registers(address, 0, 9);
+		auto int_inputs = mb.read_input_registers(address, 0, 4);
 		{
 			Array<JSON> adc;
 			adc[0].set_number(S + int_inputs[0]);
