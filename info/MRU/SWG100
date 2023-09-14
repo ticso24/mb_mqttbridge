@@ -1,6 +1,6 @@
 {
-	"vendor": "Bernd Walter Computer Technology",
-	"device": "RS485-THERMOCOUPLE",
+	"vendor": "MRU",
+	"device": "SWG100",
 	"io": {
 		"status": {
 			"Power-On": {
