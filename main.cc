@@ -1123,7 +1123,7 @@ rs485_adc_dac_30(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t
 }
 
 void
-rs485_adc_dac_2(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+rs485_adc_dac_2_dacs(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	for (int64_t i = 0; i <= rxbuf.max; i++) {
 		if (rxbuf[i].topic == maintopic + "/cmd") {
@@ -1149,18 +1149,6 @@ rs485_adc_dac_2(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t 
 	}
 
 	{
-		auto int_inputs = mb.read_input_registers(address, 0, 4);
-		Array<JSON> adc;
-		for (int i = 0; i < 4; i++) {
-			double tmp = int_inputs[i];
-			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
-			tmp = tmp * 11.0 / 1.0; // normalize for input resistors
-			adc[i].set_number(d_to_s(tmp, 3));
-		}
-		mqtt_data["adc"] = adc;
-	}
-
-	{
 		auto int_outputs = mb.read_holding_registers(address, 0, 4);
 		Array<JSON> dac;
 		for (int i = 0; i < 2; i++) {
@@ -1170,6 +1158,24 @@ rs485_adc_dac_2(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t 
 			dac[i].set_number(d_to_s(tmp, 3));
 		}
 		mqtt_data["dac"] = dac;
+	}
+}
+
+void
+rs485_adc_dac_2(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	rs485_adc_dac_2_dacs(mb, rxbuf, mqtt_data, address, maintopic, devdata, dev_cfg);
+
+	{
+		auto int_inputs = mb.read_input_registers(address, 0, 4);
+		Array<JSON> adc;
+		for (int i = 0; i < 4; i++) {
+			double tmp = int_inputs[i];
+			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
+			tmp = tmp * 11.0 / 1.0; // normalize for input resistors
+			adc[i].set_number(d_to_s(tmp, 3));
+		}
+		mqtt_data["adc"] = adc;
 	}
 }
 
@@ -1185,6 +1191,44 @@ rs485_adcp_dac_2(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t
 			double tmp = int_inputs[i * 2] | (int_inputs[i * 2 + 1] << 16);
 			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
 			tmp = tmp * 11.0 / 1.0; // normalize for input resistors
+			adc[i].set_number(d_to_s(tmp, 3));
+		}
+		mqtt_data["adc2"] = adc;
+	}
+}
+
+void
+rs485_adcc_dac_2(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	rs485_adc_dac_2_dacs(mb, rxbuf, mqtt_data, address, maintopic, devdata, dev_cfg);
+
+	{
+		auto int_inputs = mb.read_input_registers(address, 0, 4);
+		Array<JSON> adc;
+		for (int i = 0; i < 4; i++) {
+			double tmp = int_inputs[i];
+			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
+			tmp = tmp * 11.0 / 1.0; // normalize for input resistors
+			// XXX TODO convert to current
+			adc[i].set_number(d_to_s(tmp, 3));
+		}
+		mqtt_data["adc"] = adc;
+	}
+}
+
+void
+rs485_adccp_dac_2(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	rs485_adcc_dac_2(mb, rxbuf, mqtt_data, address, maintopic, devdata, dev_cfg);
+
+	{
+		auto int_inputs = mb.read_input_registers(address, 5, 8);
+		Array<JSON> adc;
+		for (int i = 0; i < 4; i++) {
+			double tmp = int_inputs[i * 2] | (int_inputs[i * 2 + 1] << 16);
+			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
+			tmp = tmp * 11.0 / 1.0; // normalize for input resistors
+			// XXX TODO convert to current
 			adc[i].set_number(d_to_s(tmp, 3));
 		}
 		mqtt_data["adc2"] = adc;
@@ -1742,6 +1786,8 @@ main(int argc, char *argv[]) {
 	devfunctions["Bernd Walter Computer Technology"]["RS485-Valve"] = rs485_valve;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-ADC-DAC-2"] = rs485_adc_dac_2;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-ADCP-DAC-2"] = rs485_adcp_dac_2;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-ADCC-DAC-2"] = rs485_adcc_dac_2;
+	devfunctions["Bernd Walter Computer Technology"]["RS485-ADCCP-DAC-2"] = rs485_adccp_dac_2;
 	devfunctions["Epever"]["Triron"] = Epever_Triron;
 	devfunctions["Epever"]["Tracer"] = Epever_Triron;
 	devfunctions["Shanghai Chujin Electric"]["Panel Powermeter"] = ZGEJ_powermeter;
