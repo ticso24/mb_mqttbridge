@@ -93,6 +93,11 @@ d_to_s(double val, int digits)
 }
 
 void
+empty(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+}
+
+void
 Epever_Triron(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
 {
 	{
@@ -1821,6 +1826,7 @@ main(int argc, char *argv[]) {
 	devfunctions["Bernd Walter Computer Technology"]["RS485-ADCP-DAC-2"] = rs485_adcp_dac_2;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-ADCC-DAC-2"] = rs485_adcc_dac_2;
 	devfunctions["Bernd Walter Computer Technology"]["RS485-ADCCP-DAC-2"] = rs485_adccp_dac_2;
+	devfunctions["Bernd Walter Computer Technology"]["ETH-MULTI-RS485"] = empty;
 	devfunctions["Epever"]["Triron"] = Epever_Triron;
 	devfunctions["Epever"]["Tracer"] = Epever_Triron;
 	devfunctions["Shanghai Chujin Electric"]["Panel Powermeter"] = ZGEJ_powermeter;
