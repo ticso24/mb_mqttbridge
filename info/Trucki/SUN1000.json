@@ -1,0 +1,29 @@
+{
+	"vendor": "Trucki",
+	"device": "SUN1000",
+	"io": {
+		"set power": {
+				"IO-type": "RW-numeric",
+				"Unit": "W"
+		},
+		"output power": {
+				"IO-type": "RO-numeric",
+				"Unit": "W"
+		},
+		"grid voltage": {
+				"IO-type": "RO-numeric",
+				"Unit": "V"
+		},
+		"battery voltage": {
+				"IO-type": "RO-numeric",
+				"Unit": "V"
+		},
+		"DAC value": {
+				"IO-type": "RO-numeric"
+		},
+		"temperature": {
+				"IO-type": "RO-numeric",
+				"Unit": "°C"
+		}
+	}
+}
