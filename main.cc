@@ -1527,12 +1527,12 @@ trucki_sun1000(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t a
 
 	{
 		auto int_inputs = mb.read_holding_registers(address, 0, 8);
-		mqtt_data["set power"].set_number(d_to_s((double)int_inputs[0] / 10, 1));
-		mqtt_data["output power"].set_number(d_to_s((double)int_inputs[1] / 10, 1));
-		mqtt_data["grid voltage"].set_number(d_to_s((double)int_inputs[2] / 10, 1));
-		mqtt_data["battery voltage"].set_number(d_to_s((double)int_inputs[3] / 10, 1));
-		mqtt_data["DAC value"].set_number(d_to_s((double)int_inputs[4] / 10, 1));
-		mqtt_data["temperature"].set_number(d_to_s((double)int_inputs[7] / 10, 1));
+		mqtt_data["set power"].set_number(d_to_s((double)int_inputs[0] / 10.0, 1));
+		mqtt_data["output power"].set_number(d_to_s((double)int_inputs[1] / 10.0, 1));
+		mqtt_data["grid voltage"].set_number(d_to_s((double)int_inputs[2] / 10.0, 1));
+		mqtt_data["battery voltage"].set_number(d_to_s((double)int_inputs[3] / 10.0, 1));
+		mqtt_data["DAC value"].set_number(d_to_s((double)int_inputs[4], 0));
+		mqtt_data["temperature"].set_number(d_to_s((double)int_inputs[7], 0));
 	}
 }
 
