@@ -932,7 +932,7 @@ eth_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address
 	}
 
 	if (version >= 0.8) {
-		auto bin_times = mb.read_input_registers(address, 0, 2 * 8);
+		auto bin_times = mb.read_input_registers(address, 32, 2 * 8);
 
 		Array<JSON> times;
 		for (int i = 0; i < 8; i++) {
