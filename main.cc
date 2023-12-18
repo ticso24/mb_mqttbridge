@@ -890,6 +890,22 @@ eth_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address
 		mqtt_data["pwm_max"] = pwm_max;
 	}
 
+	if (major >= 0 && minor >= 7) {
+		auto bin_counter = mb.read_input_registers(address, 0, 4 * 8);
+
+		Array<JSON> counters;
+		uint64_t vals[8];
+		for (int i = 0; i < 8; i++) {
+			uint64_t tmp = 0;
+			for (int j = 0; j < 4; j++) {
+				tmp |= bin_counter[i * 4 + j] << (j * 16);
+			}
+			counters[i].set_number(S + tmp);
+			vals[i] = tmp;
+		}
+		mqtt_data["counter"] = counters;
+	}
+
 	if (major >= 0 && minor >= 8) {
 		auto bin_times = mb.read_input_registers(address, 32, 2 * 8);
 
