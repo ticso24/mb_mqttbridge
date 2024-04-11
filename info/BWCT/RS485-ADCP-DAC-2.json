@@ -1,6 +1,6 @@
 {
 	"vendor": "Bernd Walter Computer Technology",
-	"device": "RS485-ADC-DAC-2",
+	"device": "RS485-ADCP-DAC-2",
 	"io": {
 		"adc": [
 			{
