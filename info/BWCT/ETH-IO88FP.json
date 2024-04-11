@@ -254,7 +254,7 @@
 				"Unit": "s"
 			}
 		],
-		"counttime_counter": [
+		"counttime_timer": [
 			{
 				"IO-type": "RO-numeric",
 				"Unit": "s"
