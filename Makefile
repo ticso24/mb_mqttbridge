@@ -31,6 +31,13 @@ LDFLAGS = `libbwctmb-config --libs` -lmosquitto
 
 BIN = mb_mqttbridge
 OBJ = main.o mqtt.o
+OBJ += vendor_bwct.o
+OBJ += vendor_trucki.o
+OBJ += vendor_mru.o
+OBJ += vendor_zgej.o
+OBJ += vendor_epever.o
+OBJ += vendor_eastron.o
+
 BINDIR ?= /usr/local/sbin
 
 all: $(BIN)

@@ -28,34 +28,11 @@
  *
  */
 
-#ifndef MAIN
-#define MAIN
+#ifndef VENDOR_BWCT
+#define VENDOR_BWCT
 
 #include <bwctmb/bwctmb.h>
-#include <mosquitto.h>
-#include "mqtt.h"
 
-#ifndef timespecsub
-#define timespecsub(tsp, usp, vsp)                                      \
-        do {                                                            \
-                (vsp)->tv_sec = (tsp)->tv_sec - (usp)->tv_sec;          \
-                (vsp)->tv_nsec = (tsp)->tv_nsec - (usp)->tv_nsec;       \
-                if ((vsp)->tv_nsec < 0) {                               \
-                        (vsp)->tv_sec--;                                \
-                        (vsp)->tv_nsec += 1000000000L;                  \
-                }                                                       \
-        } while (0)
-#endif
+void bwct_register();
 
-int main(int argc, char *argv[]);
-void usage(void);
-void siginit(void);
-void sighandler(int sig);
-
-extern AArray<AArray<void (*)(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)>> devfunctions;
-
-float reg_to_f (uint16_t d0, uint16_t d1);
-String d_to_s(double val, int digits = 3);
-void empty(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg);
-
-#endif /* MAIN */
+#endif /* VENDOR_BWCT */

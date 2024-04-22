@@ -28,34 +28,49 @@
  *
  */
 
-#ifndef MAIN
-#define MAIN
-
+#include "main.h"
 #include <bwctmb/bwctmb.h>
 #include <mosquitto.h>
 #include "mqtt.h"
+#include "vendor_trucki.h"
 
-#ifndef timespecsub
-#define timespecsub(tsp, usp, vsp)                                      \
-        do {                                                            \
-                (vsp)->tv_sec = (tsp)->tv_sec - (usp)->tv_sec;          \
-                (vsp)->tv_nsec = (tsp)->tv_nsec - (usp)->tv_nsec;       \
-                if ((vsp)->tv_nsec < 0) {                               \
-                        (vsp)->tv_sec--;                                \
-                        (vsp)->tv_nsec += 1000000000L;                  \
-                }                                                       \
-        } while (0)
-#endif
+void
+trucki_sun1000(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)
+{
+	for (int64_t i = 0; i <= rxbuf.max; i++) {
+		if (rxbuf[i].topic == maintopic + "/cmd") {
+			JSON json;
+			json.parse(rxbuf[i].message);
+			Array<String> keys = json.get_object().getkeys();
+			for (int64_t j = 0; j <= keys.max; j++) {
+				String key = keys[j];
+				if (key == "set power") {
+					if (json[key].is_number()) {
+						double tmp = json[key].get_numstr().getd();
+						tmp = tmp * 10.0;
+						uint16_t val = tmp;
+						mb.write_register(address, 0, val);
+					}
+				}
+			}
+		}
+	}
 
-int main(int argc, char *argv[]);
-void usage(void);
-void siginit(void);
-void sighandler(int sig);
+	{
+		auto int_inputs = mb.read_holding_registers(address, 0, 8);
+		mqtt_data["set power"].set_number(d_to_s((double)int_inputs[0] / 10.0, 1));
+		mqtt_data["output power"].set_number(d_to_s((double)int_inputs[1] / 10.0, 1));
+		mqtt_data["grid voltage"].set_number(d_to_s((double)int_inputs[2] / 10.0, 1));
+		mqtt_data["battery voltage"].set_number(d_to_s((double)int_inputs[3] / 10.0, 1));
+		mqtt_data["DAC value"].set_number(d_to_s((double)int_inputs[4], 0));
+		mqtt_data["temperature"].set_number(d_to_s((double)int_inputs[7], 0));
+	}
+}
 
-extern AArray<AArray<void (*)(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)>> devfunctions;
-
-float reg_to_f (uint16_t d0, uint16_t d1);
-String d_to_s(double val, int digits = 3);
-void empty(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg);
-
-#endif /* MAIN */
+void
+trucki_register()
+{
+	// register devicefunctions
+	devfunctions["Trucki"]["SUN1000"] = trucki_sun1000;
+	devfunctions["Trucki"]["SUN2000"] = trucki_sun1000;
+}
