@@ -163,9 +163,9 @@ eth_tpr_ldr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 		Array<JSON> ds18b20;
 		int64_t max_sensor = dev_cfg["DS18B20"].get_array().max;
 		for (int64_t i = 0; i <= max_sensor; i++) {
-			int16_t sensor_register = dev_cfg["DS18B20"][i]["register"].get_numstr().getll();
+			uint16_t sensor_register = dev_cfg["DS18B20"][i]["register"].get_numstr().getll();
 			try {
-				uint16_t value = mb.read_input_register(address, sensor_register);
+				int16_t value = mb.read_input_register(address, sensor_register);
 				double temp = (double)value / 16;
 				AArray<JSON> sensor;
 				sensor["temperature"].set_number(d_to_s(temp, 4));
@@ -463,9 +463,9 @@ eth_io88p(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addres
 		Array<JSON> ds18b20;
 		int64_t max_sensor = dev_cfg["DS18B20"].get_array().max;
 		for (int64_t i = 0; i <= max_sensor; i++) {
-			int16_t sensor_register = dev_cfg["DS18B20"][i]["register"].get_numstr().getll();
+			uint16_t sensor_register = dev_cfg["DS18B20"][i]["register"].get_numstr().getll();
 			try {
-				uint16_t value = mb.read_input_register(address, sensor_register);
+				int16_t value = mb.read_input_register(address, sensor_register);
 				double temp = (double)value / 16;
 				AArray<JSON> sensor;
 				sensor["temperature"].set_number(d_to_s(temp, 4));
