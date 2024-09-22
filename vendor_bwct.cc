@@ -684,7 +684,7 @@ rs485_adc_dac_2(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t 
 		Array<JSON> adc;
 		for (int i = 0; i < 4; i++) {
 			double tmp = int_inputs[i];
-			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
+			tmp = tmp / (1 << 12) * 3.3; // normalize for ADC value range
 			tmp = tmp * 11.0 / 1.0; // normalize for input resistors
 			adc[i].set_number(d_to_s(tmp, 3));
 		}
@@ -701,8 +701,8 @@ rs485_adcp_dac_2(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t
 		auto int_inputs = mb.read_input_registers(address, 5, 8);
 		Array<JSON> adc;
 		for (int i = 0; i < 4; i++) {
-			double tmp = int_inputs[i * 2] | (int_inputs[i * 2 + 1] << 16);
-			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
+			double tmp = ((int32_t)int_inputs[i * 2 + 1] << 16) | int_inputs[i * 2];
+			tmp = tmp / (1 << 22) * (3.3 / 2.0); // normalize for ADC value range
 			tmp = tmp * 11.0 / 1.0; // normalize for input resistors
 			adc[i].set_number(d_to_s(tmp, 3));
 		}
@@ -720,9 +720,8 @@ rs485_adcc_dac_2(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t
 		Array<JSON> adc;
 		for (int i = 0; i < 4; i++) {
 			double tmp = int_inputs[i];
-			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
-			tmp = tmp * 11.0 / 1.0; // normalize for input resistors
-			// XXX TODO convert to current
+			tmp = tmp / (1 << 12) * 3.3; // normalize for ADC value range
+			tmp = tmp / 47.0; // normalize for shunt
 			adc[i].set_number(d_to_s(tmp, 3));
 		}
 		mqtt_data["adc"] = adc;
@@ -738,10 +737,9 @@ rs485_adccp_dac_2(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_
 		auto int_inputs = mb.read_input_registers(address, 5, 8);
 		Array<JSON> adc;
 		for (int i = 0; i < 4; i++) {
-			double tmp = int_inputs[i * 2] | (int_inputs[i * 2 + 1] << 16);
-			tmp = tmp / (1 << 10) * 1.1; // normalize for ADC value range
-			tmp = tmp * 11.0 / 1.0; // normalize for input resistors
-			// XXX TODO convert to current
+			double tmp = ((int32_t)int_inputs[i * 2 + 1] << 16) | int_inputs[i * 2];
+			tmp = tmp / (1 << 22) * (3.3 / 2.0); // normalize for ADC value range
+			tmp = tmp / 47.0; // normalize for shunt
 			adc[i].set_number(d_to_s(tmp, 3));
 		}
 		mqtt_data["adc2"] = adc;
