@@ -40,7 +40,7 @@
 #include "vendor_trucki.h"
 
 AArray<AArray<void (*)(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address, const String& maintopic, AArray<String>& devdata, JSON& dev_cfg)>> devfunctions;
-static a_refptr<JSON> config;
+static std::shared_ptr<JSON> config;
 static MQTT main_mqtt;
 
 void
@@ -98,7 +98,7 @@ ModbusLoop(void * arg)
 	int64_t bus = *(int64_t*)arg;
 	delete (int64_t*)arg;
 
-	a_refptr<JSON> my_config = config;
+	auto my_config = config;
 	JSON& cfg = *my_config.get();
 	JSON& bus_cfg = cfg["modbuses"][bus];
 	String host = bus_cfg["host"];
@@ -237,13 +237,12 @@ ModbusLoop(void * arg)
 						time_t uts_time = tp.tv_sec;
 						String date_str;
 						{
-							a_ptr<char> buf;
-							buf = new char[256];
+							char buf[256];
 
 							struct tm stm;
 							localtime_r(&uts_time, &stm);
-							strftime(buf.get(), 256 - 1, "%Y-%m-%dT%H:%M:%S%z", &stm);
-							date_str = buf.get();
+							strftime(buf, 256 - 1, "%Y-%m-%dT%H:%M:%S%z", &stm);
+							date_str = buf;
 						}
 						mqtt_data["time"] = date_str;
 					}
@@ -310,13 +309,13 @@ main(int argc, char *argv[]) {
 		File f;
 		f.open(configfile, O_RDONLY);
 		String json(f);
-		config = new(JSON);
+		config.reset(new(JSON));
 		config->parse(json);
 	}
 
 	mosquitto_lib_init();
 
-	a_refptr<JSON> my_config = config;
+	auto my_config = config;
 	JSON& cfg = *my_config.get();
 
 	if (cfg.exists("mqtt")) {

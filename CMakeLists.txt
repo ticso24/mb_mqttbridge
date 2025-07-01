@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.31)
 
-project("mb_mqttbrdige"
+project("mb_mqttbridge"
 	VERSION 0.9
 )
 
@@ -30,6 +30,8 @@ target_link_libraries(${PROJECT_NAME} /usr/local/lib/libbwct.a)
 target_link_libraries(${PROJECT_NAME} /usr/local/lib/libbwctmb.a)
 target_link_libraries(${PROJECT_NAME} -lpthread)
 target_link_libraries(${PROJECT_NAME} -lcrypt)
+target_link_directories(${PROJECT_NAME} PRIVATE /usr/local/lib)
+target_link_libraries(${PROJECT_NAME} -lmosquitto)
 
 target_sources(${PROJECT_NAME}
 	PRIVATE
