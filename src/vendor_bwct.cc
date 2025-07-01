@@ -41,17 +41,19 @@ eth_tpr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address,
 		if (rxbuf[i].topic == maintopic + "/cmd") {
 			JSON json;
 			json.parse(rxbuf[i].message);
-			Array<String> keys = json.get_object().getkeys();
-			for (int64_t j = 0; j <= keys.max; j++) {
-				String key = keys[j];
-				if (key == "relay") {
-					Array<JSON>& relay = json[key].get_array();
-					for (int64_t x = 0; x <= relay.max && x < 2; x++) {
-						if (relay[x].is_boolean()) {
-							bool val = relay[x];
-							mb.write_coil(address, x, val);
+			for (auto& j: json.get_object()) {
+				switch(std::hash<String>{}(j.first)) {
+				case cstrhash("relay"):
+					{
+						auto& relay = j.second.get_array();
+						for (int64_t x = 0; x <= relay.max && x < 2; x++) {
+							if (relay[x].is_boolean()) {
+								bool val = relay[x];
+								mb.write_coil(address, x, val);
+							}
 						}
 					}
+					break;
 				}
 			}
 		}
@@ -84,17 +86,17 @@ eth_tpr_ldr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 		if (rxbuf[i].topic == maintopic + "/cmd") {
 			JSON json;
 			json.parse(rxbuf[i].message);
-			Array<String> keys = json.get_object().getkeys();
-			for (int64_t j = 0; j <= keys.max; j++) {
-				String key = keys[j];
-				if (key == "relay") {
-					Array<JSON>& relay = json[key].get_array();
+			for (auto& j: json.get_object()) {
+				switch(std::hash<String>{}(j.first)) {
+				case cstrhash("relay"):
+					Array<JSON>& relay = j.second.get_array();
 					for (int64_t x = 0; x <= relay.max && x < 2; x++) {
 						if (relay[x].is_boolean()) {
 							bool val = relay[x];
 							mb.write_coil(address, x, val);
 						}
 					}
+					break;
 				}
 			}
 		}
@@ -184,17 +186,17 @@ rs485_jalousie(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t a
 		if (rxbuf[i].topic == maintopic + "/cmd") {
 			JSON json;
 			json.parse(rxbuf[i].message);
-			Array<String> keys = json.get_object().getkeys();
-			for (int64_t j = 0; j <= keys.max; j++) {
-				String key = keys[j];
-				if (key == "relay") {
-					Array<JSON>& relay = json[key].get_array();
+			for (auto& j: json.get_object()) {
+				switch(std::hash<String>{}(j.first)) {
+				case cstrhash("relay"):
+					Array<JSON>& relay = j.second.get_array();
 					for (int64_t x = 0; x <= relay.max && x < 6; x++) {
 						if (relay[x].is_boolean()) {
 							bool val = relay[x];
 							mb.write_coil(address, x, val);
 						}
 					}
+					break;
 				}
 			}
 		}
@@ -238,11 +240,10 @@ rs485_relais6(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 		if (rxbuf[i].topic == maintopic + "/cmd") {
 			JSON json;
 			json.parse(rxbuf[i].message);
-			Array<String> keys = json.get_object().getkeys();
-			for (int64_t j = 0; j <= keys.max; j++) {
-				String key = keys[j];
-				if (key == "relay") {
-					Array<JSON>& relay = json[key].get_array();
+			for (auto& j: json.get_object()) {
+				switch(std::hash<String>{}(j.first)) {
+				case cstrhash("relay"):
+					Array<JSON>& relay = j.second.get_array();
 					for (int64_t x = 0; x <= relay.max && x < 6; x++) {
 						if (relay[x].is_boolean()) {
 							bool val = relay[x];
@@ -250,6 +251,7 @@ rs485_relais6(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 						}
 					}
 				}
+				break;
 			}
 		}
 	}
@@ -327,41 +329,52 @@ eth_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t address
 		if (rxbuf[i].topic == maintopic + "/cmd") {
 			JSON json;
 			json.parse(rxbuf[i].message);
-			Array<String> keys = json.get_object().getkeys();
-			for (int64_t j = 0; j <= keys.max; j++) {
-				String key = keys[j];
-				if (key == "output") {
-					Array<JSON>& output = json[key].get_array();
-					for (int64_t x = 0; x <= output.max && x < 8; x++) {
-						if (output[x].is_boolean()) {
-							bool val = output[x];
-							mb.write_coil(address, x, val);
+			for (auto& j: json.get_object()) {
+				switch(std::hash<String>{}(j.first)) {
+				case cstrhash("output"):
+					{
+						auto& output = j.second.get_array();
+						for (int64_t x = 0; x <= output.max && x < 8; x++) {
+							if (output[x].is_boolean()) {
+								bool val = output[x];
+								mb.write_coil(address, x, val);
+							}
 						}
 					}
-				} else if (key == "pwm_enable") {
-					Array<JSON>& tmp = json[key].get_array();
-					for (int64_t x = 0; x <= tmp.max && x < 8; x++) {
-						if (tmp[x].is_boolean()) {
-							bool val = tmp[x];
-							mb.write_coil(address, x + 8, val);
+					break;
+				case cstrhash("pwm_enable"):
+					{
+						auto& tmp = j.second.get_array();
+						for (int64_t x = 0; x <= tmp.max && x < 8; x++) {
+							if (tmp[x].is_boolean()) {
+								bool val = tmp[x];
+								mb.write_coil(address, x + 8, val);
+							}
 						}
 					}
-				} else if (key == "pwm_value") {
-					Array<JSON>& tmp = json[key].get_array();
-					for (int64_t x = 0; x <= tmp.max && x < 8; x++) {
-						if (tmp[x].is_number()) {
-							uint16_t val = tmp[x].get_numstr().getll();
-							mb.write_coil(address, x, val);
+					break;
+				case cstrhash("pwm_value"):
+					{
+						auto& tmp = j.second.get_array();
+						for (int64_t x = 0; x <= tmp.max && x < 8; x++) {
+							if (tmp[x].is_number()) {
+								uint16_t val = tmp[x].get_numstr().getll();
+								mb.write_coil(address, x, val);
+							}
 						}
 					}
-				} else if (key == "pwm_max") {
-					Array<JSON>& tmp = json[key].get_array();
-					for (int64_t x = 0; x <= tmp.max && x < 8; x++) {
-						if (tmp[x].is_number()) {
-							uint16_t val = tmp[x].get_numstr().getll();
-							mb.write_coil(address, x + 8, val);
+					break;
+				case cstrhash("pwm_max"):
+					{
+						auto& tmp = j.second.get_array();
+						for (int64_t x = 0; x <= tmp.max && x < 8; x++) {
+							if (tmp[x].is_number()) {
+								uint16_t val = tmp[x].get_numstr().getll();
+								mb.write_coil(address, x + 8, val);
+							}
 						}
 					}
+					break;
 				}
 			}
 		}
@@ -484,25 +497,30 @@ rs485_io88(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addre
 		if (rxbuf[i].topic == maintopic + "/cmd") {
 			JSON json;
 			json.parse(rxbuf[i].message);
-			Array<String> keys = json.get_object().getkeys();
-			for (int64_t j = 0; j <= keys.max; j++) {
-				String key = keys[j];
-				if (key == "output") {
-					Array<JSON>& output = json[key].get_array();
-					for (int64_t x = 0; x <= output.max && x < 8; x++) {
-						if (output[x].is_boolean()) {
-							bool val = output[x];
-							mb.write_coil(address, x, val);
+			for (auto& j: json.get_object()) {
+				switch(std::hash<String>{}(j.first)) {
+				case cstrhash("output"):
+					{
+						auto& output = j.second.get_array();
+						for (int64_t x = 0; x <= output.max && x < 8; x++) {
+							if (output[x].is_boolean()) {
+								bool val = output[x];
+								mb.write_coil(address, x, val);
+							}
 						}
 					}
-				} else if (key == "pwm") {
-					Array<JSON>& pwm = json[key].get_array();
-					for (int64_t x = 0; x <= pwm.max; x++) {
-						if (pwm[x].is_number()) {
-							uint16_t val = pwm[x].get_numstr().getll();
-							mb.write_register(address, x, val);
+					break;
+				case cstrhash("pwm"):
+					{
+						auto& pwm = j.second.get_array();
+						for (int64_t x = 0; x <= pwm.max; x++) {
+							if (pwm[x].is_number()) {
+								uint16_t val = pwm[x].get_numstr().getll();
+								mb.write_register(address, x, val);
+							}
 						}
 					}
+					break;
 				}
 			}
 		}
@@ -536,20 +554,22 @@ rs485_adc_dac(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 		if (rxbuf[i].topic == maintopic + "/cmd") {
 			JSON json;
 			json.parse(rxbuf[i].message);
-			Array<String> keys = json.get_object().getkeys();
-			for (int64_t j = 0; j <= keys.max; j++) {
-				String key = keys[j];
-				if (key == "dac") {
-					Array<JSON>& dac = json[key].get_array();
-					for (int64_t x = 0; x <= dac.max && x < 2; x++) {
-						if (dac[x].is_number()) {
-							double tmp = dac[x].get_numstr().getd();
-							tmp = tmp / 11.0 * 1.0; // normalize for output resistors
-							tmp = tmp * (1 << 12) / 2.048; // normalize for DAC value range
-							uint16_t val = tmp;
-							mb.write_register(address, x, val);
+			for (auto& j: json.get_object()) {
+				switch(std::hash<String>{}(j.first)) {
+				case cstrhash("dac"):
+					{
+						auto& dac = j.second.get_array();
+						for (int64_t x = 0; x <= dac.max && x < 2; x++) {
+							if (dac[x].is_number()) {
+								double tmp = dac[x].get_numstr().getd();
+								tmp = tmp / 11.0 * 1.0; // normalize for output resistors
+								tmp = tmp * (1 << 12) / 2.048; // normalize for DAC value range
+								uint16_t val = tmp;
+								mb.write_register(address, x, val);
+							}
 						}
 					}
+					break;
 				}
 			}
 		}
@@ -589,20 +609,22 @@ rs485_adc_dac_30(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t
 		if (rxbuf[i].topic == maintopic + "/cmd") {
 			JSON json;
 			json.parse(rxbuf[i].message);
-			Array<String> keys = json.get_object().getkeys();
-			for (int64_t j = 0; j <= keys.max; j++) {
-				String key = keys[j];
-				if (key == "dac") {
-					Array<JSON>& dac = json[key].get_array();
-					for (int64_t x = 0; x <= dac.max && x < 2; x++) {
-						if (dac[x].is_number()) {
-							double tmp = dac[x].get_numstr().getd();
-							tmp = tmp / 11.0 * 1.0; // normalize for output resistors
-							tmp = tmp * (1 << 12) / 2.048; // normalize for DAC value range
-							uint16_t val = tmp;
-							mb.write_register(address, x, val);
+			for (auto& j: json.get_object()) {
+				switch(std::hash<String>{}(j.first)) {
+				case cstrhash("dac"):
+					{
+						auto& dac = j.second.get_array();
+						for (int64_t x = 0; x <= dac.max && x < 2; x++) {
+							if (dac[x].is_number()) {
+								double tmp = dac[x].get_numstr().getd();
+								tmp = tmp / 11.0 * 1.0; // normalize for output resistors
+								tmp = tmp * (1 << 12) / 2.048; // normalize for DAC value range
+								uint16_t val = tmp;
+								mb.write_register(address, x, val);
+							}
 						}
 					}
+					break;
 				}
 			}
 		}
@@ -642,20 +664,22 @@ rs485_adc_dac_2_dacs(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uin
 		if (rxbuf[i].topic == maintopic + "/cmd") {
 			JSON json;
 			json.parse(rxbuf[i].message);
-			Array<String> keys = json.get_object().getkeys();
-			for (int64_t j = 0; j <= keys.max; j++) {
-				String key = keys[j];
-				if (key == "dac") {
-					Array<JSON>& dac = json[key].get_array();
-					for (int64_t x = 0; x <= dac.max && x < 2; x++) {
-						if (dac[x].is_number()) {
-							double tmp = dac[x].get_numstr().getd();
-							tmp = tmp / 11.0 * 1.0; // normalize for output resistors
-							tmp = tmp * (1 << 12) / 2.048; // normalize for DAC value range
-							uint16_t val = tmp;
-							mb.write_register(address, x, val);
+			for (auto& j: json.get_object()) {
+				switch(std::hash<String>{}(j.first)) {
+				case cstrhash("dac"):
+					{
+						auto& dac = j.second.get_array();
+						for (int64_t x = 0; x <= dac.max && x < 2; x++) {
+							if (dac[x].is_number()) {
+								double tmp = dac[x].get_numstr().getd();
+								tmp = tmp / 11.0 * 1.0; // normalize for output resistors
+								tmp = tmp * (1 << 12) / 2.048; // normalize for DAC value range
+								uint16_t val = tmp;
+								mb.write_register(address, x, val);
+							}
 						}
 					}
+					break;
 				}
 			}
 		}
@@ -850,16 +874,20 @@ rs485_valve(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 		if (rxbuf[i].topic == maintopic + "/cmd") {
 			JSON json;
 			json.parse(rxbuf[i].message);
-			Array<String> keys = json.get_object().getkeys();
-			for (int64_t j = 0; j <= keys.max; j++) {
-				String key = keys[j];
-				if (key == "speed") {
-					uint16_t val = json[key].get_numstr().getll();
-					mb.write_register(address, 0, val);
-				}
-				if (key == "position") {
-					double val = json[key].get_numstr().getd();
-					mb.write_register(address, 1, (int16_t)(val * 100.0));
+			for (auto& j: json.get_object()) {
+				switch(std::hash<String>{}(j.first)) {
+				case cstrhash("speed"):
+					{
+						uint16_t val = j.second.get_numstr().getll();
+						mb.write_register(address, 0, val);
+					}
+					break;
+				case cstrhash("position"):
+					{
+						double val = j.second.get_numstr().getd();
+						mb.write_register(address, 1, (int16_t)(val * 100.0));
+					}
+					break;
 				}
 			}
 		}
@@ -895,24 +923,32 @@ rs485_chamberpump(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_
 		if (rxbuf[i].topic == maintopic + "/cmd") {
 			JSON json;
 			json.parse(rxbuf[i].message);
-			Array<String> keys = json.get_object().getkeys();
-			for (int64_t j = 0; j <= keys.max; j++) {
-				String key = keys[j];
-				if (key == "triggerlevel_top") {
-					uint16_t val = json[key].get_numstr().getll();
-					mb.write_register(address, 0, val);
-				}
-				if (key == "triggerlevel_bottom") {
-					uint16_t val = json[key].get_numstr().getll();
-					mb.write_register(address, 1, val);
-				}
-				if (key == "start_trigger") {
-					bool val = json[key];
-					mb.write_coil(address, 1, val);
-				}
-				if (key == "auto_start") {
-					bool val = json[key];
-					mb.write_coil(address, 0, val);
+			for (auto& j: json.get_object()) {
+				switch(std::hash<String>{}(j.first)) {
+				case cstrhash("triggerlevel_top"):
+					{
+						uint16_t val = j.second.get_numstr().getll();
+						mb.write_register(address, 0, val);
+					}
+					break;
+				case cstrhash("triggerlevel_bottom"):
+					{
+						uint16_t val = j.second.get_numstr().getll();
+						mb.write_register(address, 1, val);
+					}
+					break;
+				case cstrhash("start_trigger"):
+					{
+						bool val = j.second;
+						mb.write_coil(address, 1, val);
+					}
+					break;
+				case cstrhash("auto_start"):
+					{
+						bool val = j.second;
+						mb.write_coil(address, 0, val);
+					}
+					break;
 				}
 			}
 		}
@@ -970,17 +1006,19 @@ rs485_conductive_level(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, u
 		if (rxbuf[i].topic == maintopic + "/cmd") {
 			JSON json;
 			json.parse(rxbuf[i].message);
-			Array<String> keys = json.get_object().getkeys();
-			for (int64_t j = 0; j <= keys.max; j++) {
-				String key = keys[j];
-				if (key == "output") {
-					Array<JSON>& output = json[key].get_array();
-					for (int64_t x = 0; x <= output.max && x < 4; x++) {
-						if (output[x].is_boolean()) {
-							bool val = output[x];
-							mb.write_coil(address, x, val);
+			for (auto& j: json.get_object()) {
+				switch(std::hash<String>{}(j.first)) {
+				case cstrhash("output"):
+					{
+						auto& output = j.second.get_array();
+						for (int64_t x = 0; x <= output.max && x < 4; x++) {
+							if (output[x].is_boolean()) {
+								bool val = output[x];
+								mb.write_coil(address, x, val);
+							}
 						}
 					}
+					break;
 				}
 			}
 		}
