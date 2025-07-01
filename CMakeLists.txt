@@ -33,7 +33,14 @@ target_link_libraries(${PROJECT_NAME} -lcrypt)
 
 target_sources(${PROJECT_NAME}
 	PRIVATE
-		src/mb_tcpclient.cc
+		src/main.cc
+		src/mqtt.cc
+		src/vendor_bwct.cc
+		src/vendor_eastron.cc
+		src/vendor_epever.cc
+		src/vendor_mru.cc
+		src/vendor_trucki.cc
+		src/vendor_zgej.cc
 )
 
 include(GNUInstallDirs)

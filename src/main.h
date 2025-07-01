@@ -32,6 +32,8 @@
 #define MAIN
 
 #include <bwctmb/bwctmb.h>
+using namespace bwct;
+
 #include <mosquitto.h>
 #include "mqtt.h"
 
