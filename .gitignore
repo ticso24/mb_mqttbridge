@@ -1,3 +1,4 @@
 mb_mqttbridge
-*.o
-*.tmp
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake

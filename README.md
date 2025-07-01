@@ -10,7 +10,7 @@ For non TCP devices it is expected to run a bridge device or software, like the 
 [Mosquitto](https://mosquitto.org/) client libraries are required
 
 ```sh
-make
+cmake .
 make install
 ```
 
