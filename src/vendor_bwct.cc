@@ -89,7 +89,7 @@ eth_tpr_ldr(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t addr
 			for (auto& j: json.get_object()) {
 				switch(std::hash<String>{}(j.first)) {
 				case cstrhash("relay"):
-					Array<JSON>& relay = j.second.get_array();
+					auto& relay = j.second.get_array();
 					for (int64_t x = 0; x <= relay.max && x < 2; x++) {
 						if (relay[x].is_boolean()) {
 							bool val = relay[x];
@@ -189,7 +189,7 @@ rs485_jalousie(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t a
 			for (auto& j: json.get_object()) {
 				switch(std::hash<String>{}(j.first)) {
 				case cstrhash("relay"):
-					Array<JSON>& relay = j.second.get_array();
+					auto& relay = j.second.get_array();
 					for (int64_t x = 0; x <= relay.max && x < 6; x++) {
 						if (relay[x].is_boolean()) {
 							bool val = relay[x];
@@ -243,7 +243,7 @@ rs485_relais6(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t ad
 			for (auto& j: json.get_object()) {
 				switch(std::hash<String>{}(j.first)) {
 				case cstrhash("relay"):
-					Array<JSON>& relay = j.second.get_array();
+					auto& relay = j.second.get_array();
 					for (int64_t x = 0; x <= relay.max && x < 6; x++) {
 						if (relay[x].is_boolean()) {
 							bool val = relay[x];
