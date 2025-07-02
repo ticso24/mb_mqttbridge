@@ -41,11 +41,11 @@ trucki_sun1000(Modbus& mb, Array<MQTT::RXbuf>& rxbuf, JSON& mqtt_data, uint8_t a
 		if (rxbuf[i].topic == maintopic + "/cmd") {
 			JSON json;
 			json.parse(rxbuf[i].message);
-			for (auto& j: json.get_object()) {
-				switch(std::hash<String>{}(j.first)) {
+			for (auto const& [key, value]: json.get_object()) {
+				switch(std::hash<String>{}(key)) {
 				case cstrhash("set power"):
-					if (j.second.is_number()) {
-						double tmp = j.second.get_numstr().getd();
+					if (value.is_number()) {
+						double tmp = value.get_numstr().getd();
 						tmp = tmp * 10.0;
 						uint16_t val = tmp;
 						mb.write_register(address, 0, val);
