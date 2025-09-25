@@ -11,6 +11,7 @@ For non TCP devices it is expected to run a bridge device or software, like the 
 
 ```sh
 cmake .
+make
 make install
 ```
 
